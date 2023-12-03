@@ -1,31 +1,4 @@
-/* Include directives */
-#include <vector>
-#include <list>
-#include "gauss_hermite_quadrature.cpp"
-#include <complex>
-#include "math_utils.cpp"
-
-/* General definitions */
-#define DIMENSION_COUNT 2
-#define DIRECTION_COUNT 9
-#define TIME_STEP 1
-#define SPACE_STEP 1
-#define MOLECULAR_MASS 1
-#define VERTICAL_NODES 100
-#define HORIZONTAL_NODES 100
-#define TOTAL_NODE_COUNT VERTICAL_NODES * HORIZONTAL_NODES
-#define SPEED_OF_SOUND 340 
-#define TEMPERATURE 20
-#define BOLTZMANN_CONSTANT 1.380649e-23
-#define RELAXATION_FREQUENCY 1
-
-/* Velocity vectors */
-std::map<int, std::array<double,2>> velocity_vectors 
-{
-    {6, {-1, 1}},  {7, {0, -1}}, {8, {1, 1}},   
-    {3, {-1, 0}},  {4, {0, 0}},  {5, {1, 0}},   
-    {0, {-1, -1}}, {1, {0, -1}}, {2, {1, -1}}   
-};
+#include "defines.hpp" 
 
 /**
  * @brief This namespace contains functions that map input values to array index accesses.
@@ -76,53 +49,15 @@ namespace access
      * @param y y coordinate
      * @return the index of the desired note
      */
-    inline unsigned int node(unsigned int x, unsigned int y)
+    inline unsigned int get_node_index(unsigned int x, unsigned int y)
     {
         return x + y * HORIZONTAL_NODES;
     }
-
 }
 
 /**
- * @brief This namespace contains all function representations of boundary conditions used in the lattice-Boltzmann model.
+ * @brief This namespace contains utility functions for semi-direct access schemes.
  */
-namespace boundary_conditions
-{
-
-}
-
-/**
- * @brief This namespace contains all functions used in the lattice-Boltzmann model.
- */
-namespace distribution_functions
-{
-
-    /**
-     * @brief The Maxwell-Boltzmann-Distribution marks the equilibrium distribution of particles.
-     * 
-     * @param u two-dimensional velocity vector
-     * @param rho density
-     * @param direction direction according to the scheme proposed by Mattila et al.
-     * @return the probability of there being a particle with velocity v_direction 
-     */
-    double maxwell_boltzmann_distribution (std::array<double, 2> u, double rho, unsigned int direction)
-    {
-        /*
-        std::array<int, DIMENSION_COUNT> c_i = velocity_vectors[direction];
-        double quadratic = (1 / pow(SPEED_OF_SOUND, 2)) * u[0] * c_i[0];
-        double power_four_term = (1 / 2 * pow(SPEED_OF_SOUND, 4)) *  
-                                    (
-                                        pow(u[0], 2) * (pow(c_i[0], 2) - 1) 
-                                        + 2 * u[0] * u[1] * c_i[0] * c_i[1]
-                                        + pow(u[1], 2) * (pow(c_i[1], 2))
-                                    );
-        return weights[direction] * rho * quadratic * power_four_term;
-        */
-       return weights[direction] * rho * (1 + 3 * math_utils::dot(velocity_vectors[direction], u) 
-        + 9.0/2 * pow(math_utils::dot(velocity_vectors[direction], u), 2) - 3.0/2 * math_utils::dot(velocity_vectors[direction], u));
-    }
-}
-
 namespace semi_direct_access
 {
     /**
@@ -134,15 +69,15 @@ namespace semi_direct_access
      * @param phase_space a vector containing the phase information for each node where "true" means solid
      * @return a vector containing the fluid segments in the explained arrangement
      */
-    std::vector<unsigned int> get_fluid_segments(std::vector<bool> phase_space)
+    std::vector<unsigned int> get_fluid_segments(std::vector<bool> node_phases)
     {
         unsigned int index = 0;
         unsigned int consecution = 0;
         std::list<unsigned int> fluid_segments;
 
-        while (index < size(phase_space))
+        while (index < size(node_phases))
         {
-            if (!phase_space[index + consecution]) consecution++; // Hit fluid node
+            if (!node_phases[index + consecution]) consecution++; // Hit fluid node
             else if (consecution > 0) // Hit solid node that marks the end of a line of consecutive fluid nodes
             {
                 fluid_segments.push_back(index);
@@ -161,4 +96,3 @@ namespace semi_direct_access
         return result;
     }
 }
-

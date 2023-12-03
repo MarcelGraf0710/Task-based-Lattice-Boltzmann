@@ -1,5 +1,5 @@
-#include "defines.hpp"
 #include <iostream>
+#include "defines.hpp"
 
 int main()
 {

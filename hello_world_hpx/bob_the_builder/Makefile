@@ -57,10 +57,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = "/home/marcel/Documents/CPP_projects/Task-Based Lattice-Boltzmann/hello_world_hpx"
+CMAKE_SOURCE_DIR = /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/hello_world_hpx
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = "/home/marcel/Documents/CPP_projects/Task-Based Lattice-Boltzmann/hello_world_hpx/bob_the_builder"
+CMAKE_BINARY_DIR = /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/hello_world_hpx/bob_the_builder
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -87,9 +87,9 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start "/home/marcel/Documents/CPP_projects/Task-Based Lattice-Boltzmann/hello_world_hpx/bob_the_builder/CMakeFiles" "/home/marcel/Documents/CPP_projects/Task-Based Lattice-Boltzmann/hello_world_hpx/bob_the_builder//CMakeFiles/progress.marks"
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/hello_world_hpx/bob_the_builder/CMakeFiles /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/hello_world_hpx/bob_the_builder//CMakeFiles/progress.marks
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start "/home/marcel/Documents/CPP_projects/Task-Based Lattice-Boltzmann/hello_world_hpx/bob_the_builder/CMakeFiles" 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/hello_world_hpx/bob_the_builder/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
