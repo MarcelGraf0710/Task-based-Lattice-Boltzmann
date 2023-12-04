@@ -31,6 +31,23 @@ namespace boundaries
     };
 
     /**
+     * @brief This map contains the directions that each kind of border node is facing a neighbor node,
+     *        i.e. it contains all directions that perform actual streams.
+     * 
+     */
+    std::map<boundary_tuple, std::list<int>> neighbor_directions
+    {
+        {inlet, {1,2,5,7,8}},
+        {outlet, {0,1,3,6,7}},
+        {lower_inlet, {5,7,8}},
+        {upper_inlet, {1,2,5}},
+        {lower_outlet, {3,6,7}},
+        {upper_outlet, {0,1,3}},
+        {wall_up, {0,1,2,3,5}},
+        {wall_down, {3,5,6,7,8}},
+    };
+
+    /**
      * @brief Performs the streaming step for a node that borders an inlet within the simulation domain.
      *        Note that in this case, it borders only an inlet and not a wall!
      * 
