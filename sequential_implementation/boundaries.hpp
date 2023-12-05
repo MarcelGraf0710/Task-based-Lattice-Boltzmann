@@ -1,5 +1,10 @@
 #include "defines.hpp"
 #include <optional>
+/**
+ * @brief This type stands for an access function. Node values can be stored in different layout and via this function,
+ *        the corresponding access scheme can be specified.
+ */
+typedef std::function<unsigned int(unsigned int, unsigned int)> access_function;
 
 /**
  * @brief This namespace contains all function representations of boundary conditions used in the lattice-Boltzmann model.
@@ -33,7 +38,6 @@ namespace boundaries
     /**
      * @brief This map contains the directions that each kind of border node is facing a neighbor node,
      *        i.e. it contains all directions that perform actual streams.
-     * 
      */
     std::map<boundary_tuple, std::list<int>> neighbor_directions
     {
@@ -48,217 +52,278 @@ namespace boundaries
     };
 
     /**
-     * @brief Performs the streaming step for a node that borders an inlet within the simulation domain.
+     * @brief Utility function that gets all distribution values from the specified source using the specified access function.
+     * 
+     * @param source this array contains the distribution values of all nodes
+     * @param access_function this access function is used to retrieve the distribution values from the source array
+     * @param node_index this is the index the node has within the access pattern
+     * @return an array containing all distribution values
+     */
+    inline arr_of_dist_val get_all_distribution_values(
+        std::array<double, 15UL> &source, 
+        access_function &access_function, 
+        unsigned int node_index)
+    {
+        arr_of_dist_val result;
+        for (int direction = 0; direction < DIRECTION_COUNT; ++direction)
+        {
+            result[direction] = source[access_function(node_index, direction)];
+        }
+        return result;
+    }
+
+    /**
+     * @brief Utility function to update all specified distribution values at the specified destination using the specified access function.
+     * 
+     * @tparam d defines the length of the array of changes (should be assigned automatically, can be ignored)
+     * @param changes an array containing all directions that were changed
+     * @param destination this array contains the distribution values of all nodes
+     * @param access_function this access function is used to determine the indices of the directions within the destination array
+     * @param node_index the index of the node whose distribution values are updated
+     * @param dist_values an array containing all distribution values of the specified node (can be optimized, I know...)
+     */
+    template <unsigned long d>
+    inline void write_updated_border_values(
+        std::array<unsigned int, d> &changes, 
+        std::array<double, 15UL> &destination, 
+        access_function &access_function, 
+        unsigned int node_index, 
+        arr_of_dist_val &dist_values)
+    {
+        for (auto direction : changes)
+        {
+            destination[access_function(node_index, direction)] = dist_values[direction];
+        }
+    }
+
+    /**
+     * @brief Performs the after-streaming value update for a node that borders an inlet within the simulation domain.
      *        Note that in this case, it borders only an inlet and not a wall!
-     * 
-     * @param density The density at the inlet at this node
-     * @param velocity_x The stream velocity at this node in x-direction 
-     *                   (note that the velocity in y-direction is assumed to be 0)
-     * @param f an array containing all valid incoming distributions
-     *          distributions that are not involved may be initialized arbitrarily as they will not be used anyways
-     * @return an array containing the correct distribution values for the stream step
+     *      
+     * @param destination the array containing the distribution values for the current node
+     * @param access_function the access pattern of the corresponding destination array
+     * @param y the y coordinate of the inlet node (given that the x coordinate is 0)
+     * @param velocity_x the velocity in x direction of this node (default value is INLET_VELOCITY)
+     * @param density the density at this node (default value is INLET_DENSITY)
      */
-    arr_of_dist_val inlet_boundary_stream(arr_of_dist_val f, double velocity_x = INLET_VELOCITY, double density = INLET_DENSITY)
+    void inlet_boundary_stream(
+        std::array<double, 15UL> &destination, 
+        access_function &access_function, 
+        int y,
+        double velocity_x = INLET_VELOCITY, 
+        double density = INLET_DENSITY)
     {
-        arr_of_dist_val result = f;
+        arr_of_dist_val result;
+        unsigned int node_index = access::get_node_index(0, y);
+        result = get_all_distribution_values(destination, access_function, node_index);
         double rho_times_u_x = 1.0/6 * density * velocity_x;
-        result[5] = f[3] + 2.0/3 * density * velocity_x;
-        result[8] = f[0] - 0.5 * (f[7] - f[1]) + rho_times_u_x;
-        result[2] = f[6] + 0.5 * (f[7] - f[1]) + rho_times_u_x;
 
-        return result;
+        std::array<unsigned int, 3> changes = {5, 8, 2};
+        result[5] = result[3] + 2.0/3 * density * velocity_x;
+        result[8] = result[0] - 0.5 * (result[7] - result[1]) + rho_times_u_x;
+        result[2] = result[6] + 0.5 * (result[7] - result[1]) + rho_times_u_x;
+        
+        write_updated_border_values(changes, destination, access_function, node_index, result);
     }
 
     /**
-     * @brief Performs the streaming step for a node that borders an outlet within the simulation domain.
+     * @brief Performs the after-streaming value update for a node that borders an outlet within the simulation domain.
      *        Note that in this case, it borders only an outlet and not a wall!
-     * 
-     * @param density The density at the outlet at this node
-     * @param velocity_x The stream velocity at this node in x-direction 
-     *                   (note that the velocity in y-direction is assumed to be 0)
-     * @param f an array containing all valid incoming distributions
-     *          distributions that are not involved may be initialized arbitrarily as they will not be used anyways
-     * @return an array containing the correct distribution values for the stream step
+     *      
+     * @param destination the array containing the distribution values for the current node
+     * @param access_function the access pattern of the corresponding destination array
+     * @param y the y coordinate of the outlet node (given that the x coordinate is HORIZONTAL_NODES - 1)
+     * @param velocity_x the velocity in x direction of this node
+     * @param density the density at this node (default value is INLET_DENSITY as the general assumption is an uncompressible stream)
      */
-    arr_of_dist_val outlet_boundary_stream(arr_of_dist_val f, double velocity_x, double density = OUTLET_DENSITY)
+    void outlet_boundary_stream(
+        std::array<double, 15UL> &destination, 
+        access_function &access_function, 
+        int y, 
+        double velocity_x, 
+        double density = OUTLET_DENSITY)
     {
-        arr_of_dist_val result = f;
+        arr_of_dist_val result;
+        unsigned int node_index = access::get_node_index(HORIZONTAL_NODES - 1, y);
+        result = get_all_distribution_values(destination, access_function, node_index);
         double rho_times_u_x = 1.0/6 * density * velocity_x;
-        result[3] = f[5] - 2.0/3 * density * velocity_x;
-        result[0] = f[8] + 0.5 * (f[7] - f[1]) - rho_times_u_x;
-        result[6] = f[2] - 0.5 * (f[7] - f[1]) - rho_times_u_x;
 
-        return result;
+        std::array<unsigned int, 3> changes = {5, 8, 2};
+        result[3] = result[5] - 2.0/3 * density * velocity_x;
+        result[0] = result[8] + 0.5 * (result[7] - result[1]) - rho_times_u_x;
+        result[6] = result[2] - 0.5 * (result[7] - result[1]) - rho_times_u_x;
+
+        write_updated_border_values(changes, destination, access_function, node_index, result);
     }
 
     /**
-     * @brief Performs the stream step for a node that is bordered by a lower wall of a simulation domain.
-     * 
-     * @param wall_velocity this velocity is assumed to be specified at the bordering wall.
-     * @param f an array containing all valid incoming distributions
-     *          distributions that are not involved may be initialized arbitrarily as they will not be used anyways
-     * @return a tuple containing both the correct distribution values and the density (as the latter is needed in calculations anyways)
+     * @brief Performs the after-streaming value update for a node that borders a lower wall within the simulation domain.
+     *        Note that in this case, it borders only a lower wall and not an inlet or outlet!
+     *      
+     * @param destination the array containing the distribution values for the current node
+     * @param access_function the access pattern of the corresponding destination array
+     * @param x the x coordinate of the node (given that the y coordinate is 0)
+     * @param wall_velocity the velocity at the wall (default is {0,0})
+     * @return the density at this node (as it is needed for calculations anyways)
      */
-    std::tuple<arr_of_dist_val, double> lower_wall_boundary_stream(velocity wall_velocity, arr_of_dist_val f)
+    double lower_wall_boundary_stream(       
+        std::array<double, 15UL> &destination, 
+        access_function &access_function, 
+        int x, 
+        velocity wall_velocity = {0,0})
     {
-        arr_of_dist_val result = f;
-        double density = 1 / (1 - wall_velocity[1]) * (f[4] + f[5] + f[3] + 2 * (f[1] + f[0] + f[2]));
+        arr_of_dist_val result;
+        unsigned int node_index = access::get_node_index(x, 0);
+        result = get_all_distribution_values(destination, access_function, node_index);
+        double density = 1 / (1 - wall_velocity[1]) * (result[4] + result[5] + result[3] + 2 * (result[1] + result[0] + result[2]));
 
         double rho_times_u_x = 0.5 * density * wall_velocity[0];
         double rho_times_u_y = 1.0/6 * density * wall_velocity[1];
 
-        result[7] = f[1] + 2.0/3 * density * wall_velocity[1];
-        result[8] = f[0] + 0.5 * (f[5] - f[3]) + rho_times_u_x + rho_times_u_y;
-        result[6] = f[2] + 0.5 * (f[5] - f[3]) - rho_times_u_x + rho_times_u_y;
+        std::array<unsigned int, 3> changes = {6,7,8};
+        result[7] = result[1] + 2.0/3 * density * wall_velocity[1];
+        result[8] = result[0] + 0.5 * (result[5] - result[3]) + rho_times_u_x + rho_times_u_y;
+        result[6] = result[2] + 0.5 * (result[5] - result[3]) - rho_times_u_x + rho_times_u_y;
 
-        std::tuple<arr_of_dist_val, double> result_tuple(result, density);
-        return result_tuple;
+        write_updated_border_values(changes, destination, access_function, node_index, result);
+        return density;
     }
 
     /**
-     * @brief Performs the stream step for a node that is bordered by an upper wall of a simulation domain.
-     * 
-     * @param wall_velocity this velocity is assumed to be specified at the bordering wall.
-     * @param f an array containing all valid incoming distributions
-     *          distributions that are not involved may be initialized arbitrarily as they will not be used anyways
-     * @return a tuple containing both the correct distribution values and the density (as the latter is needed in calculations anyways)
+     * @brief Performs the after-streaming value update for a node that borders an upper wall within the simulation domain.
+     *        Note that in this case, it borders only an upper wall and not an inlet or outlet!
+     *      
+     * @param destination the array containing the distribution values for the current node
+     * @param access_function the access pattern of the corresponding destination array
+     * @param x the x coordinate of the node (given that the y coordinate is VERTICAL_NODES - 1)
+     * @param wall_velocity the velocity at the wall (default is {0,0})
+     * @return the density at this node (as it is needed for calculations anyways)
      */
-    std::tuple<arr_of_dist_val, double> upper_wall_boundary_stream(velocity wall_velocity, arr_of_dist_val f)
+    double upper_wall_boundary_stream(        
+        std::array<double, 15UL> &destination, 
+        access_function &access_function, 
+        int x, 
+        velocity wall_velocity = {0,0})
     {
-        arr_of_dist_val result = f;
-        double density = 1 / (1 - wall_velocity[1]) * (f[4] + f[5] + f[3] + 2 * (f[1] + f[0] + f[2]));
+        arr_of_dist_val result;
+        unsigned int node_index = access::get_node_index(x, VERTICAL_NODES - 1);
+        result = get_all_distribution_values(destination, access_function, node_index);
+        double density = 1 / (1 - wall_velocity[1]) * (result[4] + result[5] + result[3] + 2 * (result[1] + result[0] + result[2]));
+        double density = 1 / (1 - wall_velocity[1]) * (result[4] + result[5] + result[3] + 2 * (result[1] + result[0] + result[2]));
 
         double rho_times_u_x = 0.5 * density * wall_velocity[0];
         double rho_times_u_y = 1.0/6 * density * wall_velocity[1];
 
-        result[1] = f[7] - 2.0/3 * density * wall_velocity[1];
-        result[0] = f[8] - 0.5 * (f[3] - f[5]) - rho_times_u_x - rho_times_u_y;
-        result[2] = f[6] + 0.5 * (f[3] - f[5]) + rho_times_u_x - rho_times_u_y;
+        std::array<unsigned int, 3> changes = {0,1,2};
+        result[1] = result[7] - 2.0/3 * density * wall_velocity[1];
+        result[0] = result[8] - 0.5 * (result[3] - result[5]) - rho_times_u_x - rho_times_u_y;
+        result[2] = result[6] + 0.5 * (result[3] - result[5]) + rho_times_u_x - rho_times_u_y;
 
-        std::tuple<arr_of_dist_val, double> result_tuple(result, density);
-        return result_tuple;
+        write_updated_border_values(changes, destination, access_function, node_index, result);
+        return density;
     }
 
     /**
-     * @brief Performs the stream step for a node that is bordered by a lower wall and an inlet of a simulation domain.
+     * @brief Performs the after-stream update for a node that is bordered by a lower wall and an inlet of a simulation domain.
      * 
-     * @param f an array containing all valid incoming distributions
-     *          distributions that are not involved may be initialized arbitrarily as they will not be used anyways
-     * @param density the density at the inlet
-     * @return an array containing the correct distribution values for the stream step
+     * @param access_function the access pattern of the corresponding destination array
+     * @param destination the array containing the distribution values for the current node
+     * @param density the density at this node (default value is INLET_DENSITY)
      */
-    arr_of_dist_val lower_inlet_boundary_stream(arr_of_dist_val f, double density = INLET_DENSITY)
+    void lower_inlet_boundary_stream(
+        access_function access_function,
+        std::array<double, TOTAL_NODE_COUNT> &destination,
+        double density = INLET_DENSITY)
     {
-        arr_of_dist_val result = f;
-        result[5] = f[3];
-        result[7] = f[1];
-        result[8] = f[0];
+        arr_of_dist_val result;
+        unsigned int lower_inlet_node = access::get_node_index(0, 0);
+        result = get_all_distribution_values(destination, access_function, lower_inlet_node);
+
+        std::array<unsigned int, 5> changes = {5, 7, 8, 2, 6};
+        result[5] = result[3];
+        result[7] = result[1];
+        result[8] = result[0];
         result[2] = 0.5 * (density - (result[4] + 2 * result[0] + 2 * result[1] + 2 * result[3]));
-        result[6] = f[2];
-        return result;
+        result[6] = result[2];
+
+        write_updated_border_values(changes, destination, access_function, lower_inlet_node, result);
     }
 
     /**
-     * @brief Performs the stream step for a node that is bordered by an upper wall and an inlet of a simulation domain.
+     * @brief Performs the after-stream update for a node that is bordered by an upper wall and an inlet of a simulation domain.
      * 
-     * @param f an array containing all valid incoming distributions
-     *          distributions that are not involved may be initialized arbitrarily as they will not be used anyways
-     * @param density the density at the inlet
-     * @return an array containing the correct distribution values for the stream step
+     * @param access_function the access pattern of the corresponding destination array
+     * @param destination the array containing the distribution values for the current node
+     * @param density the density at this node (default value is INLET_DENSITY)
      */
-    arr_of_dist_val upper_inlet_boundary_stream(arr_of_dist_val f, double density = INLET_DENSITY)
+    void upper_inlet_boundary_stream(
+        access_function access_function,
+        std::array<double, TOTAL_NODE_COUNT> &destination, 
+        double density = INLET_DENSITY)
     {
-        arr_of_dist_val result = f;
-        result[5] = f[3];
-        result[1] = f[7];
-        result[2] = f[6];
+        arr_of_dist_val result;
+        unsigned int upper_inlet_node = access::get_node_index(0, HORIZONTAL_NODES - 1);
+        result = get_all_distribution_values(destination, access_function, upper_inlet_node);
+
+        std::array<unsigned int, 5> changes = {5, 1, 2, 0, 8};
+        result[5] = result[3];
+        result[1] = result[7];
+        result[2] = result[6];
         result[0] = 0.5 * (density - (result[4] + 2 * result[3] + 2 * result[6] + 2 * result[7]));
-        result[8] = f[0];
-        return result;
+        result[8] = result[0];
+
+        write_updated_border_values(changes, destination, access_function, upper_inlet_node, result);
     }
 
     /**
-     * @brief Performs the stream step for a node that is bordered by a lower wall and an outlet of a simulation domain.
+     * @brief Performs the after-stream update for a node that is bordered by a lower wall and an outlet of a simulation domain.
      * 
-     * @param f an array containing all valid incoming distributions
-     *          distributions that are not involved may be initialized arbitrarily as they will not be used anyways
-     * @param density the density at the outlet
-     * @return an array containing the correct distribution values for the stream step
+     * @param access_function the access pattern of the corresponding destination array
+     * @param destination the array containing the distribution values for the current node
+     * @param density the density at this node (default value is INLET_DENSITY as the general assumption is an uncompressible stream)
      */
-    arr_of_dist_val lower_outlet_boundary_stream(arr_of_dist_val f, double density = INLET_DENSITY)
+    void lower_outlet_boundary_stream(        
+        access_function access_function,
+        std::array<double, TOTAL_NODE_COUNT> &destination,
+        double density = INLET_DENSITY)
     {
-        arr_of_dist_val result = f;
-        result[3] = f[5];
-        result[7] = f[1];
-        result[6] = f[2];
+        arr_of_dist_val result;
+        unsigned int lower_outlet_node = access::get_node_index(VERTICAL_NODES - 1, 0);
+        result = get_all_distribution_values(destination, access_function, lower_outlet_node);
+        
+        std::array<unsigned int, 5> changes = {3,7,6,0,8};
+        result[3] = result[5];
+        result[7] = result[1];
+        result[6] = result[2];
         result[0] = 0.5 * (density - (result[4] + 2 * result[1] + 2 * result[2] + 2 * result[5]));
-        result[8] = f[0];
-        return result;
+        result[8] = result[0];
+
+        write_updated_border_values(changes, destination, access_function, lower_outlet_node, result);
     }
 
     /**
-     * @brief Performs the stream step for a node that is bordered by an upper wall and an outlet of a simulation domain.
+     * @brief Performs the after-stream update for a node that is bordered by an upper wall and an outlet of a simulation domain.
      * 
-     * @param f an array containing all valid incoming distributions
-     *          distributions that are not involved may be initialized arbitrarily as they will not be used anyways
-     * @param density the density at the outlet
-     * @return an array containing the correct distribution values for the stream step
+     * @param access_function the access pattern of the corresponding destination array
+     * @param destination the array containing the distribution values for the current node
+     * @param density the density at this node (default value is INLET_DENSITY as the general assumption is an uncompressible stream)
      */
-    arr_of_dist_val upper_outlet_boundary_stream(arr_of_dist_val f, double density = INLET_DENSITY)
+    void upper_outlet_boundary_stream(   
+        access_function access_function,
+        std::array<double, TOTAL_NODE_COUNT> &destination, 
+        double density = INLET_DENSITY)
     {
-        arr_of_dist_val result = f;
-        result[3] = f[5];
-        result[1] = f[7];
-        result[0] = f[8];
+        arr_of_dist_val result;
+        unsigned int lower_outlet_node = access::get_node_index(VERTICAL_NODES - 1, HORIZONTAL_NODES - 1);
+        result = get_all_distribution_values(destination, access_function, lower_outlet_node);
+        
+        std::array<unsigned int, 5> changes = {3,1,0,2,6};
+        result[3] = result[5];
+        result[1] = result[7];
+        result[0] = result[8];
         result[2] = 0.5 * (density - (result[4] + 2 * result[5] + 2 * result[7] + 2 * result[8]));
-        result[6] = f[2];
-        return result;
-    }
+        result[6] = result[2];
 
-    /**
-     * @brief Returns the according result after a streaming step for the specified boundary scenario.
-     *        So far, this method is only conceptional and it is likely to be removed in the future for the sake of complexity reduction.
-     * 
-     * @param boundary_spec any tuple included within the boundary_scenarios namespace               
-     * @return a tuple containing an array with all distribution function values and the density value
-     */
-    std::tuple<arr_of_dist_val, double> perform_boundary_stream(boundary_tuple boundary_spec, velocity wall_velocity, arr_of_dist_val f)
-    {
-        if(boundary_spec == boundary_scenarios::inlet)
-        {
-            throw std::runtime_error(std::string("This boundary scenario is not implemented yet!"));
-        }
-        else if(boundary_spec == boundary_scenarios::outlet)
-        {
-            throw std::runtime_error(std::string("This boundary scenario is not implemented yet!"));
-        }
-        else if(boundary_spec == boundary_scenarios::wall_up)
-        {
-            throw std::runtime_error(std::string("This boundary scenario is not implemented yet!"));
-        }
-        else if(boundary_spec == boundary_scenarios::wall_down)
-        {
-            throw std::runtime_error(std::string("This boundary scenario is not implemented yet!"));
-        }
-        else if(boundary_spec == boundary_scenarios::lower_inlet)
-        {
-            throw std::runtime_error(std::string("This boundary scenario is not implemented yet!"));
-        }
-        else if(boundary_spec == boundary_scenarios::upper_inlet)
-        {
-            throw std::runtime_error(std::string("This boundary scenario is not implemented yet!"));
-        }
-        else if(boundary_spec == boundary_scenarios::lower_outlet)
-        {
-            throw std::runtime_error(std::string("This boundary scenario is not implemented yet!"));
-        }
-        else if(boundary_spec == boundary_scenarios::upper_outlet)
-        {
-           throw std::runtime_error(std::string("This boundary scenario is not implemented yet!")); 
-        }
-        else
-        {
-            throw std::runtime_error(std::string("This boundary scenario is not supported!"));
-        }
+        write_updated_border_values(changes, destination, access_function, lower_outlet_node, result);
     }
 }
