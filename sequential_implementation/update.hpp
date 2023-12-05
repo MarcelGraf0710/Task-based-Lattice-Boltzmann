@@ -121,25 +121,27 @@ namespace stream
                 std::array<double, 15UL> &source);
         }
 
-
         /**
-         * @brief 
+         * @brief Performs one streaming step for all nodes using the two-lattice algorithm.
+         *        During the process, all necessary post-streaming updates of border nodes are performed such that
+         *        the collision step can be executed next without any further redo.
          * 
-         * @param access_function 
-         * @param nodes_0 
-         * @param nodes_1 
-         * @param timestep 
+         * @param access_function this access function determines the pattern in which distribution values are accessed within the arrays containing 
+         *                        the distribution values
+         * @param nodes_0 this node stores all node distribution values and acts as a source during even time steps
+         * @param nodes_1 this node stores all node distribution values and acts as a source during odd time steps
+         * @param timestep the module of this timestep is used to determine the source and destination roles of the two specified arrays
          */
         void perform_two_lattice_stream(
             access_function access_function,
-            std::array<double, TOTAL_NODE_COUNT> &nodes_0,
-            std::array<double, TOTAL_NODE_COUNT> &nodes_1,
+            std::array<double, TOTAL_NODE_COUNT * DIRECTION_COUNT> &nodes_0,
+            std::array<double, TOTAL_NODE_COUNT * DIRECTION_COUNT> &nodes_1,
             unsigned int timestep)
         {
             double v_x = 0;
             double v_y = 0;
-            std::array<double, TOTAL_NODE_COUNT>& source = (timestep % 2) ? nodes_0 : nodes_1;
-            std::array<double, TOTAL_NODE_COUNT>& destination = (timestep % 2) ? nodes_1 : nodes_0;
+            std::array<double, TOTAL_NODE_COUNT * DIRECTION_COUNT>& source = (timestep % 2) ? nodes_0 : nodes_1;
+            std::array<double, TOTAL_NODE_COUNT * DIRECTION_COUNT>& destination = (timestep % 2) ? nodes_1 : nodes_0;
 
             // Perform streaming
             helper::two_lattice_regular(v_x, v_y, destination, access_function, source);
@@ -149,47 +151,27 @@ namespace stream
             helper::two_lattice_outlet(v_x, v_y, destination, access_function, source);
             helper::two_lattice_corners(v_x, v_y, destination, access_function, source);
 
-            for (int direction; direction < DIRECTION_COUNT; ++direction)
+            // Upper inlet
+            boundaries::upper_inlet_boundary_stream(access_function, destination);
+            // Lower inlet
+            boundaries::lower_inlet_boundary_stream(access_function, destination);
+            // Upper outlet
+            boundaries::upper_outlet_boundary_stream(access_function, destination);
+            // Lower outlet
+            boundaries::lower_outlet_boundary_stream(access_function, destination);
+            // Upper wall and lower wall
+            for(int x = 0; x < HORIZONTAL_NODES - 1; ++x)
             {
-                // Upper inlet
-                /*
-                destination[
-                    access_function(
-                        access::get_node_index(std::get<0>(std::get<0>(corner)), std::get<1>(std::get<0>(corner))),
-                        direction)
-                ] = boundaries::
-                */
-
-                // Lower inlet
-
-                // Upper outlet
-
-                // Lower outlet
-
-                // Upper wall
-
-                // Lower wall
-
-                // inlet
-
-                // outlet
-
-                for (auto direction : boundaries::neighbor_directions[boundaries::boundary_scenarios::outlet])
-                {
-                    for (auto row = 1; row < VERTICAL_NODES - 2; ++row)
-                    {
-                        v_x = velocity_vectors[direction][0];
-                        v_y = velocity_vectors[direction][1];
-                        destination[access_function(access::get_node_index(HORIZONTAL_NODES - 1, row), direction)] = boundaries::outlet_boundary_stream()
-                    }
-
-    
-
-
-                }
-
+                boundaries::upper_wall_boundary_stream(destination, access_function, x);
+                boundaries::lower_wall_boundary_stream(destination, access_function, x);
+            }
+            // inlet and outlet
+            for(int y = 0; y < VERTICAL_NODES - 1; ++y)
+            {
+                boundaries::inlet_boundary_stream(destination, access_function, y);
+                boundaries::inlet_boundary_stream(destination, access_function, y);
             }
         }
     }
-
 }
+

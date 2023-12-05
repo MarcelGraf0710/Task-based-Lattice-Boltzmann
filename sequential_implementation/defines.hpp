@@ -79,12 +79,3 @@ arr_of_dist_val maxwell_boltzmann_distribution(velocity u, double rho)
     }
     return result;
 }
-
-
-
-
-
-
-
-
-
