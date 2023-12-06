@@ -24,8 +24,8 @@
 /* Convenience and readability type definition */
 typedef std::array<std::array<double, DIMENSION_COUNT>, DIRECTION_COUNT> arr_of_v; // Array of velocity vectors
 typedef std::array<double, DIMENSION_COUNT> velocity; // velocity vector
-typedef std::array<double, DIRECTION_COUNT> arr_of_dist_val; // array of distribution function values
-typedef std::array<double, TOTAL_NODE_COUNT * DIRECTION_COUNT> all_distributions; // A vector containing all distribution values
+typedef std::vector<double> vec_of_dist_val; // array of distribution function values
+typedef std::vector<double> all_distributions; // A vector containing all distribution values
 
 /**
  * @brief This type represents a tuple containing all boundary nodes in the following order:
@@ -93,9 +93,9 @@ double maxwell_boltzmann_distribution (velocity u, double rho, unsigned int dire
  * @param rho density
  * @return the probability of there being a particle with velocity v_direction 
  */
-arr_of_dist_val maxwell_boltzmann_distribution(velocity u, double rho)
+vec_of_dist_val maxwell_boltzmann_distribution(velocity u, double rho)
 {
-    arr_of_dist_val result;
+    vec_of_dist_val result;
     for(auto direction = 0; direction < DIRECTION_COUNT; ++direction)
     {
         result[direction] = weights[direction] * rho * (1 + 3 * math_utils::dot(velocity_vectors[direction], u) 

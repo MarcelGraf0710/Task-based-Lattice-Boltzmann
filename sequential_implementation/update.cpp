@@ -1,8 +1,8 @@
 #include "update.hpp"
 
-arr_of_dist_val collision::collide_bgk(arr_of_dist_val f, velocity u, double density)
+vec_of_dist_val collision::collide_bgk(vec_of_dist_val f, velocity u, double density)
 {
-    arr_of_dist_val result = maxwell_boltzmann_distribution(u, density);
+    vec_of_dist_val result = maxwell_boltzmann_distribution(u, density);
     for(auto i = 0; i < DIRECTION_COUNT; ++i)
     {
         result[i] = -(1/RELAXATION_TIME) * (f[i] - result[i]);
@@ -106,7 +106,7 @@ void stream::two_lattice::helper::two_lattice_regular(
     }
 }
 
-void stream::two_lattice::helper perform_boundary_update(all_distributions &source, all_distributions &destination, access_function &access_function)
+void stream::two_lattice::helper::perform_boundary_update(all_distributions &source, all_distributions &destination, access_function &access_function)
         {
 
             // Upper inlet

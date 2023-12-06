@@ -17,7 +17,7 @@ namespace collision
      * @param density the density at this node
      * @return an array containing all distribution values after the collision step
      */
-    arr_of_dist_val collide_bgk(arr_of_dist_val f, velocity u, double density);
+    vec_of_dist_val collide_bgk(vec_of_dist_val f, velocity u, double density);
 }
 
 /**
