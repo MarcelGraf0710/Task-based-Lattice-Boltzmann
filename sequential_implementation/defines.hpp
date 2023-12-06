@@ -27,6 +27,30 @@ typedef std::array<double, DIMENSION_COUNT> velocity; // velocity vector
 typedef std::array<double, DIRECTION_COUNT> arr_of_dist_val; // array of distribution function values
 typedef std::array<double, TOTAL_NODE_COUNT * DIRECTION_COUNT> all_distributions; // A vector containing all distribution values
 
+/**
+ * @brief This type represents a tuple containing all boundary nodes in the following order:
+ *        Corner nodes (upper left, lower left, upper right, lower right) ->
+ *        inlet nodes ->
+ *        outlet nodes ->
+ *        upper wall nodes ->
+ *        lower wall nodes.
+ *        In order to avoid unnecessary branching for comparably few nodes, these nodes will be treated separately by design.
+ */
+typedef std::tuple<
+                    std::array<int, 4>, 
+                    std::array<int, VERTICAL_NODES - 2>,
+                    std::array<int, VERTICAL_NODES - 2>,
+                    std::array<int, HORIZONTAL_NODES - 2>,
+                    std::array<int, HORIZONTAL_NODES - 2>
+                    > 
+                node_tuple;
+
+/**
+ * @brief This type stands for an access function. Node values can be stored in different layout and via this function,
+ *        the corresponding access scheme can be specified.
+ */
+typedef std::function<unsigned int(unsigned int, unsigned int)> access_function;
+
 /* Inlet and outlet behavior */
 #define INLET_VELOCITY 1.0/100
 #define INLET_DENSITY 2

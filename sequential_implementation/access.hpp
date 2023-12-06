@@ -88,9 +88,10 @@ namespace semi_direct_access
             else index++; // Hit consecutive solid nodes
         }
 
-        std::vector<unsigned int> result{
-            std::make_move_iterator(begin(fluid_segments)), 
-            std::make_move_iterator(end(fluid_segments))
+        std::vector<unsigned int> result
+            {
+                std::make_move_iterator(begin(fluid_segments)), 
+                std::make_move_iterator(end(fluid_segments))
             };
 
         return result;

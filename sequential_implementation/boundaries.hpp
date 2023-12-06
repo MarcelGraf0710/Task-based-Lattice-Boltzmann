@@ -1,10 +1,5 @@
 #include "defines.hpp"
 #include <optional>
-/**
- * @brief This type stands for an access function. Node values can be stored in different layout and via this function,
- *        the corresponding access scheme can be specified.
- */
-typedef std::function<unsigned int(unsigned int, unsigned int)> access_function;
 
 /**
  * @brief This namespace contains all function representations of boundary conditions used in the lattice-Boltzmann model.
