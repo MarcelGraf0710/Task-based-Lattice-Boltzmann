@@ -25,6 +25,7 @@
 typedef std::array<std::array<double, DIMENSION_COUNT>, DIRECTION_COUNT> arr_of_v; // Array of velocity vectors
 typedef std::array<double, DIMENSION_COUNT> velocity; // velocity vector
 typedef std::array<double, DIRECTION_COUNT> arr_of_dist_val; // array of distribution function values
+typedef std::array<double, TOTAL_NODE_COUNT * DIRECTION_COUNT> all_distributions; // A vector containing all distribution values
 
 /* Inlet and outlet behavior */
 #define INLET_VELOCITY 1.0/100

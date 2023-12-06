@@ -60,7 +60,7 @@ namespace boundaries
      * @return an array containing all distribution values
      */
     inline arr_of_dist_val get_all_distribution_values(
-        std::array<double, 15UL> &source, 
+        all_distributions &source, 
         access_function &access_function, 
         unsigned int node_index)
     {
@@ -85,7 +85,7 @@ namespace boundaries
     template <unsigned long d>
     inline void write_updated_border_values(
         std::array<unsigned int, d> &changes, 
-        std::array<double, 15UL> &destination, 
+        all_distributions &destination, 
         access_function &access_function, 
         unsigned int node_index, 
         arr_of_dist_val &dist_values)
@@ -107,7 +107,8 @@ namespace boundaries
      * @param density the density at this node (default value is INLET_DENSITY)
      */
     void inlet_boundary_stream(
-        std::array<double, 15UL> &destination, 
+        all_distributions &source, 
+        all_distributions &destination, 
         access_function &access_function, 
         int y,
         double velocity_x = INLET_VELOCITY, 
@@ -115,7 +116,7 @@ namespace boundaries
     {
         arr_of_dist_val result;
         unsigned int node_index = access::get_node_index(0, y);
-        result = get_all_distribution_values(destination, access_function, node_index);
+        result = get_all_distribution_values(source, access_function, node_index);
         double rho_times_u_x = 1.0/6 * density * velocity_x;
 
         std::array<unsigned int, 3> changes = {5, 8, 2};
@@ -137,7 +138,8 @@ namespace boundaries
      * @param density the density at this node (default value is INLET_DENSITY as the general assumption is an uncompressible stream)
      */
     void outlet_boundary_stream(
-        std::array<double, 15UL> &destination, 
+        all_distributions &source, 
+        all_distributions &destination, 
         access_function &access_function, 
         int y, 
         double velocity_x, 
@@ -145,7 +147,7 @@ namespace boundaries
     {
         arr_of_dist_val result;
         unsigned int node_index = access::get_node_index(HORIZONTAL_NODES - 1, y);
-        result = get_all_distribution_values(destination, access_function, node_index);
+        result = get_all_distribution_values(source, access_function, node_index);
         double rho_times_u_x = 1.0/6 * density * velocity_x;
 
         std::array<unsigned int, 3> changes = {5, 8, 2};
@@ -166,15 +168,16 @@ namespace boundaries
      * @param wall_velocity the velocity at the wall (default is {0,0})
      * @return the density at this node (as it is needed for calculations anyways)
      */
-    double lower_wall_boundary_stream(       
-        std::array<double, 15UL> &destination, 
+    double lower_wall_boundary_stream(  
+        all_distributions &source,      
+        all_distributions &destination, 
         access_function &access_function, 
         int x, 
         velocity wall_velocity = {0,0})
     {
         arr_of_dist_val result;
         unsigned int node_index = access::get_node_index(x, 0);
-        result = get_all_distribution_values(destination, access_function, node_index);
+        result = get_all_distribution_values(source, access_function, node_index);
         double density = 1 / (1 - wall_velocity[1]) * (result[4] + result[5] + result[3] + 2 * (result[1] + result[0] + result[2]));
 
         double rho_times_u_x = 0.5 * density * wall_velocity[0];
@@ -199,15 +202,16 @@ namespace boundaries
      * @param wall_velocity the velocity at the wall (default is {0,0})
      * @return the density at this node (as it is needed for calculations anyways)
      */
-    double upper_wall_boundary_stream(        
-        std::array<double, 15UL> &destination, 
+    double upper_wall_boundary_stream(   
+        all_distributions &source,      
+        all_distributions &destination, 
         access_function &access_function, 
         int x, 
         velocity wall_velocity = {0,0})
     {
         arr_of_dist_val result;
         unsigned int node_index = access::get_node_index(x, VERTICAL_NODES - 1);
-        result = get_all_distribution_values(destination, access_function, node_index);
+        result = get_all_distribution_values(source, access_function, node_index);
         double density = 1 / (1 - wall_velocity[1]) * (result[4] + result[5] + result[3] + 2 * (result[1] + result[0] + result[2]));
         double density = 1 / (1 - wall_velocity[1]) * (result[4] + result[5] + result[3] + 2 * (result[1] + result[0] + result[2]));
 
@@ -231,13 +235,14 @@ namespace boundaries
      * @param density the density at this node (default value is INLET_DENSITY)
      */
     void lower_inlet_boundary_stream(
+        all_distributions &source, 
+        all_distributions &destination,
         access_function access_function,
-        std::array<double, TOTAL_NODE_COUNT> &destination,
         double density = INLET_DENSITY)
     {
         arr_of_dist_val result;
         unsigned int lower_inlet_node = access::get_node_index(0, 0);
-        result = get_all_distribution_values(destination, access_function, lower_inlet_node);
+        result = get_all_distribution_values(source, access_function, lower_inlet_node);
 
         std::array<unsigned int, 5> changes = {5, 7, 8, 2, 6};
         result[5] = result[3];
@@ -257,13 +262,14 @@ namespace boundaries
      * @param density the density at this node (default value is INLET_DENSITY)
      */
     void upper_inlet_boundary_stream(
+        all_distributions &source, 
+        all_distributions &destination, 
         access_function access_function,
-        std::array<double, TOTAL_NODE_COUNT> &destination, 
         double density = INLET_DENSITY)
     {
         arr_of_dist_val result;
         unsigned int upper_inlet_node = access::get_node_index(0, HORIZONTAL_NODES - 1);
-        result = get_all_distribution_values(destination, access_function, upper_inlet_node);
+        result = get_all_distribution_values(source, access_function, upper_inlet_node);
 
         std::array<unsigned int, 5> changes = {5, 1, 2, 0, 8};
         result[5] = result[3];
@@ -282,14 +288,16 @@ namespace boundaries
      * @param destination the array containing the distribution values for the current node
      * @param density the density at this node (default value is INLET_DENSITY as the general assumption is an uncompressible stream)
      */
-    void lower_outlet_boundary_stream(        
+    void lower_outlet_boundary_stream(
+        all_distributions &source,        
+        all_distributions &destination,        
         access_function access_function,
-        std::array<double, TOTAL_NODE_COUNT> &destination,
+
         double density = INLET_DENSITY)
     {
         arr_of_dist_val result;
         unsigned int lower_outlet_node = access::get_node_index(VERTICAL_NODES - 1, 0);
-        result = get_all_distribution_values(destination, access_function, lower_outlet_node);
+        result = get_all_distribution_values(source, access_function, lower_outlet_node);
         
         std::array<unsigned int, 5> changes = {3,7,6,0,8};
         result[3] = result[5];
@@ -309,13 +317,14 @@ namespace boundaries
      * @param density the density at this node (default value is INLET_DENSITY as the general assumption is an uncompressible stream)
      */
     void upper_outlet_boundary_stream(   
+        all_distributions &source, 
+        all_distributions &destination,         
         access_function access_function,
-        std::array<double, TOTAL_NODE_COUNT> &destination, 
         double density = INLET_DENSITY)
     {
         arr_of_dist_val result;
         unsigned int lower_outlet_node = access::get_node_index(VERTICAL_NODES - 1, HORIZONTAL_NODES - 1);
-        result = get_all_distribution_values(destination, access_function, lower_outlet_node);
+        result = get_all_distribution_values(source, access_function, lower_outlet_node);
         
         std::array<unsigned int, 5> changes = {3,1,0,2,6};
         result[3] = result[5];

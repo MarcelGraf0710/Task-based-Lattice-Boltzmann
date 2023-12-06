@@ -14,11 +14,13 @@ namespace macroscopic
     velocity flow_velocity(arr_of_dist_val distribution_functions)
     {
         double v_x, v_y;
+        velocity velocity_vector;
 
-        for(auto velocity_vector : velocity_vectors)
+        for(int i = 0; i < DIRECTION_COUNT; ++i)
         {
-            v_x += velocity_vector.second[0];
-            v_y += velocity_vector.second[1];
+            velocity_vector = velocity_vectors[i];
+            v_x += distribution_functions[i] * velocity_vector[0];
+            v_y += distribution_functions[i] * velocity_vector[1];
         }
 
         velocity v{v_x, v_y};

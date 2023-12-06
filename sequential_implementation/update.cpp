@@ -13,9 +13,9 @@ arr_of_dist_val collision::collide_bgk(arr_of_dist_val f, velocity u, double den
 void stream::two_lattice::helper::two_lattice_corners(
     double &v_x, 
     double &v_y, 
-    std::array<double, 15UL> &destination, 
+    all_distributions &destination, 
     access_function &access_function, 
-    std::array<double, 15UL> &source)
+    all_distributions &source)
 {
     for (auto corner : corner_specs)
     {
@@ -34,9 +34,9 @@ void stream::two_lattice::helper::two_lattice_corners(
 void stream::two_lattice::helper::two_lattice_outlet(
     double &v_x, 
     double &v_y, 
-    std::array<double, 15UL> &destination, 
+    all_distributions &destination, 
     access_function &access_function, 
-    std::array<double, 15UL> &source)
+    all_distributions &source)
 {
     for (auto row = 1; row < VERTICAL_NODES - 2; ++row)
     {
@@ -52,9 +52,9 @@ void stream::two_lattice::helper::two_lattice_outlet(
 void stream::two_lattice::helper::two_lattice_inlet(
     double &v_x, 
     double &v_y, 
-    std::array<double, 15UL> &destination, 
+    all_distributions &destination, 
     access_function &access_function, 
-    std::array<double, 15UL> &source)
+    all_distributions &source)
 {
     for (auto row = 1; row < VERTICAL_NODES - 2; ++row)
     {
@@ -70,9 +70,9 @@ void stream::two_lattice::helper::two_lattice_inlet(
 void stream::two_lattice::helper::two_lattice_walldown(
     double &v_x, 
     double &v_y, 
-    std::array<double, 15UL> &destination, 
+    all_distributions &destination, 
     access_function &access_function, 
-    std::array<double, 15UL> &source)
+    all_distributions &source)
 {
     for (auto column = 1; column < HORIZONTAL_NODES; ++column)
     {
@@ -88,9 +88,9 @@ void stream::two_lattice::helper::two_lattice_walldown(
 void stream::two_lattice::helper::two_lattice_wallup(
     double &v_x, 
     double &v_y,
-    std::array<double, 15UL> &destination, 
+    all_distributions &destination, 
     access_function &access_function, 
-    std::array<double, 15UL> &source)
+    all_distributions &source)
 {
     for (auto column = 1; column < HORIZONTAL_NODES; ++column)
     {
@@ -106,9 +106,9 @@ void stream::two_lattice::helper::two_lattice_wallup(
 void stream::two_lattice::helper::two_lattice_regular(
     double &v_x, 
     double &v_y, 
-    std::array<double, 15UL> &destination, 
+    all_distributions &destination, 
     access_function &access_function, 
-    std::array<double, 15UL> &source)
+    all_distributions &source)
 {
     for (auto row = 1; row < VERTICAL_NODES - 2; ++row)
     {

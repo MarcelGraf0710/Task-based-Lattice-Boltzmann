@@ -80,45 +80,47 @@ namespace stream
         {
             // Perform streaming for all regular nodes
             void two_lattice_regular(
-                double &v_x, double &v_y, std::array<double, 15UL> &destination, 
+                double &v_x, 
+                double &v_y, 
+                all_distributions &destination, 
                 access_function &access_function, 
-                std::array<double, 15UL> &source
+                all_distributions &source
                 );
 
             // Perform streaming step for all upper wall nodes   
             void two_lattice_wallup(
                 double &v_x, double &v_y, 
-                std::array<double, 15UL> &destination, 
+                all_distributions &destination, 
                 access_function &access_function, 
-                std::array<double, 15UL> &source);
+                all_distributions &source);
 
             // Perform streaming step for all lower-wall nodes   
             void two_lattice_walldown(
                 double &v_x, double &v_y, 
-                std::array<double, 15UL> &destination, 
+                all_distributions &destination, 
                 access_function &access_function, 
-                std::array<double, 15UL> &source);
+                all_distributions &source);
 
             // Perform streaming step for all inlet-only nodes    
             void two_lattice_inlet(
                 double &v_x, double &v_y, 
-                std::array<double, 15UL> &destination, 
+                all_distributions &destination, 
                 access_function &access_function, 
-                std::array<double, 15UL> &source);
+                all_distributions &source);
 
             // Perform streaming step for all outlet-only nodes    
             void two_lattice_outlet(
                 double &v_x, double &v_y, 
-                std::array<double, 15UL> &destination, 
+                all_distributions &destination, 
                 access_function &access_function, 
-                std::array<double, 15UL> &source);
+                all_distributions &source);
 
             // Perform streaming step for all corner nodes    
             void two_lattice_corners(
                 double &v_x, double &v_y, 
-                std::array<double, 15UL> &destination, 
+                all_distributions &destination, 
                 access_function &access_function, 
-                std::array<double, 15UL> &source);
+                all_distributions &source);
         }
 
         /**
@@ -134,14 +136,14 @@ namespace stream
          */
         void perform_two_lattice_stream(
             access_function access_function,
-            std::array<double, TOTAL_NODE_COUNT * DIRECTION_COUNT> &nodes_0,
-            std::array<double, TOTAL_NODE_COUNT * DIRECTION_COUNT> &nodes_1,
+            all_distributions &nodes_0,
+            all_distributions &nodes_1,
             unsigned int timestep)
         {
             double v_x = 0;
             double v_y = 0;
-            std::array<double, TOTAL_NODE_COUNT * DIRECTION_COUNT>& source = (timestep % 2) ? nodes_0 : nodes_1;
-            std::array<double, TOTAL_NODE_COUNT * DIRECTION_COUNT>& destination = (timestep % 2) ? nodes_1 : nodes_0;
+            all_distributions& source = (timestep % 2) ? nodes_0 : nodes_1;
+            all_distributions& destination = (timestep % 2) ? nodes_1 : nodes_0;
 
             // Perform streaming
             helper::two_lattice_regular(v_x, v_y, destination, access_function, source);
@@ -152,24 +154,24 @@ namespace stream
             helper::two_lattice_corners(v_x, v_y, destination, access_function, source);
 
             // Upper inlet
-            boundaries::upper_inlet_boundary_stream(access_function, destination);
+            boundaries::upper_inlet_boundary_stream(source, destination, access_function);
             // Lower inlet
-            boundaries::lower_inlet_boundary_stream(access_function, destination);
+            boundaries::lower_inlet_boundary_stream(source, destination, access_function);
             // Upper outlet
-            boundaries::upper_outlet_boundary_stream(access_function, destination);
+            boundaries::upper_outlet_boundary_stream(source, destination, access_function);
             // Lower outlet
-            boundaries::lower_outlet_boundary_stream(access_function, destination);
+            boundaries::lower_outlet_boundary_stream(source, destination, access_function);
             // Upper wall and lower wall
             for(int x = 0; x < HORIZONTAL_NODES - 1; ++x)
             {
-                boundaries::upper_wall_boundary_stream(destination, access_function, x);
-                boundaries::lower_wall_boundary_stream(destination, access_function, x);
+                boundaries::upper_wall_boundary_stream(source, destination, access_function, x);
+                boundaries::lower_wall_boundary_stream(source, destination, access_function, x);
             }
             // inlet and outlet
             for(int y = 0; y < VERTICAL_NODES - 1; ++y)
             {
-                boundaries::inlet_boundary_stream(destination, access_function, y);
-                boundaries::inlet_boundary_stream(destination, access_function, y);
+                boundaries::inlet_boundary_stream(source, destination, access_function, y);
+                boundaries::inlet_boundary_stream(source, destination, access_function, y);
             }
         }
     }
