@@ -75,6 +75,7 @@
         "valarray": "cpp",
         "variant": "cpp",
         "cfenv": "cpp",
-        "charconv": "cpp"
+        "charconv": "cpp",
+        "strstream": "cpp"
     }
 }

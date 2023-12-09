@@ -80,7 +80,7 @@ std::map<int,double> weights
  * @param direction direction according to the scheme proposed by Mattila et al.
  * @return the probability of there being a particle with velocity v_direction 
  */
-double maxwell_boltzmann_distribution (velocity u, double rho, unsigned int direction)
+double maxwell_boltzmann_distribution(velocity u, double rho, unsigned int direction)
 {
     return weights[direction] * rho * (1 + 3 * math_utils::dot(velocity_vectors[direction], u) 
     + 9.0/2 * pow(math_utils::dot(velocity_vectors[direction], u), 2) - 3.0/2 * math_utils::dot(velocity_vectors[direction], u));

@@ -53,6 +53,41 @@ namespace access
     {
         return x + y * HORIZONTAL_NODES;
     }
+
+    /**
+     * @brief Get the all distribution values object
+     * 
+     * @param source 
+     * @param node_index 
+     * @param access 
+     * @return std::vector<double> 
+     */
+    std::vector<double> get_all_distribution_values(std::vector<double> source, int node_index, access_function access)
+    {
+        std::vector<double> dist_vals;
+        dist_vals.reserve(9);
+        for(auto direction = 0; direction < DIRECTION_COUNT; ++direction)
+        {
+            dist_vals[direction] = source[access(node_index, direction)];
+        }
+        return dist_vals;
+    }
+
+    /**
+     * @brief Set the all distribution values object
+     * 
+     * @param destination 
+     * @param node_index 
+     * @param access 
+     * @return std::vector<double> 
+     */
+    void set_all_distribution_values(std::vector<double> dist_vals, std::vector<double> destination, int node_index, access_function access)
+    {
+        for(auto direction = 0; direction < DIRECTION_COUNT; ++direction)
+        {
+            destination[access(node_index, direction)] = dist_vals[direction];
+        }
+    }
 }
 
 /**
