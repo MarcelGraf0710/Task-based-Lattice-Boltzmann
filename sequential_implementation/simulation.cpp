@@ -1,4 +1,7 @@
-#include "total_inclusion.hpp"
+#include "defines.hpp"
+#include "macroscopic.hpp"
+#include "access.hpp"
+#include "update.hpp"
 
 struct simulation_data
 {
@@ -11,16 +14,7 @@ struct simulation_data
         all_distributions_0(initial_distributions),
         access(access)
         {
-            for(auto i = 0; i = TOTAL_NODE_COUNT; ++i)
-            {
-                vec_of_dist_val dist_vals;
-                dist_vals.reserve(DIRECTION_COUNT);
-                for(auto direction = 0; direction < DIRECTION_COUNT; ++direction)
-                {
-                    dist_vals[i] = all_distributions_0[access(i, direction)];
-                }
-                all_velocities[i] = macroscopic::flow_velocity(dist_vals);
-            }
+            macroscopic::update_all_velocities(all_distributions_0, all_velocities, access);
         };
 };
 
@@ -58,20 +52,14 @@ std::vector<double> setup_distributions(access_function access, double inlet_vel
     return dist_vals; 
 }
 
-void run_two_step(int time_steps, simulation_data& simulation_data)
+void run_two_lattice(int time_steps, simulation_data& simulation_data, access_function access)
 {
     for(auto time = 0; time < time_steps; ++time)
     {
-        
-    }
-
-    for(auto x = 0; x < HORIZONTAL_NODES; ++x)
-    {
-        for(auto y = 0; y < VERTICAL_NODES; ++y)
-        {
-
-            int node_index = access::get_node_index(x,y);
-            vec_of_dist_val distributions = access::get_all_distribution_values(simulation_data.)
-        }
+        all_distributions& source = (time % 2) ? simulation_data.all_distributions_0 : simulation_data.all_distributions_1;
+        all_distributions& destination = (time % 2) ? simulation_data.all_distributions_1 : simulation_data.all_distributions_0;
+        collision::perform_collision_step(source, simulation_data.all_velocities, access);
+        stream::two_lattice::perform_two_lattice_stream(access, source, destination);
+        macroscopic::update_all_velocities(destination, simulation_data.all_velocities, access);
     }
 }

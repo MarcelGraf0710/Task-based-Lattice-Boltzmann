@@ -1,3 +1,4 @@
+#pragma once
 /* Include directives */
 #include <vector>
 #include <list>

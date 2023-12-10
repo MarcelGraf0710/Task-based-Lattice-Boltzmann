@@ -9,10 +9,12 @@
  * @copyright What?
  * 
  */
+#pragma once
 
 #include "access.hpp"
 #include "boundaries.hpp"
 #include "defines.hpp"
 #include "macroscopic.hpp"
+#include "simulation.cpp"
+#include "update.cpp"
 #include "utils.hpp"
-#include "update.hpp"

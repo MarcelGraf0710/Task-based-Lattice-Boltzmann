@@ -10,6 +10,24 @@ vec_of_dist_val collision::collide_bgk(vec_of_dist_val f, velocity u, double den
     return result;
 }
 
+void collision::perform_collision_step(
+    std::vector<double> all_distribution_values, 
+    std::vector<velocity> all_velocities, 
+    access_function access, 
+    double density)
+{
+    for(auto x = 0; x < HORIZONTAL_NODES; ++x)
+    {
+        for(auto y = 0; y < VERTICAL_NODES; ++y)
+        {
+            int node_index = access::get_node_index(x,y);
+            std::vector<double> current_dist_values = access::get_all_distribution_values(all_distribution_values, node_index, access);
+            current_dist_values = collide_bgk(current_dist_values, all_velocities[node_index], density);
+            access::set_all_distribution_values(current_dist_values, all_distribution_values, node_index, access);
+        }
+    }
+}
+
 void stream::two_lattice::helper::two_lattice_corners(
     all_distributions &source,
     all_distributions &destination, 

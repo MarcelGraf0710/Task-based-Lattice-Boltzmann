@@ -1,3 +1,5 @@
+#pragma once
+
 #include "defines.hpp"
 #include "boundaries.hpp"
 #include "access.hpp"
@@ -18,6 +20,16 @@ namespace collision
      * @return an array containing all distribution values after the collision step
      */
     vec_of_dist_val collide_bgk(vec_of_dist_val f, velocity u, double density);
+
+    /**
+     * @brief 
+     * 
+     * @param all_distribution_values 
+     * @param all_velocities 
+     * @param access 
+     * @param density 
+     */
+    void perform_collision_step(std::vector<double> all_distribution_values, std::vector<velocity> all_velocities, access_function access, double density = INFINITY);
 }
 
 /**
@@ -112,13 +124,10 @@ namespace stream
          */
         void perform_two_lattice_stream(
             access_function access_function,
-            all_distributions &nodes_0,
-            all_distributions &nodes_1,
-            unsigned int timestep)
+            all_distributions &source,
+            all_distributions &destination
+            )
         {
-            all_distributions& source = (timestep % 2) ? nodes_0 : nodes_1;
-            all_distributions& destination = (timestep % 2) ? nodes_1 : nodes_0;
-
             helper::two_lattice_regular(source, destination, access_function);
             helper::two_lattice_wallup(source, destination, access_function);
             helper::two_lattice_walldown(source, destination, access_function);

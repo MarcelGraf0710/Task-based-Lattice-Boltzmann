@@ -1,3 +1,5 @@
+#pragma once
+
 #include <array>
 
 inline unsigned int matrix_access(unsigned int row, 
@@ -37,9 +39,9 @@ namespace math_utils
     std::array<double, d*d> outer(std::array<double, d> x, std::array<double, d> y)
     {
         std::array<double, d*d> result;
-        for(i = 0; i < d; ++i)
+        for(auto i = 0; i < d; ++i)
         {
-            for(j = 0; j < d; ++j)
+            for(auto j = 0; j < d; ++j)
             {
                 result[matrix_access(i,j,d)] = x[i] * y[j];
             }

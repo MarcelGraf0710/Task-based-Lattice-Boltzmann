@@ -1,0 +1,1 @@
+/usr/bin/c++ CMakeFiles/sequential_lbm.dir/main.cpp.o CMakeFiles/sequential_lbm.dir/simulation.cpp.o CMakeFiles/sequential_lbm.dir/update.cpp.o -o sequential_lbm 

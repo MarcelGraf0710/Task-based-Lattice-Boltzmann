@@ -1,3 +1,6 @@
+#pragma once
+
+#include "access.hpp"
 #include "defines.hpp"
 #include <optional>
 
@@ -36,14 +39,14 @@ namespace boundaries
      */
     std::map<boundary_tuple, std::list<int>> neighbor_directions
     {
-        {inlet, {1,2,5,7,8}},
-        {outlet, {0,1,3,6,7}},
-        {lower_inlet, {5,7,8}},
-        {upper_inlet, {1,2,5}},
-        {lower_outlet, {3,6,7}},
-        {upper_outlet, {0,1,3}},
-        {wall_up, {0,1,2,3,5}},
-        {wall_down, {3,5,6,7,8}},
+        {boundary_scenarios::inlet, {1,2,5,7,8}},
+        {boundary_scenarios::outlet, {0,1,3,6,7}},
+        {boundary_scenarios::lower_inlet, {5,7,8}},
+        {boundary_scenarios::upper_inlet, {1,2,5}},
+        {boundary_scenarios::lower_outlet, {3,6,7}},
+        {boundary_scenarios::upper_outlet, {0,1,3}},
+        {boundary_scenarios::wall_up, {0,1,2,3,5}},
+        {boundary_scenarios::wall_down, {3,5,6,7,8}},
     };
 
     /**
@@ -205,7 +208,6 @@ namespace boundaries
         vec_of_dist_val result;
         unsigned int node_index = access::get_node_index(x, VERTICAL_NODES - 1);
         result = get_all_distribution_values(source, access_function, node_index);
-        double density = 1 / (1 - wall_velocity[1]) * (result[4] + result[5] + result[3] + 2 * (result[1] + result[0] + result[2]));
         double density = 1 / (1 - wall_velocity[1]) * (result[4] + result[5] + result[3] + 2 * (result[1] + result[0] + result[2]));
 
         double rho_times_u_x = 0.5 * density * wall_velocity[0];
