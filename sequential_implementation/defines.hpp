@@ -1,10 +1,10 @@
-#pragma once
+#ifndef DEFINES_HPP
+#define DEFINES_HPP
 /* Include directives */
 #include <vector>
 #include <list>
 #include <complex>
 #include <map>
-#include "utils.hpp"
 #include <functional>
 #include <valarray>
 #include <numeric>
@@ -58,20 +58,10 @@ typedef std::function<unsigned int(unsigned int, unsigned int)> access_function;
 #define OUTLET_DENSITY 2 
 
 /* Velocity vectors */
-std::map<int, velocity> velocity_vectors 
-{
-    {6, {-1, 1}},  {7, {0, -1}}, {8, {1, 1}},   
-    {3, {-1, 0}},  {4, {0, 0}},  {5, {1, 0}},   
-    {0, {-1, -1}}, {1, {0, -1}}, {2, {1, -1}}   
-};
+extern std::map<int, velocity> velocity_vectors;
 
 /* Weights */
-std::map<int,double> weights
-    {
-        {6, 1.0/36}, {7, 1.0/9}, {8, 1.0/36},
-        {3, 1.0/9},  {4, 4.0/9}, {5, 1.0/9},
-        {0, 1.0/36}, {1, 1.0/9}, {2, 1.0/36}
-    };
+extern std::map<int,double> weights;
 
 /**
  * @brief The Maxwell-Boltzmann-Distribution marks the equilibrium distribution of particles.
@@ -81,11 +71,7 @@ std::map<int,double> weights
  * @param direction direction according to the scheme proposed by Mattila et al.
  * @return the probability of there being a particle with velocity v_direction 
  */
-double maxwell_boltzmann_distribution(velocity u, double rho, unsigned int direction)
-{
-    return weights[direction] * rho * (1 + 3 * math_utils::dot(velocity_vectors[direction], u) 
-    + 9.0/2 * pow(math_utils::dot(velocity_vectors[direction], u), 2) - 3.0/2 * math_utils::dot(velocity_vectors[direction], u));
-}
+double maxwell_boltzmann_distribution(velocity u, double rho, unsigned int direction);
 
 /**
  * @brief Returns the Maxwell-Boltzmann-Distribution for all directions in the order proposed by Mattila et al.
@@ -94,14 +80,6 @@ double maxwell_boltzmann_distribution(velocity u, double rho, unsigned int direc
  * @param rho density
  * @return the probability of there being a particle with velocity v_direction 
  */
-vec_of_dist_val maxwell_boltzmann_distribution(velocity u, double rho)
-{
-    vec_of_dist_val result;
-    for(auto direction = 0; direction < DIRECTION_COUNT; ++direction)
-    {
-        result[direction] = weights[direction] * rho * (1 + 3 * math_utils::dot(velocity_vectors[direction], u) 
-                    + 9.0/2 * pow(math_utils::dot(velocity_vectors[direction], u), 2)
-                    - 3.0/2 * math_utils::dot(velocity_vectors[direction], u));
-    }
-    return result;
-}
+vec_of_dist_val maxwell_boltzmann_distribution(velocity u, double rho);
+
+#endif

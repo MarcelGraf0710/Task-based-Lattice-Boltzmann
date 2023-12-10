@@ -3,7 +3,7 @@
 #include "boundaries.hpp"
 #include "defines.hpp"
 #include "macroscopic.hpp"
-#include "simulation.cpp"
+#include "simulation.hpp"
 #include "update.hpp"
 
 int main()

@@ -129,6 +129,102 @@ sequential_lbm/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/build
 .PHONY : sequential_lbm/fast
 
+access.o: access.cpp.o
+.PHONY : access.o
+
+# target to build an object file
+access.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/access.cpp.o
+.PHONY : access.cpp.o
+
+access.i: access.cpp.i
+.PHONY : access.i
+
+# target to preprocess a source file
+access.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/access.cpp.i
+.PHONY : access.cpp.i
+
+access.s: access.cpp.s
+.PHONY : access.s
+
+# target to generate assembly for a file
+access.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/access.cpp.s
+.PHONY : access.cpp.s
+
+boundaries.o: boundaries.cpp.o
+.PHONY : boundaries.o
+
+# target to build an object file
+boundaries.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/boundaries.cpp.o
+.PHONY : boundaries.cpp.o
+
+boundaries.i: boundaries.cpp.i
+.PHONY : boundaries.i
+
+# target to preprocess a source file
+boundaries.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/boundaries.cpp.i
+.PHONY : boundaries.cpp.i
+
+boundaries.s: boundaries.cpp.s
+.PHONY : boundaries.s
+
+# target to generate assembly for a file
+boundaries.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/boundaries.cpp.s
+.PHONY : boundaries.cpp.s
+
+defines.o: defines.cpp.o
+.PHONY : defines.o
+
+# target to build an object file
+defines.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/defines.cpp.o
+.PHONY : defines.cpp.o
+
+defines.i: defines.cpp.i
+.PHONY : defines.i
+
+# target to preprocess a source file
+defines.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/defines.cpp.i
+.PHONY : defines.cpp.i
+
+defines.s: defines.cpp.s
+.PHONY : defines.s
+
+# target to generate assembly for a file
+defines.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/defines.cpp.s
+.PHONY : defines.cpp.s
+
+macroscopic.o: macroscopic.cpp.o
+.PHONY : macroscopic.o
+
+# target to build an object file
+macroscopic.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/macroscopic.cpp.o
+.PHONY : macroscopic.cpp.o
+
+macroscopic.i: macroscopic.cpp.i
+.PHONY : macroscopic.i
+
+# target to preprocess a source file
+macroscopic.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/macroscopic.cpp.i
+.PHONY : macroscopic.cpp.i
+
+macroscopic.s: macroscopic.cpp.s
+.PHONY : macroscopic.s
+
+# target to generate assembly for a file
+macroscopic.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/macroscopic.cpp.s
+.PHONY : macroscopic.cpp.s
+
 main.o: main.cpp.o
 .PHONY : main.o
 
@@ -201,6 +297,30 @@ update.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/update.cpp.s
 .PHONY : update.cpp.s
 
+utils.o: utils.cpp.o
+.PHONY : utils.o
+
+# target to build an object file
+utils.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/utils.cpp.o
+.PHONY : utils.cpp.o
+
+utils.i: utils.cpp.i
+.PHONY : utils.i
+
+# target to preprocess a source file
+utils.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/utils.cpp.i
+.PHONY : utils.cpp.i
+
+utils.s: utils.cpp.s
+.PHONY : utils.s
+
+# target to generate assembly for a file
+utils.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/utils.cpp.s
+.PHONY : utils.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -210,6 +330,18 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... sequential_lbm"
+	@echo "... access.o"
+	@echo "... access.i"
+	@echo "... access.s"
+	@echo "... boundaries.o"
+	@echo "... boundaries.i"
+	@echo "... boundaries.s"
+	@echo "... defines.o"
+	@echo "... defines.i"
+	@echo "... defines.s"
+	@echo "... macroscopic.o"
+	@echo "... macroscopic.i"
+	@echo "... macroscopic.s"
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"
@@ -219,6 +351,9 @@ help:
 	@echo "... update.o"
 	@echo "... update.i"
 	@echo "... update.s"
+	@echo "... utils.o"
+	@echo "... utils.i"
+	@echo "... utils.s"
 .PHONY : help
 
 

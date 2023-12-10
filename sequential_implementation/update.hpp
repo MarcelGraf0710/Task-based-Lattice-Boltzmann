@@ -1,5 +1,5 @@
-#pragma once
-
+#ifndef UPDATE_HPP
+#define UPDATE_HPP
 #include "defines.hpp"
 #include "boundaries.hpp"
 #include "access.hpp"
@@ -140,3 +140,4 @@ namespace stream
     }
 }
 
+#endif

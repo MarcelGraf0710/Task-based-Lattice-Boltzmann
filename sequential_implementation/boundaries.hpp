@@ -1,4 +1,5 @@
-#pragma once
+#ifndef BOUNDARIES_HPP
+#define BOUNDARIES_HPP
 
 #include "access.hpp"
 #include "defines.hpp"
@@ -50,49 +51,6 @@ namespace boundaries
     };
 
     /**
-     * @brief Utility function that gets all distribution values from the specified source using the specified access function.
-     * 
-     * @param source this vector contains the distribution values of all nodes
-     * @param access_function this access function is used to retrieve the distribution values from the source vector
-     * @param node_index this is the index the node has within the access pattern
-     * @return an vector containing all distribution values
-     */
-    inline vec_of_dist_val get_all_distribution_values(
-        all_distributions &source, 
-        access_function &access_function, 
-        unsigned int node_index)
-    {
-        vec_of_dist_val result;
-        for (int direction = 0; direction < DIRECTION_COUNT; ++direction)
-        {
-            result[direction] = source[access_function(node_index, direction)];
-        }
-        return result;
-    }
-
-    /**
-     * @brief Utility function to update all specified distribution values at the specified destination using the specified access function.
-     * 
-     * @param changes a vector containing all directions that were changed
-     * @param destination this vector contains the distribution values of all nodes
-     * @param access_function this access function is used to determine the indices of the directions within the destination vector
-     * @param node_index the index of the node whose distribution values are updated
-     * @param dist_values an vector containing all distribution values of the specified node (can be optimized, I know...)
-     */
-    inline void write_updated_border_values(
-        std::vector<unsigned int> &changes, 
-        all_distributions &destination, 
-        access_function &access_function, 
-        unsigned int node_index, 
-        vec_of_dist_val &dist_values)
-    {
-        for (auto direction : changes)
-        {
-            destination[access_function(node_index, direction)] = dist_values[direction];
-        }
-    }
-
-    /**
      * @brief Performs the after-streaming value update for a node that borders an inlet within the simulation domain.
      *        Note that in this case, it borders only an inlet and not a wall!
      *      
@@ -108,20 +66,7 @@ namespace boundaries
         access_function &access_function, 
         int y,
         double velocity_x = INLET_VELOCITY, 
-        double density = INLET_DENSITY)
-    {
-        vec_of_dist_val result;
-        unsigned int node_index = access::get_node_index(0, y);
-        result = get_all_distribution_values(source, access_function, node_index);
-        double rho_times_u_x = 1.0/6 * density * velocity_x;
-
-        std::vector<unsigned int> changes = {5, 8, 2};
-        result[5] = result[3] + 2.0/3 * density * velocity_x;
-        result[8] = result[0] - 0.5 * (result[7] - result[1]) + rho_times_u_x;
-        result[2] = result[6] + 0.5 * (result[7] - result[1]) + rho_times_u_x;
-        
-        write_updated_border_values(changes, destination, access_function, node_index, result);
-    }
+        double density = INLET_DENSITY);
 
     /**
      * @brief Performs the after-streaming value update for a node that borders an outlet within the simulation domain.
@@ -139,20 +84,7 @@ namespace boundaries
         access_function &access_function, 
         int y, 
         double velocity_x, 
-        double density = OUTLET_DENSITY)
-    {
-        vec_of_dist_val result;
-        unsigned int node_index = access::get_node_index(HORIZONTAL_NODES - 1, y);
-        result = get_all_distribution_values(source, access_function, node_index);
-        double rho_times_u_x = 1.0/6 * density * velocity_x;
-
-        std::vector<unsigned int> changes = {5, 8, 2};
-        result[3] = result[5] - 2.0/3 * density * velocity_x;
-        result[0] = result[8] + 0.5 * (result[7] - result[1]) - rho_times_u_x;
-        result[6] = result[2] - 0.5 * (result[7] - result[1]) - rho_times_u_x;
-
-        write_updated_border_values(changes, destination, access_function, node_index, result);
-    }
+        double density = OUTLET_DENSITY);
 
     /**
      * @brief Performs the after-streaming value update for a node that borders a lower wall within the simulation domain.
@@ -168,25 +100,8 @@ namespace boundaries
         all_distributions &source,      
         all_distributions &destination, 
         access_function &access_function, 
-        int x, 
-        velocity wall_velocity = {0,0})
-    {
-        vec_of_dist_val result;
-        unsigned int node_index = access::get_node_index(x, 0);
-        result = get_all_distribution_values(source, access_function, node_index);
-        double density = 1 / (1 - wall_velocity[1]) * (result[4] + result[5] + result[3] + 2 * (result[1] + result[0] + result[2]));
-
-        double rho_times_u_x = 0.5 * density * wall_velocity[0];
-        double rho_times_u_y = 1.0/6 * density * wall_velocity[1];
-
-        std::vector<unsigned int> changes = {6,7,8};
-        result[7] = result[1] + 2.0/3 * density * wall_velocity[1];
-        result[8] = result[0] + 0.5 * (result[5] - result[3]) + rho_times_u_x + rho_times_u_y;
-        result[6] = result[2] + 0.5 * (result[5] - result[3]) - rho_times_u_x + rho_times_u_y;
-
-        write_updated_border_values(changes, destination, access_function, node_index, result);
-        return density;
-    }
+        int x,
+        velocity wall_velocity = {0,0});
 
     /**
      * @brief Performs the after-streaming value update for a node that borders an upper wall within the simulation domain.
@@ -203,24 +118,7 @@ namespace boundaries
         all_distributions &destination, 
         access_function &access_function, 
         int x, 
-        velocity wall_velocity = {0,0})
-    {
-        vec_of_dist_val result;
-        unsigned int node_index = access::get_node_index(x, VERTICAL_NODES - 1);
-        result = get_all_distribution_values(source, access_function, node_index);
-        double density = 1 / (1 - wall_velocity[1]) * (result[4] + result[5] + result[3] + 2 * (result[1] + result[0] + result[2]));
-
-        double rho_times_u_x = 0.5 * density * wall_velocity[0];
-        double rho_times_u_y = 1.0/6 * density * wall_velocity[1];
-
-        std::vector<unsigned int> changes = {0,1,2};
-        result[1] = result[7] - 2.0/3 * density * wall_velocity[1];
-        result[0] = result[8] - 0.5 * (result[3] - result[5]) - rho_times_u_x - rho_times_u_y;
-        result[2] = result[6] + 0.5 * (result[3] - result[5]) + rho_times_u_x - rho_times_u_y;
-
-        write_updated_border_values(changes, destination, access_function, node_index, result);
-        return density;
-    }
+        velocity wall_velocity = {0,0});
 
     /**
      * @brief Performs the after-stream update for a node that is bordered by a lower wall and an inlet of a simulation domain.
@@ -233,21 +131,7 @@ namespace boundaries
         all_distributions &source, 
         all_distributions &destination,
         access_function access_function,
-        double density = INLET_DENSITY)
-    {
-        vec_of_dist_val result;
-        unsigned int lower_inlet_node = access::get_node_index(0, 0);
-        result = get_all_distribution_values(source, access_function, lower_inlet_node);
-
-        std::vector<unsigned int> changes = {5, 7, 8, 2, 6};
-        result[5] = result[3];
-        result[7] = result[1];
-        result[8] = result[0];
-        result[2] = 0.5 * (density - (result[4] + 2 * result[0] + 2 * result[1] + 2 * result[3]));
-        result[6] = result[2];
-
-        write_updated_border_values(changes, destination, access_function, lower_inlet_node, result);
-    }
+        double density = INLET_DENSITY);
 
     /**
      * @brief Performs the after-stream update for a node that is bordered by an upper wall and an inlet of a simulation domain.
@@ -260,21 +144,7 @@ namespace boundaries
         all_distributions &source, 
         all_distributions &destination, 
         access_function access_function,
-        double density = INLET_DENSITY)
-    {
-        vec_of_dist_val result;
-        unsigned int upper_inlet_node = access::get_node_index(0, HORIZONTAL_NODES - 1);
-        result = get_all_distribution_values(source, access_function, upper_inlet_node);
-
-        std::vector<unsigned int> changes = {5, 1, 2, 0, 8};
-        result[5] = result[3];
-        result[1] = result[7];
-        result[2] = result[6];
-        result[0] = 0.5 * (density - (result[4] + 2 * result[3] + 2 * result[6] + 2 * result[7]));
-        result[8] = result[0];
-
-        write_updated_border_values(changes, destination, access_function, upper_inlet_node, result);
-    }
+        double density = INLET_DENSITY);
 
     /**
      * @brief Performs the after-stream update for a node that is bordered by a lower wall and an outlet of a simulation domain.
@@ -287,22 +157,7 @@ namespace boundaries
         all_distributions &source,        
         all_distributions &destination,        
         access_function access_function,
-
-        double density = INLET_DENSITY)
-    {
-        vec_of_dist_val result;
-        unsigned int lower_outlet_node = access::get_node_index(VERTICAL_NODES - 1, 0);
-        result = get_all_distribution_values(source, access_function, lower_outlet_node);
-        
-        std::vector<unsigned int> changes = {3,7,6,0,8};
-        result[3] = result[5];
-        result[7] = result[1];
-        result[6] = result[2];
-        result[0] = 0.5 * (density - (result[4] + 2 * result[1] + 2 * result[2] + 2 * result[5]));
-        result[8] = result[0];
-
-        write_updated_border_values(changes, destination, access_function, lower_outlet_node, result);
-    }
+        double density = INLET_DENSITY);
 
     /**
      * @brief Performs the after-stream update for a node that is bordered by an upper wall and an outlet of a simulation domain.
@@ -315,19 +170,7 @@ namespace boundaries
         all_distributions &source, 
         all_distributions &destination,         
         access_function access_function,
-        double density = INLET_DENSITY)
-    {
-        vec_of_dist_val result;
-        unsigned int lower_outlet_node = access::get_node_index(VERTICAL_NODES - 1, HORIZONTAL_NODES - 1);
-        result = get_all_distribution_values(source, access_function, lower_outlet_node);
-        
-        std::vector<unsigned int> changes = {3,1,0,2,6};
-        result[3] = result[5];
-        result[1] = result[7];
-        result[0] = result[8];
-        result[2] = 0.5 * (density - (result[4] + 2 * result[5] + 2 * result[7] + 2 * result[8]));
-        result[6] = result[2];
-
-        write_updated_border_values(changes, destination, access_function, lower_outlet_node, result);
-    }
+        double density = INLET_DENSITY);
 }
+
+#endif

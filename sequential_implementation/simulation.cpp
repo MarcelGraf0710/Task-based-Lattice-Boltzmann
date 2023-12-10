@@ -1,31 +1,16 @@
-#include "defines.hpp"
-#include "macroscopic.hpp"
+#include "simulation.hpp"
 #include "access.hpp"
+#include "macroscopic.hpp"
 #include "update.hpp"
 
-struct simulation_data
-{
-    std::vector<double> all_distributions_0;
-    std::vector<double> all_distributions_1;
-    std::vector<velocity> all_velocities; 
-    access_function access;
+simulation_data::simulation_data(std::vector<double> initial_distributions, access_function access) : 
+    all_distributions_0(initial_distributions),
+    access(access)
+    {
+        macroscopic::update_all_velocities(all_distributions_0, all_velocities, access);
+    };
 
-    simulation_data(std::vector<double> initial_distributions, access_function access) : 
-        all_distributions_0(initial_distributions),
-        access(access)
-        {
-            macroscopic::update_all_velocities(all_distributions_0, all_velocities, access);
-        };
-};
-
-/**
- * @brief Returns a vector containing the distribution values set up according to the specified access pattern and inlet velocity.
- * 
- * @param access 
- * @param inlet_velocity 
- * @return std::vector<double> 
- */
-std::vector<double> setup_distributions(access_function access, double inlet_velocity = INLET_VELOCITY, double inlet_density = INLET_DENSITY)
+std::vector<double> setup_distributions(access_function access, double inlet_velocity, double inlet_density)
 {
     // Setup all non-inlet nodes to have initial velocity 0
     std::vector<double> dist_vals;

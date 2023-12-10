@@ -187,9 +187,8 @@ CMakeFiles/sequential_lbm.dir/main.cpp.o: \
  /usr/include/c++/11/array /usr/include/c++/11/bits/uses_allocator.h \
  /usr/include/c++/11/bits/invoke.h \
  /usr/include/c++/11/bits/stl_multimap.h \
- /usr/include/c++/11/bits/erase_if.h \
- /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/sequential_implementation/utils.hpp \
- /usr/include/c++/11/functional /usr/include/c++/11/bits/refwrap.h \
+ /usr/include/c++/11/bits/erase_if.h /usr/include/c++/11/functional \
+ /usr/include/c++/11/bits/refwrap.h \
  /usr/include/c++/11/bits/std_function.h \
  /usr/include/c++/11/unordered_map /usr/include/c++/11/bits/hashtable.h \
  /usr/include/c++/11/bits/hashtable_policy.h \
@@ -217,5 +216,5 @@ CMakeFiles/sequential_lbm.dir/main.cpp.o: \
  /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/sequential_implementation/boundaries.hpp \
  /usr/include/c++/11/optional \
  /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/sequential_implementation/macroscopic.hpp \
- /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/sequential_implementation/simulation.cpp \
+ /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/sequential_implementation/simulation.hpp \
  /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/sequential_implementation/update.hpp
