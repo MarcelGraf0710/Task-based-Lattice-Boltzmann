@@ -7,8 +7,12 @@ file(REMOVE_RECURSE
   "CMakeFiles/sequential_lbm.dir/src/boundaries.cpp.o.d"
   "CMakeFiles/sequential_lbm.dir/src/defines.cpp.o"
   "CMakeFiles/sequential_lbm.dir/src/defines.cpp.o.d"
+  "CMakeFiles/sequential_lbm.dir/src/macroscopic.cpp.o"
+  "CMakeFiles/sequential_lbm.dir/src/macroscopic.cpp.o.d"
   "CMakeFiles/sequential_lbm.dir/src/simulation_in_cool.cpp.o"
   "CMakeFiles/sequential_lbm.dir/src/simulation_in_cool.cpp.o.d"
+  "CMakeFiles/sequential_lbm.dir/src/update.cpp.o"
+  "CMakeFiles/sequential_lbm.dir/src/update.cpp.o.d"
   "sequential_lbm"
   "sequential_lbm.pdb"
 )

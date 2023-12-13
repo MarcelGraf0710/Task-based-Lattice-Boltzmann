@@ -42,17 +42,12 @@ namespace stream
     /**
      * @brief Contains the directions that are considered during streaming for regular (non-border) nodes.
      */
-    std::array<unsigned int, DIRECTION_COUNT - 1> general_stream_directions{0,1,2,3,5,6,7,8};
+    extern std::array<unsigned int, DIRECTION_COUNT - 1> general_stream_directions;
 
     /**
      * @brief This tuple contains the following information that is necessary for the streaming of border node values
      */
-    std::array<std::tuple<std::tuple<unsigned int, unsigned int>, std::list<int>>, 4> corner_specs{
-        std::make_tuple(std::make_tuple(0,0), std::list{5,7,8}),
-        std::make_tuple(std::make_tuple(0,VERTICAL_NODES - 1), std::list{1,2,5}),
-        std::make_tuple(std::make_tuple(HORIZONTAL_NODES - 1,0), std::list{3,6,7}),
-        std::make_tuple(std::make_tuple(HORIZONTAL_NODES - 1,VERTICAL_NODES - 1), std::list{0,1,3})
-    };
+    extern std::array<std::tuple<std::tuple<unsigned int, unsigned int>, std::list<int>>, 4> corner_specs;
 
     /**
      * @brief This namespace provides a method to perform a streaming step using the two-lattice algorithm.
@@ -126,82 +121,73 @@ namespace stream
             access_function access_function,
             all_distributions &source,
             all_distributions &destination
-            )
-        {
-            helper::two_lattice_regular(source, destination, access_function);
-            helper::two_lattice_wallup(source, destination, access_function);
-            helper::two_lattice_walldown(source, destination, access_function);
-            helper::two_lattice_inlet(source, destination, access_function);
-            helper::two_lattice_outlet(source, destination, access_function);
-            helper::two_lattice_corners(source, destination, access_function);
-            helper::perform_boundary_update(source, destination, access_function);
-        }
+            );
         
     }
 
-    /**
-     * @brief This namespace provides a method to perform a streaming step using the two-step algorithm.
-     *        It also includes various helper functions in a separate namespace which are not meant for outside access.
-     */
-    namespace two_step
-    {
-        /**
-         * @brief 
-         * 
-         * @param access_function 
-         * @param source 
-         */
-        void perform_two_lattice_stream(
-            access_function access_function,
-            all_distributions &source
-        )
-        {
-            unsigned int row_start_offset = 0;
-            unsigned int row_end_offset = 0;
-            unsigned int column_start_offset = 0;
-            unsigned int column_end_offset = 0;
-            double current_velocity_x = 0;
-            double current_velocity_y = 0;
-            for(auto direction = 0; direction < DIRECTION_COUNT; ++direction)
-            {
-                current_velocity_x = velocity_vectors[direction][0];
-                current_velocity_y = velocity_vectors[direction][1];
-                if(current_velocity_y == -1) // If facing downward, increase row start offset by 1
-                {
-                    row_start_offset = 1;
-                    row_end_offset = 0;
-                }
-                else if(current_velocity_y == 1) // If facing upward, decrease row end offset by 1 
-                {
-                    row_start_offset = 0;
-                    row_end_offset = 1;
-                }
-                 else // facing neigher upward nor downward
-                {
-                    row_start_offset = 0;
-                    row_end_offset = 0;
-                }
+    // /**
+    //  * @brief This namespace provides a method to perform a streaming step using the two-step algorithm.
+    //  *        It also includes various helper functions in a separate namespace which are not meant for outside access.
+    //  */
+    // namespace two_step
+    // {
+    //     /**
+    //      * @brief 
+    //      * 
+    //      * @param access_function 
+    //      * @param source 
+    //      */
+    //     void perform_two_lattice_stream(
+    //         access_function access_function,
+    //         all_distributions &source
+    //     )
+    //     {
+    //         unsigned int row_start_offset = 0;
+    //         unsigned int row_end_offset = 0;
+    //         unsigned int column_start_offset = 0;
+    //         unsigned int column_end_offset = 0;
+    //         double current_velocity_x = 0;
+    //         double current_velocity_y = 0;
+    //         for(auto direction = 0; direction < DIRECTION_COUNT; ++direction)
+    //         {
+    //             current_velocity_x = velocity_vectors[direction][0];
+    //             current_velocity_y = velocity_vectors[direction][1];
+    //             if(current_velocity_y == -1) // If facing downward, increase row start offset by 1
+    //             {
+    //                 row_start_offset = 1;
+    //                 row_end_offset = 0;
+    //             }
+    //             else if(current_velocity_y == 1) // If facing upward, decrease row end offset by 1 
+    //             {
+    //                 row_start_offset = 0;
+    //                 row_end_offset = 1;
+    //             }
+    //              else // facing neigher upward nor downward
+    //             {
+    //                 row_start_offset = 0;
+    //                 row_end_offset = 0;
+    //             }
 
-                if(current_velocity_x == -1) // If facing rightward, increase column start offset by 1
-                {
-                    column_start_offset = 1;
-                    column_end_offset = 0;
-                }
-                else if(current_velocity_x == 1) // If facing leftward, decrease column end offset by 1 
-                {
-                    column_start_offset = 0;
-                    column_end_offset = 1;
-                }
-                 else // facing neigher rightward nor leftward
-                {
-                    column_start_offset = 0;
-                    column_end_offset = 0;
-                }
-            }
-        }
+    //             if(current_velocity_x == -1) // If facing rightward, increase column start offset by 1
+    //             {
+    //                 column_start_offset = 1;
+    //                 column_end_offset = 0;
+    //             }
+    //             else if(current_velocity_x == 1) // If facing leftward, decrease column end offset by 1 
+    //             {
+    //                 column_start_offset = 0;
+    //                 column_end_offset = 1;
+    //             }
+    //              else // facing neigher rightward nor leftward
+    //             {
+    //                 column_start_offset = 0;
+    //                 column_end_offset = 0;
+    //             }
+    //         }
+    //     }
 
 
-    }
+    // }
 }
 
 #endif

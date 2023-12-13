@@ -1,10 +1,23 @@
-#include "update.hpp"
+#include "../include/update.hpp"
+#include <iostream>
+
+std::array<std::tuple<std::tuple<unsigned int, unsigned int>, std::list<int>>, 4> stream::corner_specs{
+    std::make_tuple(std::make_tuple(0,0), std::list{5,7,8}),
+    std::make_tuple(std::make_tuple(0,VERTICAL_NODES - 1), std::list{1,2,5}),
+    std::make_tuple(std::make_tuple(HORIZONTAL_NODES - 1,0), std::list{3,6,7}),
+    std::make_tuple(std::make_tuple(HORIZONTAL_NODES - 1,VERTICAL_NODES - 1), std::list{0,1,3})
+};
+
+std::array<unsigned int, DIRECTION_COUNT - 1> stream::general_stream_directions{0,1,2,3,5,6,7,8};
 
 vec_of_dist_val collision::collide_bgk(vec_of_dist_val f, velocity u, double density)
 {
+    std::cout << "Entering collision" << std::endl;
     vec_of_dist_val result = maxwell_boltzmann_distribution(u, density);
+    std::cout << "Got mb distri" << std::endl;
     for(auto i = 0; i < DIRECTION_COUNT; ++i)
     {
+        std::cout << "Loop iteration " << i << std::endl;
         result[i] = -(1/RELAXATION_TIME) * (f[i] - result[i]);
     }
     return result;
@@ -34,7 +47,7 @@ void stream::two_lattice::helper::two_lattice_corners(
     access_function &access_function
     )
 {
-    for (auto corner : corner_specs)
+    for (auto corner : stream::corner_specs)
     {
         for (auto direction : std::get<1>(corner))
         {
@@ -54,7 +67,7 @@ void stream::two_lattice::helper::two_lattice_outlet(
 {
     for (auto row = 1; row < VERTICAL_NODES - 2; ++row)
     {
-        for (auto direction : boundaries::neighbor_directions[boundaries::boundary_scenarios::outlet])
+        for (auto direction : std::list{0,1,3,6,7})
         {
             destination[access_function(access::get_node_index(HORIZONTAL_NODES - 1 + velocity_vectors[direction][0], row + velocity_vectors[direction][1]), direction)] = source[access_function(access::get_node_index(HORIZONTAL_NODES - 1, row), direction)];
         }
@@ -69,7 +82,7 @@ void stream::two_lattice::helper::two_lattice_inlet(
 {
     for (auto row = 1; row < VERTICAL_NODES - 2; ++row)
     {
-        for (auto direction : boundaries::neighbor_directions[boundaries::boundary_scenarios::inlet])
+        for (auto direction : std::list{1,2,5,7,8})
         {
             destination[access_function(access::get_node_index(velocity_vectors[direction][0], row + velocity_vectors[direction][1]), direction)] = source[access_function(access::get_node_index(0, row), direction)];
         }
@@ -84,7 +97,7 @@ void stream::two_lattice::helper::two_lattice_walldown(
 {
     for (auto column = 1; column < HORIZONTAL_NODES; ++column)
     {
-        for (auto direction : boundaries::neighbor_directions[boundaries::boundary_scenarios::wall_down])
+        for (auto direction : std::list{3,5,6,7,8})
         {
             destination[access_function(access::get_node_index(column + velocity_vectors[direction][0], VERTICAL_NODES - 1 + velocity_vectors[direction][1]), direction)] = source[access_function(access::get_node_index(column, VERTICAL_NODES - 1), direction)];
         }
@@ -99,7 +112,7 @@ void stream::two_lattice::helper::two_lattice_wallup(
 {
     for (auto column = 1; column < HORIZONTAL_NODES; ++column)
     {
-        for (auto direction : boundaries::neighbor_directions[boundaries::boundary_scenarios::wall_up])
+        for (auto direction : std::list{0,1,2,3,5})
         {
             destination[access_function(access::get_node_index(column + velocity_vectors[direction][0], velocity_vectors[direction][1]), direction)] = source[access_function(access::get_node_index(column, 0), direction)];
         }
@@ -116,7 +129,7 @@ void stream::two_lattice::helper::two_lattice_regular(
     {
         for (auto column = 1; column < HORIZONTAL_NODES - 2; ++column)
         {
-            for (auto direction : general_stream_directions)
+            for (auto direction : stream::general_stream_directions)
             {
                 destination[access_function(access::get_node_index(column + velocity_vectors[direction][0], row + velocity_vectors[direction][1]), direction)] = source[access_function(access::get_node_index(column, row), direction)];
             }
@@ -148,3 +161,18 @@ void stream::two_lattice::helper::perform_boundary_update(all_distributions &sou
                 boundaries::inlet_boundary_stream(source, destination, access_function, y);
             }
         }
+
+void stream::two_lattice::perform_two_lattice_stream(
+    access_function access_function,
+    all_distributions &source,
+    all_distributions &destination
+    )
+{
+    helper::two_lattice_regular(source, destination, access_function);
+    helper::two_lattice_wallup(source, destination, access_function);
+    helper::two_lattice_walldown(source, destination, access_function);
+    helper::two_lattice_inlet(source, destination, access_function);
+    helper::two_lattice_outlet(source, destination, access_function);
+    helper::two_lattice_corners(source, destination, access_function);
+    helper::perform_boundary_update(source, destination, access_function);
+}

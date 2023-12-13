@@ -7,19 +7,18 @@ project(sequential_lbm CXX)
 set(HEADER_FILES include/access.hpp
                  include/boundaries.hpp 
                  include/defines.hpp
-                 #macroscopic.hpp
+                 include/macroscopic.hpp
+                 include/update.hpp
                  include/simulation_in_cool.hpp
-                 #update.hpp
                  include/utils.hpp
                  )
 
 set(SOURCE_FILES src/access.cpp
                  src/boundaries.cpp 
                  src/defines.cpp
-                 #macroscopic.cpp
+                 src/macroscopic.cpp
                  #simulation.cpp
                  src/simulation_in_cool.cpp
-                 #update.cpp
-                 #src/utils.cpp
+                 src/update.cpp
                  )
 add_executable(sequential_lbm main.cpp ${HEADER_FILES} ${SOURCE_FILES})

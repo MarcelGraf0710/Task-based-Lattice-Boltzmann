@@ -1,4 +1,4 @@
-#include "macroscopic.hpp"
+#include "../include/macroscopic.hpp"
 
 double macroscopic::density(vec_of_dist_val distribution_functions)
 {

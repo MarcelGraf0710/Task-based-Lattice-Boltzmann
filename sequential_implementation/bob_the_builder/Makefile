@@ -225,6 +225,30 @@ src/defines.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/src/defines.cpp.s
 .PHONY : src/defines.cpp.s
 
+src/macroscopic.o: src/macroscopic.cpp.o
+.PHONY : src/macroscopic.o
+
+# target to build an object file
+src/macroscopic.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/src/macroscopic.cpp.o
+.PHONY : src/macroscopic.cpp.o
+
+src/macroscopic.i: src/macroscopic.cpp.i
+.PHONY : src/macroscopic.i
+
+# target to preprocess a source file
+src/macroscopic.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/src/macroscopic.cpp.i
+.PHONY : src/macroscopic.cpp.i
+
+src/macroscopic.s: src/macroscopic.cpp.s
+.PHONY : src/macroscopic.s
+
+# target to generate assembly for a file
+src/macroscopic.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/src/macroscopic.cpp.s
+.PHONY : src/macroscopic.cpp.s
+
 src/simulation_in_cool.o: src/simulation_in_cool.cpp.o
 .PHONY : src/simulation_in_cool.o
 
@@ -249,6 +273,30 @@ src/simulation_in_cool.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/src/simulation_in_cool.cpp.s
 .PHONY : src/simulation_in_cool.cpp.s
 
+src/update.o: src/update.cpp.o
+.PHONY : src/update.o
+
+# target to build an object file
+src/update.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/src/update.cpp.o
+.PHONY : src/update.cpp.o
+
+src/update.i: src/update.cpp.i
+.PHONY : src/update.i
+
+# target to preprocess a source file
+src/update.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/src/update.cpp.i
+.PHONY : src/update.cpp.i
+
+src/update.s: src/update.cpp.s
+.PHONY : src/update.s
+
+# target to generate assembly for a file
+src/update.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/src/update.cpp.s
+.PHONY : src/update.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -270,9 +318,15 @@ help:
 	@echo "... src/defines.o"
 	@echo "... src/defines.i"
 	@echo "... src/defines.s"
+	@echo "... src/macroscopic.o"
+	@echo "... src/macroscopic.i"
+	@echo "... src/macroscopic.s"
 	@echo "... src/simulation_in_cool.o"
 	@echo "... src/simulation_in_cool.i"
 	@echo "... src/simulation_in_cool.s"
+	@echo "... src/update.o"
+	@echo "... src/update.i"
+	@echo "... src/update.s"
 .PHONY : help
 
 

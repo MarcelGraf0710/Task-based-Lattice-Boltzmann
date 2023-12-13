@@ -71,7 +71,7 @@ extern std::map<int,double> weights;
  * @param direction direction according to the scheme proposed by Mattila et al.
  * @return the probability of there being a particle with velocity v_direction 
  */
-double maxwell_boltzmann_distribution(velocity u, double rho, unsigned int direction);
+double maxwell_boltzmann_distribution(velocity &u, double rho, unsigned int direction);
 
 /**
  * @brief Returns the Maxwell-Boltzmann-Distribution for all directions in the order proposed by Mattila et al.
@@ -80,6 +80,6 @@ double maxwell_boltzmann_distribution(velocity u, double rho, unsigned int direc
  * @param rho density
  * @return the probability of there being a particle with velocity v_direction 
  */
-vec_of_dist_val maxwell_boltzmann_distribution(velocity u, double rho);
+vec_of_dist_val maxwell_boltzmann_distribution(velocity &u, double rho);
 
 #endif
