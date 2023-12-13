@@ -153,6 +153,54 @@ main.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/main.cpp.s
 .PHONY : main.cpp.s
 
+src/access.o: src/access.cpp.o
+.PHONY : src/access.o
+
+# target to build an object file
+src/access.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/src/access.cpp.o
+.PHONY : src/access.cpp.o
+
+src/access.i: src/access.cpp.i
+.PHONY : src/access.i
+
+# target to preprocess a source file
+src/access.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/src/access.cpp.i
+.PHONY : src/access.cpp.i
+
+src/access.s: src/access.cpp.s
+.PHONY : src/access.s
+
+# target to generate assembly for a file
+src/access.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/src/access.cpp.s
+.PHONY : src/access.cpp.s
+
+src/boundaries.o: src/boundaries.cpp.o
+.PHONY : src/boundaries.o
+
+# target to build an object file
+src/boundaries.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/src/boundaries.cpp.o
+.PHONY : src/boundaries.cpp.o
+
+src/boundaries.i: src/boundaries.cpp.i
+.PHONY : src/boundaries.i
+
+# target to preprocess a source file
+src/boundaries.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/src/boundaries.cpp.i
+.PHONY : src/boundaries.cpp.i
+
+src/boundaries.s: src/boundaries.cpp.s
+.PHONY : src/boundaries.s
+
+# target to generate assembly for a file
+src/boundaries.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/src/boundaries.cpp.s
+.PHONY : src/boundaries.cpp.s
+
 src/defines.o: src/defines.cpp.o
 .PHONY : src/defines.o
 
@@ -213,6 +261,12 @@ help:
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"
+	@echo "... src/access.o"
+	@echo "... src/access.i"
+	@echo "... src/access.s"
+	@echo "... src/boundaries.o"
+	@echo "... src/boundaries.i"
+	@echo "... src/boundaries.s"
 	@echo "... src/defines.o"
 	@echo "... src/defines.i"
 	@echo "... src/defines.s"

@@ -4,7 +4,7 @@ project(sequential_lbm CXX)
 #set(HEADER_FILES "${CMAKE_CURRENT_SOURCE_DIR}" "*.hpp")
 #file(GLOB HEADER_FILES RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "*.hpp")
 #set(SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
-set(HEADER_FILES #include/access.hpp
+set(HEADER_FILES include/access.hpp
                  include/boundaries.hpp 
                  include/defines.hpp
                  #macroscopic.hpp
@@ -13,8 +13,8 @@ set(HEADER_FILES #include/access.hpp
                  include/utils.hpp
                  )
 
-set(SOURCE_FILES #src/access.cpp
-                 #boundaries.cpp 
+set(SOURCE_FILES src/access.cpp
+                 src/boundaries.cpp 
                  src/defines.cpp
                  #macroscopic.cpp
                  #simulation.cpp

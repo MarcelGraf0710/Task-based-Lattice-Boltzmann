@@ -64,7 +64,7 @@ namespace access
      * @param access this access function will be used
      * @return All distribution values
      */
-    std::vector<double> get_all_distribution_values(std::vector<double> source, int node_index, access_function access);
+    std::vector<double> get_all_distribution_values(std::vector<double> &source, int node_index, access_function access);
 
     /**
      * @brief This function sets all distribution values of the node with the specified index to the specified values using the specified access pattern.
@@ -74,7 +74,7 @@ namespace access
      * @param node_index this is the index of the node in the domain
      * @param access this access function will be used
      */
-    void set_all_distribution_values(std::vector<double> dist_vals, std::vector<double> destination, int node_index, access_function access);
+    void set_all_distribution_values(std::vector<double> &dist_vals, std::vector<double> &destination, int node_index, access_function access);
 }
 
 /**

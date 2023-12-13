@@ -48,10 +48,10 @@ namespace stream
      * @brief This tuple contains the following information that is necessary for the streaming of border node values
      */
     std::array<std::tuple<std::tuple<unsigned int, unsigned int>, std::list<int>>, 4> corner_specs{
-        std::make_tuple(std::make_tuple(0,0), boundaries::neighbor_directions[boundaries::boundary_scenarios::lower_inlet]),
-        std::make_tuple(std::make_tuple(0,VERTICAL_NODES - 1), boundaries::neighbor_directions[boundaries::boundary_scenarios::upper_inlet]),
-        std::make_tuple(std::make_tuple(HORIZONTAL_NODES - 1,0), boundaries::neighbor_directions[boundaries::boundary_scenarios::lower_outlet]),
-        std::make_tuple(std::make_tuple(HORIZONTAL_NODES - 1,VERTICAL_NODES - 1), boundaries::neighbor_directions[boundaries::boundary_scenarios::upper_outlet])
+        std::make_tuple(std::make_tuple(0,0), std::list{5,7,8}),
+        std::make_tuple(std::make_tuple(0,VERTICAL_NODES - 1), std::list{1,2,5}),
+        std::make_tuple(std::make_tuple(HORIZONTAL_NODES - 1,0), std::list{3,6,7}),
+        std::make_tuple(std::make_tuple(HORIZONTAL_NODES - 1,VERTICAL_NODES - 1), std::list{0,1,3})
     };
 
     /**
