@@ -22,12 +22,12 @@ struct simulation_data
 std::vector<double> setup_distributions(access_function access, double inlet_velocity = INLET_VELOCITY, double inlet_density = INLET_DENSITY);
 
 /**
- * @brief 
- * 
- * @param time_steps 
- * @param simulation_data 
- * @param access 
+ * @brief
+ *
+ * @param time_steps
+ * @param simulation_data
+ * @param access
  */
-void run_two_lattice(int time_steps, simulation_data& simulation_data, access_function access);
+void run_two_lattice(int time_steps, simulation_data &simulation_data, access_function access);
 
 #endif

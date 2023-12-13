@@ -249,29 +249,29 @@ src/macroscopic.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/src/macroscopic.cpp.s
 .PHONY : src/macroscopic.cpp.s
 
-src/simulation_in_cool.o: src/simulation_in_cool.cpp.o
-.PHONY : src/simulation_in_cool.o
+src/simulation.o: src/simulation.cpp.o
+.PHONY : src/simulation.o
 
 # target to build an object file
-src/simulation_in_cool.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/src/simulation_in_cool.cpp.o
-.PHONY : src/simulation_in_cool.cpp.o
+src/simulation.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/src/simulation.cpp.o
+.PHONY : src/simulation.cpp.o
 
-src/simulation_in_cool.i: src/simulation_in_cool.cpp.i
-.PHONY : src/simulation_in_cool.i
+src/simulation.i: src/simulation.cpp.i
+.PHONY : src/simulation.i
 
 # target to preprocess a source file
-src/simulation_in_cool.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/src/simulation_in_cool.cpp.i
-.PHONY : src/simulation_in_cool.cpp.i
+src/simulation.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/src/simulation.cpp.i
+.PHONY : src/simulation.cpp.i
 
-src/simulation_in_cool.s: src/simulation_in_cool.cpp.s
-.PHONY : src/simulation_in_cool.s
+src/simulation.s: src/simulation.cpp.s
+.PHONY : src/simulation.s
 
 # target to generate assembly for a file
-src/simulation_in_cool.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/src/simulation_in_cool.cpp.s
-.PHONY : src/simulation_in_cool.cpp.s
+src/simulation.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/src/simulation.cpp.s
+.PHONY : src/simulation.cpp.s
 
 src/update.o: src/update.cpp.o
 .PHONY : src/update.o
@@ -321,9 +321,9 @@ help:
 	@echo "... src/macroscopic.o"
 	@echo "... src/macroscopic.i"
 	@echo "... src/macroscopic.s"
-	@echo "... src/simulation_in_cool.o"
-	@echo "... src/simulation_in_cool.i"
-	@echo "... src/simulation_in_cool.s"
+	@echo "... src/simulation.o"
+	@echo "... src/simulation.i"
+	@echo "... src/simulation.s"
 	@echo "... src/update.o"
 	@echo "... src/update.i"
 	@echo "... src/update.s"

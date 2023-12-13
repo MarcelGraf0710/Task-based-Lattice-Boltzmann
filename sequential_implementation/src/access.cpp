@@ -8,6 +8,8 @@ std::vector<double> access::get_all_distribution_values(std::vector<double> &sou
     dist_vals.reserve(9);
     for(auto direction = 0; direction < DIRECTION_COUNT; ++direction)
     {
+        std::cout << "Attempting dist_vals[" << direction << "] = ";
+        std::cout << source[access(node_index, direction)];
         dist_vals[direction] = source[access(node_index, direction)];
         std::cout << dist_vals[direction] << std::endl;
     }

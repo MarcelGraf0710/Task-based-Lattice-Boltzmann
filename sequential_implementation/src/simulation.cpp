@@ -1,12 +1,14 @@
-#include "simulation.hpp"
-#include "access.hpp"
-#include "macroscopic.hpp"
-#include "update.hpp"
+#include "../include/simulation.hpp"
+#include "../include/access.hpp"
+#include "../include/macroscopic.hpp"
+#include "../include/update.hpp"
+#include <iostream>
 
 simulation_data::simulation_data(std::vector<double> initial_distributions, access_function access) : 
     all_distributions_0(initial_distributions),
     access(access)
     {
+        std::cout << "Accessing constructor " << std::endl;
         macroscopic::update_all_velocities(all_distributions_0, all_velocities, access);
     };
 
@@ -15,13 +17,16 @@ std::vector<double> setup_distributions(access_function access, double inlet_vel
     // Setup all non-inlet nodes to have initial velocity 0
     std::vector<double> dist_vals;
     dist_vals.reserve(TOTAL_NODE_COUNT * DIRECTION_COUNT);
+    velocity zero_velocity{0,0};
+    velocity inlet_velocity_vector = {inlet_velocity,0};
     for(auto x = 1; x < HORIZONTAL_NODES; ++x)
     {
         for(auto y = 0; y < VERTICAL_NODES; ++y)
         {
             for(auto direction = 0; direction < DIRECTION_COUNT; ++direction)
             {
-                dist_vals[access(access::get_node_index(x,y), direction)] = maxwell_boltzmann_distribution({0,0}, inlet_density, direction);
+                double arg = maxwell_boltzmann_distribution(zero_velocity, inlet_density, direction);
+                dist_vals[access(access::get_node_index(x,y), direction)] = arg;
             }
         }
     }
@@ -30,7 +35,7 @@ std::vector<double> setup_distributions(access_function access, double inlet_vel
         {
             for(auto direction = 0; direction < DIRECTION_COUNT; ++direction)
             {
-                dist_vals[access(access::get_node_index(0,y), direction)] = maxwell_boltzmann_distribution({inlet_velocity,0}, inlet_density, direction);
+                dist_vals[access(access::get_node_index(0,y), direction)] = maxwell_boltzmann_distribution(inlet_velocity_vector, inlet_density, direction);
             }
         }
 
