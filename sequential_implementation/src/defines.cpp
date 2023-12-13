@@ -1,5 +1,5 @@
-#include "defines.hpp"
-#include "utils.hpp"
+#include "../include/defines.hpp"
+#include "../include/utils.hpp"
 
 /* Velocity vectors */
 std::map<int, velocity> velocity_vectors =

@@ -1,4 +1,4 @@
-#include "access.hpp"
+#include "../include/access.hpp"
 
 std::vector<double> access::get_all_distribution_values(std::vector<double> source, int node_index, access_function access)
 {

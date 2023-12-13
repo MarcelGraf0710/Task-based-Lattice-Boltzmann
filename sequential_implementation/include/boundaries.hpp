@@ -1,7 +1,7 @@
 #ifndef BOUNDARIES_HPP
 #define BOUNDARIES_HPP
 
-#include "access.hpp"
+//#include "access.hpp"
 #include "defines.hpp"
 #include <optional>
 
@@ -34,21 +34,7 @@ namespace boundaries
         const boundary_tuple wall_down {std::tuple(WALL, DOWN), std::nullopt};
     };
 
-    /**
-     * @brief This map contains the directions that each kind of border node is facing a neighbor node,
-     *        i.e. it contains all directions that perform actual streams.
-     */
-    std::map<boundary_tuple, std::list<int>> neighbor_directions
-    {
-        {boundary_scenarios::inlet, {1,2,5,7,8}},
-        {boundary_scenarios::outlet, {0,1,3,6,7}},
-        {boundary_scenarios::lower_inlet, {5,7,8}},
-        {boundary_scenarios::upper_inlet, {1,2,5}},
-        {boundary_scenarios::lower_outlet, {3,6,7}},
-        {boundary_scenarios::upper_outlet, {0,1,3}},
-        {boundary_scenarios::wall_up, {0,1,2,3,5}},
-        {boundary_scenarios::wall_down, {3,5,6,7,8}},
-    };
+    std::map<boundary_tuple, std::list<int>> neighbor_directions;
 
     /**
      * @brief Performs the after-streaming value update for a node that borders an inlet within the simulation domain.

@@ -1,7 +1,6 @@
+#include "../include/defines.hpp" 
 #ifndef ACCESS_HPP
 #define ACCESS_HPP
-
-#include "defines.hpp" 
 
 /**
  * @brief This namespace contains functions that map input values to array index accesses.
@@ -58,22 +57,22 @@ namespace access
     }
 
     /**
-     * @brief Get the all distribution values object
+     * @brief This function gets all distribution values of the node with the specified index using the specified access pattern.
      * 
-     * @param source 
-     * @param node_index 
-     * @param access 
-     * @return std::vector<double> 
+     * @param source the distribution values will be read from this vector
+     * @param node_index this is the index of the node in the domain
+     * @param access this access function will be used
+     * @return All distribution values
      */
     std::vector<double> get_all_distribution_values(std::vector<double> source, int node_index, access_function access);
 
     /**
-     * @brief Set the all distribution values object
+     * @brief This function sets all distribution values of the node with the specified index to the specified values using the specified access pattern.
      * 
-     * @param destination 
-     * @param node_index 
-     * @param access 
-     * @return std::vector<double> 
+     * @param dist_vals a vector containing the values to which the distribution values shall be set
+     * @param destination the distribution values will be written to this vector
+     * @param node_index this is the index of the node in the domain
+     * @param access this access function will be used
      */
     void set_all_distribution_values(std::vector<double> dist_vals, std::vector<double> destination, int node_index, access_function access);
 }

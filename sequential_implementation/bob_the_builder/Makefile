@@ -129,102 +129,6 @@ sequential_lbm/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/build
 .PHONY : sequential_lbm/fast
 
-access.o: access.cpp.o
-.PHONY : access.o
-
-# target to build an object file
-access.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/access.cpp.o
-.PHONY : access.cpp.o
-
-access.i: access.cpp.i
-.PHONY : access.i
-
-# target to preprocess a source file
-access.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/access.cpp.i
-.PHONY : access.cpp.i
-
-access.s: access.cpp.s
-.PHONY : access.s
-
-# target to generate assembly for a file
-access.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/access.cpp.s
-.PHONY : access.cpp.s
-
-boundaries.o: boundaries.cpp.o
-.PHONY : boundaries.o
-
-# target to build an object file
-boundaries.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/boundaries.cpp.o
-.PHONY : boundaries.cpp.o
-
-boundaries.i: boundaries.cpp.i
-.PHONY : boundaries.i
-
-# target to preprocess a source file
-boundaries.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/boundaries.cpp.i
-.PHONY : boundaries.cpp.i
-
-boundaries.s: boundaries.cpp.s
-.PHONY : boundaries.s
-
-# target to generate assembly for a file
-boundaries.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/boundaries.cpp.s
-.PHONY : boundaries.cpp.s
-
-defines.o: defines.cpp.o
-.PHONY : defines.o
-
-# target to build an object file
-defines.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/defines.cpp.o
-.PHONY : defines.cpp.o
-
-defines.i: defines.cpp.i
-.PHONY : defines.i
-
-# target to preprocess a source file
-defines.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/defines.cpp.i
-.PHONY : defines.cpp.i
-
-defines.s: defines.cpp.s
-.PHONY : defines.s
-
-# target to generate assembly for a file
-defines.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/defines.cpp.s
-.PHONY : defines.cpp.s
-
-macroscopic.o: macroscopic.cpp.o
-.PHONY : macroscopic.o
-
-# target to build an object file
-macroscopic.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/macroscopic.cpp.o
-.PHONY : macroscopic.cpp.o
-
-macroscopic.i: macroscopic.cpp.i
-.PHONY : macroscopic.i
-
-# target to preprocess a source file
-macroscopic.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/macroscopic.cpp.i
-.PHONY : macroscopic.cpp.i
-
-macroscopic.s: macroscopic.cpp.s
-.PHONY : macroscopic.s
-
-# target to generate assembly for a file
-macroscopic.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/macroscopic.cpp.s
-.PHONY : macroscopic.cpp.s
-
 main.o: main.cpp.o
 .PHONY : main.o
 
@@ -249,77 +153,53 @@ main.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/main.cpp.s
 .PHONY : main.cpp.s
 
-simulation.o: simulation.cpp.o
-.PHONY : simulation.o
+src/defines.o: src/defines.cpp.o
+.PHONY : src/defines.o
 
 # target to build an object file
-simulation.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/simulation.cpp.o
-.PHONY : simulation.cpp.o
+src/defines.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/src/defines.cpp.o
+.PHONY : src/defines.cpp.o
 
-simulation.i: simulation.cpp.i
-.PHONY : simulation.i
+src/defines.i: src/defines.cpp.i
+.PHONY : src/defines.i
 
 # target to preprocess a source file
-simulation.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/simulation.cpp.i
-.PHONY : simulation.cpp.i
+src/defines.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/src/defines.cpp.i
+.PHONY : src/defines.cpp.i
 
-simulation.s: simulation.cpp.s
-.PHONY : simulation.s
+src/defines.s: src/defines.cpp.s
+.PHONY : src/defines.s
 
 # target to generate assembly for a file
-simulation.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/simulation.cpp.s
-.PHONY : simulation.cpp.s
+src/defines.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/src/defines.cpp.s
+.PHONY : src/defines.cpp.s
 
-update.o: update.cpp.o
-.PHONY : update.o
+src/simulation_in_cool.o: src/simulation_in_cool.cpp.o
+.PHONY : src/simulation_in_cool.o
 
 # target to build an object file
-update.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/update.cpp.o
-.PHONY : update.cpp.o
+src/simulation_in_cool.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/src/simulation_in_cool.cpp.o
+.PHONY : src/simulation_in_cool.cpp.o
 
-update.i: update.cpp.i
-.PHONY : update.i
-
-# target to preprocess a source file
-update.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/update.cpp.i
-.PHONY : update.cpp.i
-
-update.s: update.cpp.s
-.PHONY : update.s
-
-# target to generate assembly for a file
-update.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/update.cpp.s
-.PHONY : update.cpp.s
-
-utils.o: utils.cpp.o
-.PHONY : utils.o
-
-# target to build an object file
-utils.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/utils.cpp.o
-.PHONY : utils.cpp.o
-
-utils.i: utils.cpp.i
-.PHONY : utils.i
+src/simulation_in_cool.i: src/simulation_in_cool.cpp.i
+.PHONY : src/simulation_in_cool.i
 
 # target to preprocess a source file
-utils.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/utils.cpp.i
-.PHONY : utils.cpp.i
+src/simulation_in_cool.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/src/simulation_in_cool.cpp.i
+.PHONY : src/simulation_in_cool.cpp.i
 
-utils.s: utils.cpp.s
-.PHONY : utils.s
+src/simulation_in_cool.s: src/simulation_in_cool.cpp.s
+.PHONY : src/simulation_in_cool.s
 
 # target to generate assembly for a file
-utils.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/utils.cpp.s
-.PHONY : utils.cpp.s
+src/simulation_in_cool.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/src/simulation_in_cool.cpp.s
+.PHONY : src/simulation_in_cool.cpp.s
 
 # Help Target
 help:
@@ -330,30 +210,15 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... sequential_lbm"
-	@echo "... access.o"
-	@echo "... access.i"
-	@echo "... access.s"
-	@echo "... boundaries.o"
-	@echo "... boundaries.i"
-	@echo "... boundaries.s"
-	@echo "... defines.o"
-	@echo "... defines.i"
-	@echo "... defines.s"
-	@echo "... macroscopic.o"
-	@echo "... macroscopic.i"
-	@echo "... macroscopic.s"
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"
-	@echo "... simulation.o"
-	@echo "... simulation.i"
-	@echo "... simulation.s"
-	@echo "... update.o"
-	@echo "... update.i"
-	@echo "... update.s"
-	@echo "... utils.o"
-	@echo "... utils.i"
-	@echo "... utils.s"
+	@echo "... src/defines.o"
+	@echo "... src/defines.i"
+	@echo "... src/defines.s"
+	@echo "... src/simulation_in_cool.o"
+	@echo "... src/simulation_in_cool.i"
+	@echo "... src/simulation_in_cool.s"
 .PHONY : help
 
 

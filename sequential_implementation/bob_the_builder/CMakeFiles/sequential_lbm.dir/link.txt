@@ -1,1 +1,1 @@
-/usr/bin/c++ CMakeFiles/sequential_lbm.dir/access.cpp.o CMakeFiles/sequential_lbm.dir/boundaries.cpp.o CMakeFiles/sequential_lbm.dir/defines.cpp.o CMakeFiles/sequential_lbm.dir/macroscopic.cpp.o CMakeFiles/sequential_lbm.dir/main.cpp.o CMakeFiles/sequential_lbm.dir/simulation.cpp.o CMakeFiles/sequential_lbm.dir/update.cpp.o CMakeFiles/sequential_lbm.dir/utils.cpp.o -o sequential_lbm 
+/usr/bin/c++ CMakeFiles/sequential_lbm.dir/main.cpp.o CMakeFiles/sequential_lbm.dir/src/defines.cpp.o CMakeFiles/sequential_lbm.dir/src/simulation_in_cool.cpp.o -o sequential_lbm 

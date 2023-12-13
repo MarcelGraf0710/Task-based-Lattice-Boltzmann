@@ -138,6 +138,70 @@ namespace stream
         }
         
     }
+
+    /**
+     * @brief This namespace provides a method to perform a streaming step using the two-step algorithm.
+     *        It also includes various helper functions in a separate namespace which are not meant for outside access.
+     */
+    namespace two_step
+    {
+        /**
+         * @brief 
+         * 
+         * @param access_function 
+         * @param source 
+         */
+        void perform_two_lattice_stream(
+            access_function access_function,
+            all_distributions &source
+        )
+        {
+            unsigned int row_start_offset = 0;
+            unsigned int row_end_offset = 0;
+            unsigned int column_start_offset = 0;
+            unsigned int column_end_offset = 0;
+            double current_velocity_x = 0;
+            double current_velocity_y = 0;
+            for(auto direction = 0; direction < DIRECTION_COUNT; ++direction)
+            {
+                current_velocity_x = velocity_vectors[direction][0];
+                current_velocity_y = velocity_vectors[direction][1];
+                if(current_velocity_y == -1) // If facing downward, increase row start offset by 1
+                {
+                    row_start_offset = 1;
+                    row_end_offset = 0;
+                }
+                else if(current_velocity_y == 1) // If facing upward, decrease row end offset by 1 
+                {
+                    row_start_offset = 0;
+                    row_end_offset = 1;
+                }
+                 else // facing neigher upward nor downward
+                {
+                    row_start_offset = 0;
+                    row_end_offset = 0;
+                }
+
+                if(current_velocity_x == -1) // If facing rightward, increase column start offset by 1
+                {
+                    column_start_offset = 1;
+                    column_end_offset = 0;
+                }
+                else if(current_velocity_x == 1) // If facing leftward, decrease column end offset by 1 
+                {
+                    column_start_offset = 0;
+                    column_end_offset = 1;
+                }
+                 else // facing neigher rightward nor leftward
+                {
+                    column_start_offset = 0;
+                    column_end_offset = 0;
+                }
+            }
+        }
+
+
+    }
 }
 
 #endif
