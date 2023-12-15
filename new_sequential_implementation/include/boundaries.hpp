@@ -1,176 +1,69 @@
 #ifndef BOUNDARIES_HPP
 #define BOUNDARIES_HPP
 
-//#include "access.hpp"
 #include "defines.hpp"
-#include <optional>
+
+/**
+ * @brief Returns whether the node is located at the edge of the simulation domain.
+ * 
+ * 
+ * @return true if the coordinates are any of the node are (1, y), (HORIZONTAL_NODES - 2, y), (x, 1), (x, VERTICAL_NODES - 2)
+ *         with suitable x and y
+ */
+bool is_edge_node(unsigned int node_index);
+
+/**
+ * @brief Returns whether the node is a ghost node
+ * 
+ * @param node_index the index of the node in question
+ */
+bool is_ghost_node(unsigned int node_index);
+
+/**
+ * @brief Returns whether the node is located at the edge of the domain
+ * 
+ * @param x x coordinate of the node in question
+ * @param y y coordinate of the node in question
+ * @return true if the coordinates are any of the node are (1, y), (HORIZONTAL_NODES - 2, y), (x, 1), (x, VERTICAL_NODES - 2)
+ *         with suitable x and y
+ */
+inline bool is_edge_node(unsigned int x, unsigned int y)
+{
+    bool result = ((x == 1) || (x = HORIZONTAL_NODES - 2)) && ((y == 1) || (y = VERTICAL_NODES - 2));
+    return result;
+}
 
 /**
  * @brief This namespace contains all function representations of boundary conditions used in the lattice-Boltzmann model.
  */
-namespace boundaries
+namespace bounce_back
 {
+    
     /**
-     * @brief Convenience enum that allows for easier and more readable boundary condition differenciation.
-     *        The intended use is with an initializer list that filters out the respective boundary situation.
-     */
-    enum boundary_type {INLET, OUTLET, WALL, VELOCITY, PRESSURE};
-    enum boundary_direction {UP, DOWN, LEFT, RIGHT};
-    typedef std::tuple<std::tuple<boundary_type, boundary_direction>, std::optional<std::tuple<boundary_type, boundary_direction>>> boundary_tuple;
-
-    /**
-     * @brief This namespace contains all currently implemented boundary node scenarios. 
-     *        They are used in the determination process of the correct boundary treatment.
-     */
-    namespace boundary_scenarios
-    {
-        const boundary_tuple inlet {std::tuple(INLET, LEFT), std::nullopt};
-        const boundary_tuple outlet {std::tuple(OUTLET, RIGHT), std::nullopt};
-        const boundary_tuple lower_inlet {std::tuple(INLET, LEFT), std::tuple(WALL, DOWN)};
-        const boundary_tuple upper_inlet {std::tuple(INLET, LEFT), std::tuple(WALL, UP)};
-        const boundary_tuple lower_outlet {std::tuple(INLET, LEFT), std::tuple(WALL, DOWN)};
-        const boundary_tuple upper_outlet {std::tuple(OUTLET, RIGHT), std::tuple(WALL, UP)};
-        const boundary_tuple wall_up {std::tuple(WALL, UP), std::nullopt};
-        const boundary_tuple wall_down {std::tuple(WALL, DOWN), std::nullopt};
-    };
-
-    /**
-     * @brief This map contains the directions that each kind of border node is facing a neighbor node,
-     *        i.e. it contains all directions that perform actual streams.
-     */
-    // std::map<boundary_tuple, std::list<int>> neighbor_directions
-    // {
-    //     {boundary_scenarios::inlet, {1,2,5,7,8}},
-    //     {boundary_scenarios::outlet, {0,1,3,6,7}},
-    //     {boundary_scenarios::lower_inlet, {5,7,8}},
-    //     {boundary_scenarios::upper_inlet, {1,2,5}},
-    //     {boundary_scenarios::lower_outlet, {3,6,7}},
-    //     {boundary_scenarios::upper_outlet, {0,1,3}},
-    //     {boundary_scenarios::wall_up, {0,1,2,3,5}},
-    //     {boundary_scenarios::wall_down, {3,5,6,7,8}},
-    // };
-
-    /**
-     * @brief Performs the after-streaming value update for a node that borders an inlet within the simulation domain.
-     *        Note that in this case, it borders only an inlet and not a wall!
-     *      
-     * @param destination the vector containing the distribution values for the current node
-     * @param access_function the access pattern of the corresponding destination vector
-     * @param y the y coordinate of the inlet node (given that the x coordinate is 0)
-     * @param velocity_x the velocity in x direction of this node (default value is INLET_VELOCITY)
-     * @param density the density at this node (default value is INLET_DENSITY)
-     */
-    void inlet_boundary_stream(
-        all_distributions &source, 
-        all_distributions &destination, 
-        access_function &access_function, 
-        int y,
-        double velocity_x = INLET_VELOCITY, 
-        double density = INLET_DENSITY);
-
-    /**
-     * @brief Performs the after-streaming value update for a node that borders an outlet within the simulation domain.
-     *        Note that in this case, it borders only an outlet and not a wall!
-     *      
-     * @param destination the vector containing the distribution values for the current node
-     * @param access_function the access pattern of the corresponding destination vector
-     * @param y the y coordinate of the outlet node (given that the x coordinate is HORIZONTAL_NODES - 1)
-     * @param velocity_x the velocity in x direction of this node
-     * @param density the density at this node (default value is INLET_DENSITY as the general assumption is an uncompressible stream)
-     */
-    void outlet_boundary_stream(
-        all_distributions &source, 
-        all_distributions &destination, 
-        access_function &access_function, 
-        int y, 
-        double velocity_x, 
-        double density = OUTLET_DENSITY);
-
-    /**
-     * @brief Performs the after-streaming value update for a node that borders a lower wall within the simulation domain.
-     *        Note that in this case, it borders only a lower wall and not an inlet or outlet!
-     *      
-     * @param destination the vector containing the distribution values for the current node
-     * @param access_function the access pattern of the corresponding destination vector
-     * @param x the x coordinate of the node (given that the y coordinate is 0)
-     * @param wall_velocity the velocity at the wall (default is {0,0})
-     * @return the density at this node (as it is needed for calculations anyways)
-     */
-    double lower_wall_boundary_stream(  
-        all_distributions &source,      
-        all_distributions &destination, 
-        access_function &access_function, 
-        int x,
-        velocity wall_velocity = {0,0});
-
-    /**
-     * @brief Performs the after-streaming value update for a node that borders an upper wall within the simulation domain.
-     *        Note that in this case, it borders only an upper wall and not an inlet or outlet!
-     *      
-     * @param destination the vector containing the distribution values for the current node
-     * @param access_function the access pattern of the corresponding destination vector
-     * @param x the x coordinate of the node (given that the y coordinate is VERTICAL_NODES - 1)
-     * @param wall_velocity the velocity at the wall (default is {0,0})
-     * @return the density at this node (as it is needed for calculations anyways)
-     */
-    double upper_wall_boundary_stream(   
-        all_distributions &source,      
-        all_distributions &destination, 
-        access_function &access_function, 
-        int x, 
-        velocity wall_velocity = {0,0});
-
-    /**
-     * @brief Performs the after-stream update for a node that is bordered by a lower wall and an inlet of a simulation domain.
+     * @brief Retrieves the border adjacencies for all fluid nodes within the simulation domain based on the phase information of all nodes.
+     *        Notice that all fluid nodes on the edges of the simulation domain will automatically become border nodes.
      * 
-     * @param access_function the access pattern of the corresponding destination vector
-     * @param destination the vector containing the distribution values for the current node
-     * @param density the density at this node (default value is INLET_DENSITY)
+     * @param fluid_nodes a vector containing the indices of all fluid nodes within the simulation domain
+     * @param phase_information a vector containing the phase information of ALL nodes 
+     * @return the border adjancency relations of each node as it is required by bounce-back boundary treatment
      */
-    void lower_inlet_boundary_stream(
-        all_distributions &source, 
-        all_distributions &destination,
-        access_function access_function,
-        double density = INLET_DENSITY);
+    border_adjacency retrieve_border_adjacencies(
+        std::vector<unsigned int> &fluid_nodes, 
+        std::vector<bool> &phase_information
+        );
 
     /**
-     * @brief Performs the after-stream update for a node that is bordered by an upper wall and an inlet of a simulation domain.
+     * @brief Performs a bounce-back streaming update for all fluid nodes within the simulation domain.
      * 
-     * @param access_function the access pattern of the corresponding destination vector
-     * @param destination the vector containing the distribution values for the current node
-     * @param density the density at this node (default value is INLET_DENSITY)
+     * @param fluid_nodes a vector containing the indices of all fluid nodes
+     * @param distribution_values a vector containing the distribution values of all nodes
+     * @param access_function the access function used to access the distribution values
      */
-    void upper_inlet_boundary_stream(
-        all_distributions &source, 
-        all_distributions &destination, 
-        access_function access_function,
-        double density = INLET_DENSITY);
+    void perform_boundary_update(
+        std::vector<unsigned int> &fluid_nodes, 
+        std::vector<double> &distribution_values, 
+        access_function access_function);
 
-    /**
-     * @brief Performs the after-stream update for a node that is bordered by a lower wall and an outlet of a simulation domain.
-     * 
-     * @param access_function the access pattern of the corresponding destination vector
-     * @param destination the vector containing the distribution values for the current node
-     * @param density the density at this node (default value is INLET_DENSITY as the general assumption is an uncompressible stream)
-     */
-    void lower_outlet_boundary_stream(
-        all_distributions &source,        
-        all_distributions &destination,        
-        access_function access_function,
-        double density = INLET_DENSITY);
-
-    /**
-     * @brief Performs the after-stream update for a node that is bordered by an upper wall and an outlet of a simulation domain.
-     * 
-     * @param access_function the access pattern of the corresponding destination vector
-     * @param destination the vector containing the distribution values for the current node
-     * @param density the density at this node (default value is INLET_DENSITY as the general assumption is an uncompressible stream)
-     */
-    void upper_outlet_boundary_stream(   
-        all_distributions &source, 
-        all_distributions &destination,         
-        access_function access_function,
-        double density = INLET_DENSITY);
 }
 
 #endif

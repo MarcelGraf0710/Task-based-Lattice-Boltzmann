@@ -7,6 +7,28 @@
  */
 namespace access
 {
+   /**
+    * @brief Retrieves the coordinates of the node with the specified node index.
+    * @return A tuple containing the x and y coordinate of the specified node.
+    */
+    std::tuple<unsigned int, unsigned int> get_node_coordinates(
+        unsigned int node_index
+    );
+
+    /**
+     * @brief Returns the index of the neighbor that is reached when moving in the specified direction.
+     * 
+     * @param node_index the index of the current node
+     * @param direction the direction of movement
+     * @return the node index of the neighbor
+     */
+    inline unsigned int get_neighbor(unsigned int node_index, unsigned int direction)
+    {
+        int y_offset = direction / 3 - 1; // -1 for {0,1,2}, 0 for {3,4,5}, 1 for {6,7,8}
+        int x_offset = direction - (3 * y_offset + 4); //-1 for {0,3,5}, 0 for {1,4,7}, 1 for {6,7,8}
+        return node_index + y_offset * HORIZONTAL_NODES + direction + x_offset;
+    }
+
     /**
      * @brief Returns the array index of the collision layout
      * 

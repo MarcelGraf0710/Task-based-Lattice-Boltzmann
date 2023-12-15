@@ -24,10 +24,10 @@ double maxwell_boltzmann_distribution(velocity &u, double rho, unsigned int dire
     + 9.0/2 * pow(math_utils::dot(velocity_vectors[direction], u), 2) - 3.0/2 * math_utils::dot(velocity_vectors[direction], u));
 }
 
-vec_of_dist_val maxwell_boltzmann_distribution(velocity &u, double rho)
+std::vector<double> maxwell_boltzmann_distribution(velocity &u, double rho)
 {
     std::cout << "Entering maxwell_boltzmann_distribution" << std::endl;
-    vec_of_dist_val result;
+    std::vector<double> result;
     for(auto direction = 0; direction < DIRECTION_COUNT; ++direction)
     {
         std::cout << "weights[" << direction << "] = " << weights[direction] << std::endl;

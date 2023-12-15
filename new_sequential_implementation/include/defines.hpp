@@ -14,19 +14,32 @@
 #define DIRECTION_COUNT 9
 #define TIME_STEP 1
 #define SPACE_STEP 1
-#define VERTICAL_NODES 3
-#define HORIZONTAL_NODES 5
+#define VERTICAL_NODES 20
+#define HORIZONTAL_NODES 40
 #define TOTAL_NODE_COUNT VERTICAL_NODES * HORIZONTAL_NODES
 #define SPEED_OF_SOUND 1.0/9
-#define TEMPERATURE 20
 #define BOLTZMANN_CONSTANT 1.380649e-23
 #define RELAXATION_TIME 0.8
 
 /* Convenience and readability type definition */
-typedef std::array<std::array<double, DIMENSION_COUNT>, DIRECTION_COUNT> arr_of_v; // Array of velocity vectors
-typedef std::array<double, DIMENSION_COUNT> velocity; // velocity vector
-typedef std::vector<double> vec_of_dist_val; // array of distribution function values
-typedef std::vector<double> all_distributions; // A vector containing all distribution values
+
+/**
+ * @brief Representation of a velocity vector
+ */
+typedef std::array<double, DIMENSION_COUNT> velocity; 
+
+/**
+ * @brief Convenience type definition that represents a vector from which the boundary treatment of all nodes can be restored.
+ *        Information is stored in the following way:
+ *        Each entry of the outer vector represents a border node, called BORDER_NODE for explanation.
+ *        Every NODE contains a vector of tuples t_i = (NEIGHBOR_i, DIRECTION_i).
+ *        Each t_i represents an adjacency relation of BORDER_NODE.
+ *        The first tuple, t_0, is always a self-pointing entry (BORDER_NODE, 4).
+ *        Any further tuples t_1, ..., t_x store the information what nodes BORDER_NODE is adjacent to and by which velocity vector
+ *        the respective neighbor can be reached.
+ *        This is used for the halfway bounce-back boundary treatment where BORDER_NODE will copy the respective f_(DIRECTION_i) from NEIGHBOR_i.
+ */
+typedef std::vector<std::vector<std::tuple<unsigned int, unsigned int>>> border_adjacency;
 
 /**
  * @brief This type represents a tuple containing all boundary nodes in the following order:
@@ -80,6 +93,7 @@ double maxwell_boltzmann_distribution(velocity &u, double rho, unsigned int dire
  * @param rho density
  * @return the probability of there being a particle with velocity v_direction 
  */
-vec_of_dist_val maxwell_boltzmann_distribution(velocity &u, double rho);
+std::vector<double>
+ maxwell_boltzmann_distribution(velocity &u, double rho);
 
 #endif
