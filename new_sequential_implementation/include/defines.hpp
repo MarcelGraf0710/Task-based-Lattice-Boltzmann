@@ -71,6 +71,12 @@ typedef std::tuple<
                 node_tuple;
 
 /**
+ * @brief Convenience type definition that describes a tuple containing vectors of all flow velocities and density values
+ *        for a fixed time step.
+ */
+typedef std::tuple<std::vector<velocity>, std::vector<double>> sim_data_tuple;
+
+/**
  * @brief This type stands for an access function. Node values can be stored in different layout and via this function,
  *        the corresponding access scheme can be specified.
  */
@@ -86,6 +92,8 @@ extern std::map<int, velocity> velocity_vectors;
 
 /* Weights */
 extern std::map<int,double> weights;
+
+extern std::vector<unsigned int> streaming_directions;
 
 /**
  * @brief Returns the inverse direction of that specified.

@@ -17,6 +17,8 @@ std::map<int,double> weights =
     {0, 1.0/36}, {1, 1.0/9}, {2, 1.0/36}
 };
 
+std::vector<unsigned int> streaming_directions = {0, 1, 2, 3, 5, 6, 7, 8};
+
 std::vector<double> maxwell_boltzmann_distribution(const velocity &u, double rho)
 {
     std::vector<double> result;

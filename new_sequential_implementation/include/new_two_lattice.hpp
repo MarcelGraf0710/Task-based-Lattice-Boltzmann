@@ -6,21 +6,6 @@
 
 namespace two_lattice_sequential
 {
-    /**
-     * @brief Performs the stream
-     * 
-     * @param boundary_nodes 
-     * @param source 
-     * @param destination 
-     * @param access_function 
-     */
-    void perform_boundary_streaming
-    (
-        border_swap_information &boundary_nodes,
-        std::vector<double> &source, 
-        std::vector<double> &destination,    
-        access_function access_function   
-    );
 
     /**
      * @brief Performs the combined streaming-and-collision step for all nodes within the simulation domain.
@@ -31,9 +16,10 @@ namespace two_lattice_sequential
      * @param values_0 source for even time steps and destination for odd time steps
      * @param values_1 source for odd time steps and destination for even time steps
      * @param access_function the access function according to which the values are to be accessed
+     * @return a tuple containing vectors of all flow velocities and density values for a fixed time step.
      */
-    void perform_tl_stream_and_collide(
-        std::vector<double> &fluid_nodes,
+    sim_data_tuple perform_tl_stream_and_collide(
+        std::vector<unsigned int> &fluid_nodes,
         border_swap_information &boundary_nodes,
         std::vector<double> &source, 
         std::vector<double> &destination,    
@@ -49,8 +35,9 @@ namespace two_lattice_sequential
      * @param values_1 source for odd time steps and destination for even time steps
      * @param access_function the access function according to which the values are to be accessed
      * @param iterations this many iterations will be performed
+     * @return a vector of tuples containing all flow velocities and density values for all time steps
      */
-    void run(  
+    std::vector<sim_data_tuple> run(  
         std::vector<unsigned int> &fluid_nodes,       
         border_swap_information &boundary_nodes,
         std::vector<double> &values_0, 
