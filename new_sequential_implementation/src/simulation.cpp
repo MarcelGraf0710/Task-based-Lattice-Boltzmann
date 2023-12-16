@@ -65,6 +65,6 @@ void run_two_lattice(int time_steps, simulation_data& simulation_data, access_fu
         std::cout << "Performing streaming step " << std::endl;
         stream::two_lattice::perform_two_lattice_stream(access, source, destination);
         std::cout << "Updating velocities " << std::endl;
-        macroscopic::update_all_velocities(destination, simulation_data.all_velocities, access);
+        macroscopic::calculate_all_velocities(destination, simulation_data.all_velocities, access);
     }
 }

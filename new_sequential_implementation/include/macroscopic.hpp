@@ -9,11 +9,37 @@
  */
 namespace macroscopic
 {
-    double density(vec_of_dist_val &distribution_functions);
+    /**
+     * @brief Calculates the density of a fluid node.
+     * 
+     * @param distribution_functions a vector containing all distribution functions of the respective fluid node.
+     */
+    inline double density(const std::vector<double> &distribution_functions)
+    {
+        return std::accumulate(distribution_functions.begin(), distribution_functions.end(), 0);
+    }
 
-    velocity flow_velocity(vec_of_dist_val &distribution_functions);
+    /**
+     * @brief Calculates the flow velocity of a fluid node.
+     * 
+     * @param distribution_functions a vector containing all distribution functions of the respective fluid node.
+     * @return velocity a two-dimensional array representing the flow velocity
+     */
+    velocity flow_velocity(const std::vector<double> &distribution_functions);
 
-    void update_all_velocities(std::vector<double> &all_distributions, std::vector<velocity> &destination, access_function access_f);
+    /**
+     * @brief Calculates the velocity values for all fluid nodes in the simuation domain.
+     * 
+     * @param fluid_nodes A vector containing the indices of all fluid nodes within the simulation domain.
+     * @param all_distributions A vector containing all distribution values. 
+     * @param access_function This function is used to access the distribution values.
+     */
+    std::vector<velocity> calculate_all_velocities
+    (
+        const std::vector<unsigned int> &fluid_nodes,
+        const std::vector<double> &all_distributions, 
+        access_function access_function
+    );
 }
 
 #endif

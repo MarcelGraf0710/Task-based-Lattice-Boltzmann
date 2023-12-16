@@ -1,43 +1,44 @@
 #include "../include/macroscopic.hpp"
 #include <iostream>
 
-double macroscopic::density(vec_of_dist_val &distribution_functions)
+/**
+ * @brief Calculates the flow velocity of a fluid node.
+ * 
+ * @param distribution_functions a vector containing all distribution functions of the respective fluid node.
+ * @return velocity a two-dimensional array representing the flow velocity
+ */
+velocity macroscopic::flow_velocity(const std::vector<double> &distribution_functions)
 {
-    return std::accumulate(distribution_functions.begin(), distribution_functions.end(), 0);
-}
-
-velocity macroscopic::flow_velocity(vec_of_dist_val &distribution_functions)
-{
-    double v_x, v_y;
+    velocity flow_velocity{0,0};
     velocity velocity_vector;
-
     for(int i = 0; i < DIRECTION_COUNT; ++i)
     {
         velocity_vector = velocity_vectors[i];
-        v_x += distribution_functions[i] * velocity_vector[0];
-        v_y += distribution_functions[i] * velocity_vector[1];
+        flow_velocity[0] += distribution_functions[i] * velocity_vector[0];
+        flow_velocity[1] += distribution_functions[i] * velocity_vector[1];
     }
-    std::cout << "Leaving flow velocity " << std::endl;
-    velocity v{v_x, v_y};
-    return v;
+    return flow_velocity;
 }
 
-void macroscopic::update_all_velocities(std::vector<double> &all_distributions, std::vector<velocity> &destination, access_function access_f)
+/**
+ * @brief Calculates the velocity values for all fluid nodes in the simuation domain.
+ * 
+ * @param fluid_nodes A vector containing the indices of all fluid nodes within the simulation domain.
+ * @param all_distributions A vector containing all distribution values. 
+ * @param access_function This function is used to access the distribution values.
+ */
+std::vector<velocity> macroscopic::calculate_all_velocities
+(
+    const std::vector<unsigned int> &fluid_nodes,
+    const std::vector<double> &all_distributions, 
+    access_function access_function
+)
 {
-    for(auto x = 0; x < HORIZONTAL_NODES; ++x)
+    std::vector<velocity> result;
+    for(auto fluid_node : fluid_nodes)
     {
-        for(auto y = 0; y < VERTICAL_NODES; ++y)
-        {
-            int node_index = access::get_node_index(x,y);
-            std::vector<double> dist_vals = access::get_all_distribution_values(all_distributions, node_index, access_f);
-            std::cout << "I'm back " << std::endl;
-            std::cout << dist_vals[0] << std::endl;
-            std::cout << "Flow velocity is " << flow_velocity(dist_vals)[0] << flow_velocity(dist_vals)[1] << std::endl;
-            std::cout << "(" << destination[node_index][0] << ", " << destination[node_index][1] << ")" << std::endl;
-            destination[node_index] = flow_velocity(dist_vals);
-            std::cout << "Setup destination value of (" << x << ", " << y << ")" << std::endl;
-        }
+        result.push_back(macroscopic::flow_velocity(access::get_all_distribution_values(all_distributions, fluid_node, access_function)));
     }
-    std::cout << "Updated all velocities " << std::endl;
+    return result;
 }
 

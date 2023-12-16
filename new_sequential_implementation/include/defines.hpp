@@ -32,14 +32,25 @@ typedef std::array<double, DIMENSION_COUNT> velocity;
  * @brief Convenience type definition that represents a vector from which the boundary treatment of all nodes can be restored.
  *        Information is stored in the following way:
  *        Each entry of the outer vector represents a border node, called BORDER_NODE for explanation.
- *        Every NODE contains a vector of tuples t_i = (NEIGHBOR_i, DIRECTION_i).
- *        Each t_i represents an adjacency relation of BORDER_NODE.
+ *        Every BORDER_NODE contains a vector of tuples t_i = (NEIGHBOR_i, DIRECTION_i).
+ *        Each t_i represents an adjacency relation of BORDER_NODE to a ghost node and/or solid node.
  *        The first tuple, t_0, is always a self-pointing entry (BORDER_NODE, 4).
  *        Any further tuples t_1, ..., t_x store the information what nodes BORDER_NODE is adjacent to and by which velocity vector
  *        the respective neighbor can be reached.
  *        This is used for the halfway bounce-back boundary treatment where BORDER_NODE will copy the respective f_(DIRECTION_i) from NEIGHBOR_i.
  */
 typedef std::vector<std::vector<std::tuple<unsigned int, unsigned int>>> border_adjacency;
+
+/**
+ * @brief Convenience type definition that represents a vector from which the boundary treatment of all nodes can be restored.
+ *        Information is stored in the following way:
+ *        Each entry of the outer vector represents a border node, called BORDER_NODE for explanation.
+ *        Every BORDER_NODE contains a vector with the following information:
+ *        - 0th entry: The index of BORDER_NODE
+ *        - Further entries: The directions pointing to ghost nodes or solid nodes
+ *        This is used for the halfway bounce-back boundary treatment where BORDER_NODE will copy the respective distribution values BEFORE streaming.
+ */
+typedef std::vector<std::vector<unsigned int>> border_swap_information;
 
 /**
  * @brief This type represents a tuple containing all boundary nodes in the following order:
@@ -77,6 +88,14 @@ extern std::map<int, velocity> velocity_vectors;
 extern std::map<int,double> weights;
 
 /**
+ * @brief Returns the inverse direction of that specified.
+ */
+inline unsigned int invert_direction(unsigned int dir)
+{
+    return 8 - dir;
+}
+
+/**
  * @brief The Maxwell-Boltzmann-Distribution marks the equilibrium distribution of particles.
  * 
  * @param u two-dimensional velocity vector
@@ -93,7 +112,6 @@ double maxwell_boltzmann_distribution(velocity &u, double rho, unsigned int dire
  * @param rho density
  * @return the probability of there being a particle with velocity v_direction 
  */
-std::vector<double>
- maxwell_boltzmann_distribution(velocity &u, double rho);
+std::vector<double> maxwell_boltzmann_distribution(velocity &u, double rho);
 
 #endif

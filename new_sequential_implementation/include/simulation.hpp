@@ -19,7 +19,7 @@ struct simulation_data
  * @param inlet_velocity 
  * @return std::vector<double> 
  */
-std::vector<double> setup_distributions(access_function access, double inlet_velocity = INLET_VELOCITY, double inlet_density = INLET_DENSITY);
+std::vector<double> setup_simulation(access_function access, double inlet_velocity = INLET_VELOCITY, double inlet_density = INLET_DENSITY);
 
 /**
  * @brief
