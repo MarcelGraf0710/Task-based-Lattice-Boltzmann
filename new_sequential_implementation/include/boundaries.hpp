@@ -41,7 +41,7 @@ inline bool is_edge_node(unsigned int x, unsigned int y)
 std::vector<unsigned int> get_non_border_nodes
 (
     std::vector<unsigned int> &fluid_nodes,
-    border_adjacency ba
+    border_adjacency &ba
 );
 
 /**

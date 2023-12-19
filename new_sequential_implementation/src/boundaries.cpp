@@ -58,8 +58,7 @@ std::vector<unsigned int> get_non_border_nodes
             result.push_back(fluid_nodes[i]);
         }
     }
-
-
+    return result;
 }
 
 /**

@@ -321,6 +321,30 @@ src/simulation.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/src/simulation.cpp.s
 .PHONY : src/simulation.cpp.s
 
+src/two_step_sequential.o: src/two_step_sequential.cpp.o
+.PHONY : src/two_step_sequential.o
+
+# target to build an object file
+src/two_step_sequential.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/src/two_step_sequential.cpp.o
+.PHONY : src/two_step_sequential.cpp.o
+
+src/two_step_sequential.i: src/two_step_sequential.cpp.i
+.PHONY : src/two_step_sequential.i
+
+# target to preprocess a source file
+src/two_step_sequential.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/src/two_step_sequential.cpp.i
+.PHONY : src/two_step_sequential.cpp.i
+
+src/two_step_sequential.s: src/two_step_sequential.cpp.s
+.PHONY : src/two_step_sequential.s
+
+# target to generate assembly for a file
+src/two_step_sequential.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/src/two_step_sequential.cpp.s
+.PHONY : src/two_step_sequential.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -354,6 +378,9 @@ help:
 	@echo "... src/simulation.o"
 	@echo "... src/simulation.i"
 	@echo "... src/simulation.s"
+	@echo "... src/two_step_sequential.o"
+	@echo "... src/two_step_sequential.i"
+	@echo "... src/two_step_sequential.s"
 .PHONY : help
 
 

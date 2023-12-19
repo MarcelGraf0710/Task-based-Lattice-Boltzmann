@@ -54,7 +54,7 @@ int main()
     std::cout << "fluid_nodes has size "<< fluid_nodes.size() << std::endl;
     std::cout << "phase_information has size "<< phase_information.size() << std::endl;
 
-    std::vector<sim_data_tuple> result = two_step_sequential::run(fluid_nodes, distribution_values, access_function, 5);
+    std::vector<sim_data_tuple> result = two_step_sequential::run(fluid_nodes, distribution_values, ba, access_function, 5);
 
     return 0;
 }

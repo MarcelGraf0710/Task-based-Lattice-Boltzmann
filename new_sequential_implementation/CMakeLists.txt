@@ -23,6 +23,7 @@ set(SOURCE_FILES src/access.cpp
                  src/macroscopic.cpp
                  src/new_collision.cpp
                  src/new_two_lattice.cpp
+                 src/two_step_sequential.cpp
                  src/simulation.cpp
                  )
                  

@@ -1,6 +1,5 @@
 #include "../include/two_step_sequential.hpp"
 #include "../include/access.hpp"
-#include "../include/two_step_sequential.hpp"
 #include "../include/boundaries.hpp"
 #include "../include/macroscopic.hpp"
 #include "../include/new_collision.hpp"
@@ -82,7 +81,7 @@ void two_step_sequential::perform_horizontal_stream
 void two_step_sequential::perform_fast_stream
 (
     std::vector<unsigned int> &fluid_non_border_nodes, 
-    border_adjacency ba,
+    border_adjacency &ba,
     std::vector<double> &values, 
     access_function access_function
 )
@@ -117,7 +116,7 @@ void two_step_sequential::perform_fast_stream
  * @param access_function the access function according to which the values are to be accessed
  * @param iterations this many iterations will be performed
  */
-std::vector<sim_data_tuple> run
+std::vector<sim_data_tuple> two_step_sequential::run
 (  
     std::vector<unsigned int> &fluid_nodes,       
     std::vector<double> &values, 
@@ -138,7 +137,7 @@ std::vector<sim_data_tuple> run
     std::vector<double> current_density = {};
     for(auto i = 0; i < iterations; ++i)
     {
-        std::cout << "\t Iteration " << time << ":" << std::endl;
+        std::cout << "\t Iteration " << i << ":" << std::endl;
         two_step_sequential::perform_fast_stream(non_border_nodes, ba, values, access_function);
         std::cout << "\t\t Streaming step performed " << std::endl;
         sim_data.push_back(macroscopic::get_sim_data_tuple(fluid_nodes, values, access_function));
@@ -146,4 +145,5 @@ std::vector<sim_data_tuple> run
         collision::collide_all_bgk(fluid_nodes, values, std::get<0>(sim_data[i]), std::get<1>(sim_data[i]), access_function);
         std::cout << "\t\t Collision step performed " << std::endl;
     }
+    return sim_data;
 }

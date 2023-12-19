@@ -15,6 +15,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/sequential_lbm.dir/src/new_two_lattice.cpp.o.d"
   "CMakeFiles/sequential_lbm.dir/src/simulation.cpp.o"
   "CMakeFiles/sequential_lbm.dir/src/simulation.cpp.o.d"
+  "CMakeFiles/sequential_lbm.dir/src/two_step_sequential.cpp.o"
+  "CMakeFiles/sequential_lbm.dir/src/two_step_sequential.cpp.o.d"
   "sequential_lbm"
   "sequential_lbm.pdb"
 )

@@ -16,6 +16,7 @@ set(CMAKE_DEPENDS_DEPENDENCY_FILES
   "/home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/new_sequential_implementation/src/new_collision.cpp" "CMakeFiles/sequential_lbm.dir/src/new_collision.cpp.o" "gcc" "CMakeFiles/sequential_lbm.dir/src/new_collision.cpp.o.d"
   "/home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/new_sequential_implementation/src/new_two_lattice.cpp" "CMakeFiles/sequential_lbm.dir/src/new_two_lattice.cpp.o" "gcc" "CMakeFiles/sequential_lbm.dir/src/new_two_lattice.cpp.o.d"
   "/home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/new_sequential_implementation/src/simulation.cpp" "CMakeFiles/sequential_lbm.dir/src/simulation.cpp.o" "gcc" "CMakeFiles/sequential_lbm.dir/src/simulation.cpp.o.d"
+  "/home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/new_sequential_implementation/src/two_step_sequential.cpp" "CMakeFiles/sequential_lbm.dir/src/two_step_sequential.cpp.o" "gcc" "CMakeFiles/sequential_lbm.dir/src/two_step_sequential.cpp.o.d"
   )
 
 # Targets to which this target links.
