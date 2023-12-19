@@ -30,7 +30,7 @@ velocity macroscopic::flow_velocity(const std::vector<double> &distribution_func
 std::vector<velocity> macroscopic::calculate_all_velocities
 (
     const std::vector<unsigned int> &fluid_nodes,
-    const std::vector<double> &all_distributions, 
+    std::vector<double> &all_distributions, 
     access_function access_function
 )
 {

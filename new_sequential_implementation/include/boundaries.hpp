@@ -1,12 +1,11 @@
 #ifndef BOUNDARIES_HPP
 #define BOUNDARIES_HPP
-
 #include "defines.hpp"
 
 /**
- * @brief Returns whether the node is located at the edge of the simulation domain.
+ * @brief Returns whether the node located at the edge of the simulation domain.
  * 
- * 
+ * @param node_index the index of the node in question
  * @return true if the coordinates are any of the node are (1, y), (HORIZONTAL_NODES - 2, y), (x, 1), (x, VERTICAL_NODES - 2)
  *         with suitable x and y
  */

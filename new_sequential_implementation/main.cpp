@@ -1,47 +1,39 @@
 #include <iostream>
 #include "include/access.hpp"
-//#include "include/simulation_in_cool.hpp"
 #include "include/simulation.hpp"
+#include "include/utils.hpp"
+#include "include/new_two_lattice.hpp"
+
 
 int main()
 {
-    //print_happy_life();
-    std::cout << "Hello World!\n" << std::endl;
-    access_function access = access::bundle;
-    std::cout << "Successful setup of access function" << std::endl;
-    std::vector<double> initial_distributions = setup_distributions(access);
-    std::cout << "Successful setup of distribution function" << std::endl;
-    std::cout << initial_distributions[0] << std::endl;
-    
-    simulation_data data;
-    std::cout << "Are you ready for some segmentation faults?" << std::endl;
-    data.access = access;
-    data.all_distributions_0 = initial_distributions;
-    data.all_distributions_1 = initial_distributions;
-    std::vector<velocity> all_velocities;
-    all_velocities.reserve(TOTAL_NODE_COUNT); 
-    //macroscopic::update_all_velocities(data.all_distributions_0, all_velocities, access);
-    std::cout << &initial_distributions<< std::endl;
-    std::cout << &initial_distributions[0] << std::endl;
-    std::cout << &initial_distributions[1] << std::endl;
-    std::cout << "leaving constructor " << std::endl;
-    std::cout << initial_distributions[data.access(0,0)] << std::endl;
-    std::cout << &data << std::endl;
-    std::cout << &data.all_distributions_0 << std::endl;
-    std::cout << &data.all_distributions_1 << std::endl;
-    std::cout << &data.access << std::endl;
-    std::cout << &data.all_distributions_0[0] << std::endl;
-    std::cout << &data.all_distributions_1[0] << std::endl;
-    std::cout << "Are you ready for some segmentation faults?" << std::endl;
-    std::cout << "Go away" << std::endl;
-    std::cout << initial_distributions[0] << std::endl;
+    std::vector<double> distribution_values_0;
+    std::vector<unsigned int> nodes;
+    std::vector<unsigned int> fluid_nodes;
+    std::vector<bool> phase_information;
+    border_swap_information swap_info;
+    access_function access_function = access::collision;
 
-    std::cout << data.all_distributions_0[0] << std::endl;
-    std::cout << data.all_distributions_1[0] << std::endl;
-    std::cout << "Successful access of constructor of simulation data" << std::endl;
-    data.all_distributions_1 = data.all_distributions_0;
-    std::cout << "Successful setup of simulation data" << std::endl;
+    std::cout << "All vectors declared " << std::endl;
 
-    run_two_lattice(5, data, access);
+    setup_example_domain(distribution_values_0, nodes, fluid_nodes, phase_information, swap_info, access_function);
+
+    std::cout << "distribution_values has size "<< distribution_values_0.size() << std::endl;
+    std::cout << "nodes has size "<< nodes.size() << std::endl;
+    std::cout << "fluid_nodes has size "<< fluid_nodes.size() << std::endl;
+    std::cout << "phase_information has size "<< phase_information.size() << std::endl;
+
+    std::vector<double> distribution_values_1 = distribution_values_0;
+
+    std::vector<sim_data_tuple> results = 
+    two_lattice_sequential::run(
+        fluid_nodes, 
+        swap_info, 
+        distribution_values_0, 
+        distribution_values_1,   
+        access_function,
+        5
+        );
+
     return 0;
 }

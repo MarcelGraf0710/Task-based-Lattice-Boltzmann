@@ -76,6 +76,7 @@
         "variant": "cpp",
         "cfenv": "cpp",
         "charconv": "cpp",
-        "strstream": "cpp"
+        "strstream": "cpp",
+        "*.ipp": "cpp"
     }
 }

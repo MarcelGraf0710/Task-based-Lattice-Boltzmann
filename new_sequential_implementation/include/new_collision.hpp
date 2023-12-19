@@ -1,7 +1,7 @@
 #ifndef NEW_COLLISION_HPP
 #define NEW_COLLISION_HPP
-
 #include "defines.hpp"
+
 /**
  * @brief This namespace contains all functions necessary for the collision step.
  */
@@ -18,7 +18,7 @@ namespace collision
     std::vector<double> collide_bgk
     (
         const std::vector<double> &values, 
-        const velocity &u, 
+        velocity &u, 
         double density
     );
     
@@ -36,7 +36,7 @@ namespace collision
     (
         const std::vector<unsigned int> &fluid_nodes,
         std::vector<double> &values, 
-        const std::vector<velocity> &all_velocities, 
+        std::vector<velocity> &all_velocities, 
         const std::vector<double> &all_densities,
         access_function access
     );

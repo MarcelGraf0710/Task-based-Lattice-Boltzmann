@@ -1,3 +1,3 @@
-/home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/sequential_implementation/bob_the_builder/CMakeFiles/sequential_lbm.dir
-/home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/sequential_implementation/bob_the_builder/CMakeFiles/edit_cache.dir
-/home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/sequential_implementation/bob_the_builder/CMakeFiles/rebuild_cache.dir
+/home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/new_sequential_implementation/bob_the_builder/CMakeFiles/sequential_lbm.dir
+/home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/new_sequential_implementation/bob_the_builder/CMakeFiles/edit_cache.dir
+/home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/new_sequential_implementation/bob_the_builder/CMakeFiles/rebuild_cache.dir

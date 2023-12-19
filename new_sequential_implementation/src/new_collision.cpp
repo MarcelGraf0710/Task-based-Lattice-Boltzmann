@@ -16,11 +16,14 @@ std::vector<double> collision::collide_bgk
     double density
 )
 {
+    //std::cout << "Accessing mb distribution " << std::endl;
     std::vector<double> result = maxwell_boltzmann_distribution(u, density);
+    //std::cout << "Back from mb distribution " << std::endl;
     for(auto i = 0; i < DIRECTION_COUNT; ++i)
     {
         result[i] = -(1/RELAXATION_TIME) * (values[i] - result[i]);
     }
+    //std::cout << "Returning from mb distribution " << std::endl;
     return result;
 }
 
@@ -38,7 +41,7 @@ void collision::collide_all_bgk
 (
     const std::vector<unsigned int> &fluid_nodes,
     std::vector<double> &values, 
-    const std::vector<velocity> &all_velocities, 
+    std::vector<velocity> &all_velocities, 
     const std::vector<double> &all_densities,
     access_function access
 )

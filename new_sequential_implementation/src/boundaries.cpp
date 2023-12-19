@@ -1,6 +1,5 @@
 #include "../include/boundaries.hpp"
 #include "../include/access.hpp"
-#include "../include/defines.hpp"
 #include <iostream>
 
 /**
@@ -80,20 +79,27 @@ border_swap_information bounce_back::retrieve_border_swap_information
 )
 {
     border_swap_information result;
+    std::cout << "Starting to retrieve border swap information " << std::endl;
+    //std::cout << "Got phase information vector with length " << phase_information.size() << std::endl;
 
     for(auto node : fluid_nodes)
     {
+        //std::cout << "Currently processing node " << node << std::endl;
         std::vector<unsigned int> current_adjacencies{node};
         for(auto direction : {0,1,2,3,5,6,7,8})
         {
+            //std::cout << "\t Direction: " << direction << std::endl;
             unsigned int current_neighbor = access::get_neighbor(node, direction);
+            //std::cout << "Determined current neighbor to be " << current_neighbor << std::endl;
             if(is_ghost_node(current_neighbor) | phase_information[current_neighbor])
             {
                 current_adjacencies.push_back(direction);
+                //std::cout << "Actually added something to current adjacencies" << std::endl;
             }
             if(current_adjacencies.size() > 1) result.push_back(current_adjacencies);
         }
     }
+    std::cout << "Finished retrieving border swap information." << std::endl;
     return result;
 }
 

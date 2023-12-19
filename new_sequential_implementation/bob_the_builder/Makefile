@@ -57,10 +57,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/sequential_implementation
+CMAKE_SOURCE_DIR = /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/new_sequential_implementation
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/sequential_implementation/bob_the_builder
+CMAKE_BINARY_DIR = /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/new_sequential_implementation/bob_the_builder
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -87,9 +87,9 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/sequential_implementation/bob_the_builder/CMakeFiles /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/sequential_implementation/bob_the_builder//CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/new_sequential_implementation/bob_the_builder/CMakeFiles /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/new_sequential_implementation/bob_the_builder//CMakeFiles/progress.marks
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/sequential_implementation/bob_the_builder/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/new_sequential_implementation/bob_the_builder/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
@@ -249,6 +249,54 @@ src/macroscopic.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/src/macroscopic.cpp.s
 .PHONY : src/macroscopic.cpp.s
 
+src/new_collision.o: src/new_collision.cpp.o
+.PHONY : src/new_collision.o
+
+# target to build an object file
+src/new_collision.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/src/new_collision.cpp.o
+.PHONY : src/new_collision.cpp.o
+
+src/new_collision.i: src/new_collision.cpp.i
+.PHONY : src/new_collision.i
+
+# target to preprocess a source file
+src/new_collision.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/src/new_collision.cpp.i
+.PHONY : src/new_collision.cpp.i
+
+src/new_collision.s: src/new_collision.cpp.s
+.PHONY : src/new_collision.s
+
+# target to generate assembly for a file
+src/new_collision.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/src/new_collision.cpp.s
+.PHONY : src/new_collision.cpp.s
+
+src/new_two_lattice.o: src/new_two_lattice.cpp.o
+.PHONY : src/new_two_lattice.o
+
+# target to build an object file
+src/new_two_lattice.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/src/new_two_lattice.cpp.o
+.PHONY : src/new_two_lattice.cpp.o
+
+src/new_two_lattice.i: src/new_two_lattice.cpp.i
+.PHONY : src/new_two_lattice.i
+
+# target to preprocess a source file
+src/new_two_lattice.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/src/new_two_lattice.cpp.i
+.PHONY : src/new_two_lattice.cpp.i
+
+src/new_two_lattice.s: src/new_two_lattice.cpp.s
+.PHONY : src/new_two_lattice.s
+
+# target to generate assembly for a file
+src/new_two_lattice.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/src/new_two_lattice.cpp.s
+.PHONY : src/new_two_lattice.cpp.s
+
 src/simulation.o: src/simulation.cpp.o
 .PHONY : src/simulation.o
 
@@ -272,30 +320,6 @@ src/simulation.s: src/simulation.cpp.s
 src/simulation.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/src/simulation.cpp.s
 .PHONY : src/simulation.cpp.s
-
-src/update.o: src/update.cpp.o
-.PHONY : src/update.o
-
-# target to build an object file
-src/update.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/src/update.cpp.o
-.PHONY : src/update.cpp.o
-
-src/update.i: src/update.cpp.i
-.PHONY : src/update.i
-
-# target to preprocess a source file
-src/update.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/src/update.cpp.i
-.PHONY : src/update.cpp.i
-
-src/update.s: src/update.cpp.s
-.PHONY : src/update.s
-
-# target to generate assembly for a file
-src/update.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/src/update.cpp.s
-.PHONY : src/update.cpp.s
 
 # Help Target
 help:
@@ -321,12 +345,15 @@ help:
 	@echo "... src/macroscopic.o"
 	@echo "... src/macroscopic.i"
 	@echo "... src/macroscopic.s"
+	@echo "... src/new_collision.o"
+	@echo "... src/new_collision.i"
+	@echo "... src/new_collision.s"
+	@echo "... src/new_two_lattice.o"
+	@echo "... src/new_two_lattice.i"
+	@echo "... src/new_two_lattice.s"
 	@echo "... src/simulation.o"
 	@echo "... src/simulation.i"
 	@echo "... src/simulation.s"
-	@echo "... src/update.o"
-	@echo "... src/update.i"
-	@echo "... src/update.s"
 .PHONY : help
 
 

@@ -5,6 +5,7 @@
 #include "../include/new_collision.hpp"
 #include "../include/macroscopic.hpp"
 #include <set>
+#include <stdexcept>
 
 /**
  * @brief Performs the combined streaming-and-collision step for all nodes within the simulation domain.
@@ -32,9 +33,11 @@ sim_data_tuple two_lattice_sequential::perform_tl_stream_and_collide
     double density;
     std::vector<velocity> velocities(fluid_nodes.size(), velocity{0,0});
     std::vector<double> densities(fluid_nodes.size(), 0);
+    sim_data_tuple result{velocities, densities};
 
     // Pre-streaming boundary condition fulfillment
     bounce_back::perform_early_boundary_update(boundary_nodes, destination, access_function);
+    std::cout << "\t Early boundary update performed." << std::endl;
 
     // For every boundary node, update remaining streaming directions
     for(auto current : boundary_nodes)
@@ -64,9 +67,15 @@ sim_data_tuple two_lattice_sequential::perform_tl_stream_and_collide
         remaining_nodes.erase(current[0]);
     }
 
+    std::cout << "\t Performed stream and collision for all border nodes." << std::endl;
+
     // Perform streaming and collision for remaining fluid nodes
     for(auto fluid_node : remaining_nodes)
     {
+        //std::cout << "Currently dealing with node " << fluid_node;
+        /* TEMP */ std::tuple<int, int> coords = access::get_node_coordinates(fluid_node);
+        //std::cout << ", coords: (" << std::get<0>(coords) << ", " << std::get<1>(coords) << ")" << std::endl; 
+
         // Perform streaming
         for (auto direction = 0; direction < DIRECTION_COUNT; ++direction)
         {
@@ -74,18 +83,28 @@ sim_data_tuple two_lattice_sequential::perform_tl_stream_and_collide
             source[access_function(access::get_neighbor(fluid_node, direction), invert_direction(direction))];
 
         }
+        //std::cout << "Streaming performed. " << std::endl;
 
         // Perform collision
         vals = access::get_all_distribution_values(destination, fluid_node, access_function);
+        //if(fluid_node == 681) std::cout << "Determined all distribution values " << std::endl;
         current_velocity = macroscopic::flow_velocity(vals);
+        //if(fluid_node == 681) std::cout << "Determined current velocity " << std::endl;
         velocities[fluid_node] = current_velocity;
         density = macroscopic::density(vals);
+        //if(fluid_node == 681) std::cout << "Determined density " << std::endl;
         densities[fluid_node] = density;
+        //if(fluid_node == 681) std::cout << "About to access collide_bgk " << std::endl;
         vals = collision::collide_bgk(vals, current_velocity, density);
+        //if(fluid_node == 681) std::cout << "Collision bgk accessed " << std::endl;
         access::set_all_distribution_values(vals, destination, fluid_node, access_function);
-    }
 
-    return sim_data_tuple{velocities, densities};
+        //std::cout << "Collision performed. " << std::endl;
+    }
+    std::cout << "\t Done." << std::endl;
+    //std::cout << std::get<1>(result)[30] << std::endl;
+    //return sim_data_tuple{velocities, densities};
+    return result;
 }
 
 /**
@@ -109,6 +128,7 @@ std::vector<sim_data_tuple> two_lattice_sequential::run
     unsigned int iterations
 )
 {
+    std::cout << "Now running sequential two lattice algorithm for " << iterations << " iterations." << std::endl;
     std::vector<double> &source = values_0;
     std::vector<double> &destination = values_1;
     std::vector<double> &temp = values_1;
@@ -116,15 +136,17 @@ std::vector<sim_data_tuple> two_lattice_sequential::run
 
     for(auto time = 0; time < iterations; ++time)
     {
+        std::cout << "Iteration " << time << ":" << std::endl;
         result.push_back(
             two_lattice_sequential::perform_tl_stream_and_collide(
                 fluid_nodes, boundary_nodes, source, destination, access_function)
             );
-        
+        std::cout << "\tBoth stream and collide performed for all nodes, back at run(...), now changing source and destination..." << std::endl;
         temp = source;
         source = destination;
         destination = temp;
     }
+    std::cout << "All done. " << std::endl;
     
     return result;
 }

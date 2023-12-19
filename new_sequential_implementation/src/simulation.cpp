@@ -1,70 +1,65 @@
 #include "../include/simulation.hpp"
 #include "../include/access.hpp"
+#include "../include/boundaries.hpp"
 #include "../include/macroscopic.hpp"
-#include "../include/update.hpp"
+#include "../include/utils.hpp"
 #include <iostream>
+#include <vector>
+#include <numeric>
 
-// simulation_data::simulation_data(const std::vector<double> &initial_distributions, access_function access) : 
-//     all_distributions_0(initial_distributions),
-//     access(access)
-//     {
-//         all_distributions_0 = initial_distributions;
-//         all_distributions_1 = initial_distributions;
-//         std::cout << "Accessing constructor " << std::endl;
-//         std::cout << "!!!!!" << initial_distributions[0] << std::endl;
-//         all_velocities.reserve(TOTAL_NODE_COUNT); 
-//         macroscopic::update_all_velocities(all_distributions_0, all_velocities, access);
-//         std::cout << "leaving constructor " << std::endl;
-//     };
-
-std::vector<double> setup_distributions(access_function access, double inlet_velocity, double inlet_density)
+/**
+ * @brief Create an example domain for testing purposes. The domain is a rectangle with
+ *        dimensions specified in the defines file where the outermost nodes are ghost nodes.
+ *        The upper and lower ghost nodes are solid whereas the leftmost and rightmost columns are fluid
+ *        nodes that mark the inlet and outlet respectively.
+ *        Notice that all data will be written to the parameters which are assumed to be empty initially.
+ * 
+ * @param distribution_values a vector containing all distribution values.
+ * @param nodes a vector containing all node indices, including those of solid nodes and ghost nodes.
+ * @param fluid_nodes a vector containing the indices of all fluid nodes.
+ * @param phase_information a vector containing the phase information of all nodes where true means solid.
+ * @param access_function the domain will be prepared for access with this access function.
+ */
+void setup_example_domain
+(
+    std::vector<double> &distribution_values,
+    std::vector<unsigned int> &nodes,
+    std::vector<unsigned int> &fluid_nodes,
+    std::vector<bool> &phase_information,
+    border_swap_information swap_info,
+    access_function access_function
+)
 {
-    // Setup all non-inlet nodes to have initial velocity 0
-    std::vector<double> dist_vals;
-    dist_vals.reserve(TOTAL_NODE_COUNT * DIRECTION_COUNT);
-    velocity zero_velocity{0,0};
-    velocity inlet_velocity_vector = {inlet_velocity,0};
-    for(auto x = 1; x < HORIZONTAL_NODES; ++x)
+    std::cout << "Entered setup of example domain " << std::endl;
+    distribution_values.assign(TOTAL_NODE_COUNT * DIRECTION_COUNT, 0.5);
+    //nodes.assign(TOTAL_NODE_COUNT, 0);
+    for(auto i = 0; i < TOTAL_NODE_COUNT; ++i)
     {
-        for(auto y = 0; y < VERTICAL_NODES; ++y)
-        {
-            for(auto direction = 0; direction < DIRECTION_COUNT; ++direction)
-            {
-                double arg = maxwell_boltzmann_distribution(zero_velocity, inlet_density, direction);
-                dist_vals[access(access::get_node_index(x,y), direction)] = arg;
-            }
-        }
+        if(i % HORIZONTAL_NODES != 0 && i % HORIZONTAL_NODES != HORIZONTAL_NODES - 1) nodes.push_back(i);
     }
-    // Setup all inlet nodes to have initial velocity 0
-    for(auto y = 0; y < VERTICAL_NODES; ++y)
-        {
-            for(auto direction = 0; direction < DIRECTION_COUNT; ++direction)
-            {
-                dist_vals[access(access::get_node_index(0,y), direction)] = maxwell_boltzmann_distribution(inlet_velocity_vector, inlet_density, direction);
-            }
-        }
-
-    return dist_vals; 
-}
-
-void run_two_lattice(int time_steps, simulation_data& simulation_data, access_function access)
-{
-    std::cout << "Accessing run_two_lattice " << std::endl;
-    for(auto time = 0; time < time_steps; ++time)
+    phase_information.assign(TOTAL_NODE_COUNT, false);
+    //fluid_nodes = {nodes.begin() + HORIZONTAL_NODES, nodes.end() - HORIZONTAL_NODES};
+    for(auto it = nodes.begin() + HORIZONTAL_NODES; it < nodes.end() - HORIZONTAL_NODES; ++it)
     {
-        std::cout << simulation_data.all_distributions_0[0] << std::endl;
-        std::cout << simulation_data.all_distributions_1[0] << std::endl;
-        std::cout << "Entering time step " << time << std::endl;
-        all_distributions source = (time % 2) ? simulation_data.all_distributions_0 : simulation_data.all_distributions_1;
-        all_distributions destination = (time % 2) ? simulation_data.all_distributions_1 : simulation_data.all_distributions_0;
-        
-        std::cout << simulation_data.all_velocities[0][1] << std::endl;
-        std::cout << "Performing collision step " << std::endl;
-
-        collision::perform_collision_step(source, simulation_data.all_velocities, access);
-        std::cout << "Performing streaming step " << std::endl;
-        stream::two_lattice::perform_two_lattice_stream(access, source, destination);
-        std::cout << "Updating velocities " << std::endl;
-        macroscopic::calculate_all_velocities(destination, simulation_data.all_velocities, access);
+        fluid_nodes.push_back(*it);
+        //std::cout << *it << std::endl;
     }
+    
+    // Make upper and lower ghost nodes solid
+    for(auto x = 0; x < HORIZONTAL_NODES; ++x)
+    {
+        phase_information[access::get_node_index(x,0)] = true;
+        phase_information[access::get_node_index(x,VERTICAL_NODES - 1)] = true;
+    }
+    std::cout << "Phase information set " << std::endl;
+
+    // Setup inlet nodes
+    std::vector<double> inlet_values{0,0,0,0,0,4.5,0,0,0};
+    for(auto y = 1; y < VERTICAL_NODES - 2; ++y)
+    {
+        access::set_all_distribution_values(inlet_values, distribution_values, access::get_node_index(1, y), access_function);
+    }
+    std::cout << "All distribution values were set." << std::endl;
+
+    swap_info = bounce_back::retrieve_border_swap_information(fluid_nodes, phase_information);
 }

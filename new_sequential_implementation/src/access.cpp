@@ -1,18 +1,26 @@
 #include "../include/access.hpp"
 #include <iostream>
 
+    std::tuple<unsigned int, unsigned int> access::get_node_coordinates
+    (
+        unsigned int node_index
+    )
+    {
+        return std::make_tuple(node_index % HORIZONTAL_NODES, node_index / HORIZONTAL_NODES);
+    }
+
 std::vector<double> access::get_all_distribution_values(std::vector<double> &source, int node_index, access_function access)
 {
-    std::cout << "Getting all distribution values " << std::endl;
+    //std::cout << "Getting all distribution values " << std::endl;
     std::vector<double> dist_vals;
     dist_vals.reserve(9);
     for(auto direction = 0; direction < DIRECTION_COUNT; ++direction)
     {
-        std::cout << "Accessing array index "<<  access(node_index, direction) << std::endl;
+        //std::cout << "Accessing array index "<<  access(node_index, direction) << std::endl;
         dist_vals[direction] = source[access(node_index, direction)];
-        std::cout << dist_vals[direction] << std::endl;
+        //std::cout << dist_vals[direction] << std::endl;
     }
-    std::cout << "Leaving from getting all distribution values " << std::endl;
+    //std::cout << "Leaving from getting all distribution values " << std::endl;
     return dist_vals;
 }
 
@@ -20,11 +28,11 @@ void access::set_all_distribution_values(std::vector<double> &dist_vals, std::ve
 {
     for(auto direction = 0; direction < DIRECTION_COUNT; ++direction)
     {
-        std::cout << "Attempting destination[";
-        std::cout << access(node_index, direction);
-        std::cout << "] = dist_vals[" << direction << "]" << std::endl;
-        std::cout << destination[access(node_index, direction)] << std::endl;
-        std::cout << dist_vals[0] << std::endl;
+        //std::cout << "Attempting destination[";
+        //std::cout << access(node_index, direction);
+        //std::cout << "] = dist_vals[" << direction << "]" << std::endl;
+        //std::cout << destination[access(node_index, direction)] << std::endl;
+        //std::cout << dist_vals[0] << std::endl;
         destination[access(node_index, direction)] = dist_vals[direction];
     }
 }

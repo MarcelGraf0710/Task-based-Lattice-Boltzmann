@@ -8,8 +8,12 @@ set(HEADER_FILES include/access.hpp
                  include/boundaries.hpp 
                  include/defines.hpp
                  include/macroscopic.hpp
-                 include/update.hpp
+                 include/new_collision.hpp
+                 include/new_two_lattice.hpp
+                 include/shift_sequential.hpp
                  include/simulation.hpp
+                 include/swap_sequential.hpp
+                 include/two_step_sequential.hpp
                  include/utils.hpp
                  )
 
@@ -17,7 +21,10 @@ set(SOURCE_FILES src/access.cpp
                  src/boundaries.cpp 
                  src/defines.cpp
                  src/macroscopic.cpp
+                 src/new_collision.cpp
+                 src/new_two_lattice.cpp
                  src/simulation.cpp
-                 src/update.cpp
                  )
-add_executable(sequential_lbm main.cpp ${HEADER_FILES} ${SOURCE_FILES})
+                 
+#add_executable(sequential_lbm main.cpp ${SOURCE_FILES} ${HEADER_FILES} )
+add_executable(sequential_lbm main.cpp ${SOURCE_FILES})
