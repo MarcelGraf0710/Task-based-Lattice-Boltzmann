@@ -33,6 +33,36 @@ bool is_ghost_node(unsigned int node_index)
 }
 
 /**
+ * @brief Returns a vector containing all fluid non-border nodes within the simulation domain
+ * 
+ * @param fluid_nodes a vector containing all fluid nodes within the simulation domain
+ * @param ba see documentation of border_adjacency
+ */
+std::vector<unsigned int> get_non_border_nodes
+(
+    std::vector<unsigned int> &fluid_nodes,
+    border_adjacency &ba
+)
+{
+    std::vector<unsigned int> result;
+    border_adjacency::iterator next_border_node = ba.begin();
+    for(auto i = 0; i < fluid_nodes.size(); ++i)
+    {
+        if((fluid_nodes[i] == std::get<0>((*next_border_node)[0])) 
+            & (next_border_node < ba.end() - 1))
+        {
+            ++next_border_node;
+        }
+        else
+        {
+            result.push_back(fluid_nodes[i]);
+        }
+    }
+
+
+}
+
+/**
  * @brief Retrieves the border adjacencies for all fluid nodes within the simulation domain based on the phase information of all nodes.
  *        Notice that all fluid nodes on the edges of the simulation domain will automatically become border nodes.
  * 

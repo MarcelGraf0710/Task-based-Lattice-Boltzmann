@@ -40,6 +40,22 @@ namespace macroscopic
         std::vector<double> &all_distributions, 
         access_function access_function
     );
+
+    /**
+     * @brief Returns a simulation data tuple, i.e. a tuple containing all velocities (0) and all density values (1)
+     *        for all fluid nodes using the specified distribution values and access function.
+     * 
+     * @param fluid_nodes a vector containing the indices of all fluid vectors
+     * @param all_distributions a vector containing all distribution values
+     * @param access_function This function is used to access the distribution values.
+     * @return a tuple containing the simulation data
+     */
+    sim_data_tuple get_sim_data_tuple
+    (
+        std::vector<unsigned int> &fluid_nodes,
+        std::vector<double> &all_distributions, 
+        access_function access_function
+    );
 }
 
 #endif

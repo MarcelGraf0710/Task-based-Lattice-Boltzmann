@@ -42,3 +42,30 @@ std::vector<velocity> macroscopic::calculate_all_velocities
     return result;
 }
 
+/**
+ * @brief Returns a simulation data tuple, i.e. a tuple containing all velocities (0) and all density values (1)
+ *        for all fluid nodes using the specified distribution values and access function.
+ * 
+ * @param fluid_nodes a vector containing the indices of all fluid vectors
+ * @param all_distributions a vector containing all distribution values
+ * @param access_function This function is used to access the distribution values.
+ * @return a tuple containing the simulation data
+ */
+sim_data_tuple macroscopic::get_sim_data_tuple
+(
+    std::vector<unsigned int> &fluid_nodes,
+    std::vector<double> &all_distributions, 
+    access_function access_function
+)
+{
+    std::vector<velocity> velocities;
+    std::vector<double> densities;
+    std::vector<double> current_distibutions;
+    for(auto fluid_node : fluid_nodes)
+    {
+        current_distibutions = access::get_all_distribution_values(all_distributions, fluid_node, access_function);
+        velocities.push_back(macroscopic::flow_velocity(current_distibutions));
+        densities.push_back(macroscopic::density(current_distibutions));
+    }
+    return sim_data_tuple{velocities, densities};
+}

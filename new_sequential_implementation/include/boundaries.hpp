@@ -33,6 +33,18 @@ inline bool is_edge_node(unsigned int x, unsigned int y)
 }
 
 /**
+ * @brief Returns a vector containing all fluid non-border nodes within the simulation domain
+ * 
+ * @param fluid_nodes a vector containing all fluid nodes within the simulation domain
+ * @param ba see documentation of border_adjacency
+ */
+std::vector<unsigned int> get_non_border_nodes
+(
+    std::vector<unsigned int> &fluid_nodes,
+    border_adjacency ba
+);
+
+/**
  * @brief This namespace contains all function representations of boundary conditions used in the lattice-Boltzmann model.
  */
 namespace bounce_back

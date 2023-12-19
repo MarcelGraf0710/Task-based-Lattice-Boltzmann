@@ -37,7 +37,7 @@ namespace collision
         const std::vector<unsigned int> &fluid_nodes,
         std::vector<double> &values, 
         std::vector<velocity> &all_velocities, 
-        const std::vector<double> &all_densities,
+        std::vector<double> &all_densities,
         access_function access
     );
 }
