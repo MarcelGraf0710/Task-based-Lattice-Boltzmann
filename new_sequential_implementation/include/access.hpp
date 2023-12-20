@@ -1,5 +1,4 @@
 #include "../include/defines.hpp" 
-#include <iostream>
 #ifndef ACCESS_HPP
 #define ACCESS_HPP
 
@@ -12,9 +11,7 @@ namespace access
     * @brief Retrieves the coordinates of the node with the specified node index.
     * @return A tuple containing the x and y coordinate of the specified node.
     */
-    std::tuple<unsigned int, unsigned int> get_node_coordinates(
-        unsigned int node_index
-    );
+    std::tuple<unsigned int, unsigned int> get_node_coordinates(unsigned int node_index);
 
     /**
      * @brief Returns the index of the neighbor that is reached when moving in the specified direction.
@@ -91,7 +88,12 @@ namespace access
      * @param access this access function will be used
      * @return All distribution values
      */
-    std::vector<double> get_all_distribution_values(std::vector<double> &source, int node_index, access_function access);
+    std::vector<double> get_all_distribution_values
+    (
+        std::vector<double> &source, 
+        int node_index, 
+        access_function access
+    );
 
     /**
      * @brief This function sets all distribution values of the node with the specified index to the specified values using the specified access pattern.
@@ -101,11 +103,18 @@ namespace access
      * @param node_index this is the index of the node in the domain
      * @param access this access function will be used
      */
-    void set_all_distribution_values(std::vector<double> &dist_vals, std::vector<double> &destination, int node_index, access_function access);
+    void set_all_distribution_values
+    (
+        std::vector<double> &dist_vals, 
+        std::vector<double> &destination, 
+        int node_index, 
+        access_function access
+    );
 }
 
 /**
  * @brief This namespace contains utility functions for semi-direct access schemes.
+ *        Currently, only direct access is used. It is possible, however, to implement semi-direct access.
  */
 namespace semi_direct_access
 {
@@ -118,7 +127,7 @@ namespace semi_direct_access
      * @param phase_space a vector containing the phase information for each node where "true" means solid
      * @return a vector containing the fluid segments in the explained arrangement
      */
-    std::vector<unsigned int> get_fluid_segments(std::vector<bool> node_phases);
+    std::vector<unsigned int> get_fluid_segments(std::vector<bool> &node_phases);
 }
 
 #endif

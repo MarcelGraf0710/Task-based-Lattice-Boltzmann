@@ -1,6 +1,8 @@
 #ifndef DEFINES_HPP
 #define DEFINES_HPP
+
 /* Include directives */
+
 #include <vector>
 #include <list>
 #include <complex>
@@ -75,6 +77,12 @@ typedef std::tuple<
  *        for a fixed time step.
  */
 typedef std::tuple<std::vector<velocity>, std::vector<double>> sim_data_tuple;
+
+/**
+ * @brief Convenience type definition that describes a tuple containing vectors of all flow velocities and density values
+ *        for a fixed time step. Alternative to sim_data_tuple as the tuple data structure sometimes invokes problems.
+ */
+typedef std::vector<std::vector<velocity>, std::vector<double>> sim_data_vector;
 
 /**
  * @brief This type stands for an access function. Node values can be stored in different layout and via this function,

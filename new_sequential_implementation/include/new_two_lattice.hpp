@@ -2,7 +2,9 @@
 #define TWO_LATTICE_SEQUENTIAL_HPP
 
 #include <vector>
+#include <set>
 #include "defines.hpp"
+#include "access.hpp"
 
 namespace two_lattice_sequential
 {
@@ -18,12 +20,14 @@ namespace two_lattice_sequential
      * @param access_function the access function according to which the values are to be accessed
      * @return a tuple containing vectors of all flow velocities and density values for a fixed time step.
      */
-    std::vector<double> perform_tl_stream_and_collide(
+    void perform_tl_stream_and_collide
+    (
         std::vector<unsigned int> &fluid_nodes,
-        border_swap_information &boundary_nodes,
+        border_swap_information &bsi,
         std::vector<double> &source, 
         std::vector<double> &destination,    
-        access_function access_function
+        access_function access_function,
+        sim_data_vector &sim_data
     );
 
     /**
@@ -37,14 +41,76 @@ namespace two_lattice_sequential
      * @param iterations this many iterations will be performed
      * @return a vector of tuples containing all flow velocities and density values for all time steps
      */
-    std::vector<std::vector<double>> run(  
+    void run
+    (  
         std::vector<unsigned int> &fluid_nodes,       
         border_swap_information &boundary_nodes,
         std::vector<double> &values_0, 
         std::vector<double> &values_1,   
         access_function access_function,
-        unsigned int iterations
-        );
+        unsigned int iterations,
+        sim_data_vector &data
+    );
+
+    /**
+     * @brief 
+     * 
+     * @param current_border_info 
+     * @return std::set<unsigned int> 
+     */
+    inline std::set<unsigned int> determine_remaining_directions
+    (
+        std::vector<unsigned int> &current_border_info
+    )
+    {
+        std::set<unsigned int> remaining_dirs = {streaming_directions.begin(), streaming_directions.end()};
+        for (auto i = current_border_info.begin() + 1; i < current_border_info.end(); ++i)
+        {
+            remaining_dirs.erase(*i);
+        }
+        return remaining_dirs;  
+    }
+
+    /**
+     * @brief 
+     * 
+     * @param source 
+     * @param destination 
+     * @param access_function 
+     * @param fluid_node 
+     * @param direction 
+     */
+    inline void tl_stream
+    (
+        std::vector<double> &source,
+        std::vector<double> &destination, 
+        access_function &access_function, 
+        unsigned int fluid_node, 
+        int direction 
+    )
+    {
+        destination[access_function(fluid_node, direction)] =
+            source[access_function(access::get_neighbor(fluid_node, direction), invert_direction(direction))];
+    }
+
+    /**
+     * @brief 
+     * 
+     * @param destination 
+     * @param fluid_node 
+     * @param access_function 
+     * @param velocities 
+     * @param densities 
+     */
+    void tl_collision
+    (
+        std::vector<double> &destination, 
+        unsigned int fluid_node, 
+        access_function &access_function, 
+        std::vector<velocity> &velocities, 
+        std::vector<double> &densities
+    );
+
 }
 
 #endif

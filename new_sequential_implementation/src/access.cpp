@@ -1,14 +1,23 @@
 #include "../include/access.hpp"
 #include <iostream>
 
-    std::tuple<unsigned int, unsigned int> access::get_node_coordinates
-    (
-        unsigned int node_index
-    )
-    {
-        return std::make_tuple(node_index % HORIZONTAL_NODES, node_index / HORIZONTAL_NODES);
-    }
+/**
+* @brief Retrieves the coordinates of the node with the specified node index.
+* @return A tuple containing the x and y coordinate of the specified node.
+*/
+std::tuple<unsigned int, unsigned int> access::get_node_coordinates(unsigned int node_index)
+{
+    return std::make_tuple(node_index % HORIZONTAL_NODES, node_index / HORIZONTAL_NODES);
+}
 
+/**
+ * @brief This function gets all distribution values of the node with the specified index using the specified access pattern.
+ * 
+ * @param source the distribution values will be read from this vector
+ * @param node_index this is the index of the node in the domain
+ * @param access this access function will be used
+ * @return All distribution values
+ */
 std::vector<double> access::get_all_distribution_values(std::vector<double> &source, int node_index, access_function access)
 {
     //std::cout << "Getting all distribution values " << std::endl;
@@ -24,7 +33,21 @@ std::vector<double> access::get_all_distribution_values(std::vector<double> &sou
     return dist_vals;
 }
 
-void access::set_all_distribution_values(std::vector<double> &dist_vals, std::vector<double> &destination, int node_index, access_function access)
+/**
+ * @brief This function sets all distribution values of the node with the specified index to the specified values using the specified access pattern.
+ * 
+ * @param dist_vals a vector containing the values to which the distribution values shall be set
+ * @param destination the distribution values will be written to this vector
+ * @param node_index this is the index of the node in the domain
+ * @param access this access function will be used
+ */
+void access::set_all_distribution_values
+(
+    std::vector<double> &dist_vals, 
+    std::vector<double> &destination, 
+    int node_index, 
+    access_function access
+)
 {
     for(auto direction = 0; direction < DIRECTION_COUNT; ++direction)
     {
@@ -37,7 +60,16 @@ void access::set_all_distribution_values(std::vector<double> &dist_vals, std::ve
     }
 }
 
-std::vector<unsigned int> semi_direct_access::get_fluid_segments(std::vector<bool> node_phases)
+/**
+ * @brief Returns a vector containing all fluid segments in the specified domain. The order is as follows:
+ *        All even numbers mark the beginning of a fluid node.
+ *        All odd numbers state how many fluid tiles there are in a row, i.e. how many consecutive fluid tiles there are.
+ *        For example, the sequence "3, 10" means that the nodes 3...12 are fluid nodes.
+ * 
+ * @param phase_space a vector containing the phase information for each node where "true" means solid
+ * @return a vector containing the fluid segments in the explained arrangement
+ */
+std::vector<unsigned int> semi_direct_access::get_fluid_segments(std::vector<bool> &node_phases)
 {
     unsigned int index = 0;
     unsigned int consecution = 0;

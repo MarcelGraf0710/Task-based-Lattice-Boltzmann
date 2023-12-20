@@ -13,7 +13,7 @@
  * @param nodes a vector containing all node indices, including those of solid nodes and ghost nodes.
  * @param fluid_nodes a vector containing the indices of all fluid nodes.
  * @param phase_information a vector containing the phase information of all nodes where true means solid.
- * @param swap_info
+ * @param swap_info see documentation of border_swap_information
  * @param access_function the domain will be prepared for access with this access function.
  */
 void setup_example_domain
@@ -22,7 +22,7 @@ void setup_example_domain
     std::vector<unsigned int> &nodes,
     std::vector<unsigned int> &fluid_nodes,
     std::vector<bool> &phase_information,
-    border_swap_information swap_info,
+    border_swap_information &swap_info,
     access_function access_function
 );
 

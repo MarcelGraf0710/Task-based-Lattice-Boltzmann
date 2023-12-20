@@ -26,43 +26,54 @@ void setup_example_domain
     std::vector<unsigned int> &nodes,
     std::vector<unsigned int> &fluid_nodes,
     std::vector<bool> &phase_information,
-    border_swap_information swap_info,
+    border_swap_information &swap_info,
     access_function access_function
 )
 {
-    std::cout << "Entered setup of example domain " << std::endl;
-    distribution_values.assign(TOTAL_NODE_COUNT * DIRECTION_COUNT, 0.5);
-    //nodes.assign(TOTAL_NODE_COUNT, 0);
+    std::cout << "Setting up example domain." << std::endl;
+
+    /* Set up distribution values */
+    std::vector<double> values = {0,0,0,0,1,0,0,0,0};
     for(auto i = 0; i < TOTAL_NODE_COUNT; ++i)
     {
-        if(i % HORIZONTAL_NODES != 0 && i % HORIZONTAL_NODES != HORIZONTAL_NODES - 1) nodes.push_back(i);
+        distribution_values.insert(distribution_values.end(), values.begin(), values.end());
     }
-    phase_information.assign(TOTAL_NODE_COUNT, false);
-    //fluid_nodes = {nodes.begin() + HORIZONTAL_NODES, nodes.end() - HORIZONTAL_NODES};
-    for(auto it = nodes.begin() + HORIZONTAL_NODES; it < nodes.end() - HORIZONTAL_NODES; ++it)
-    {
-        fluid_nodes.push_back(*it);
-        //std::cout << *it << std::endl;
-    }
+    std::cout << "Set the distribution values of all nodes to ";
+    print_vector(values); 
+    std::cout << std::endl;
     
-    // Make upper and lower ghost nodes solid
-    for(auto x = 0; x < HORIZONTAL_NODES; ++x)
-    {
-        phase_information[access::get_node_index(x,0)] = true;
-        phase_information[access::get_node_index(x,VERTICAL_NODES - 1)] = true;
-    }
-    std::cout << "Phase information set " << std::endl;
-
-    // Setup inlet nodes
-    std::vector<double> inlet_values{0,0,0,0,0,4.5,0,0,0};
+    // TODO: PUT THIS IN RUN!!!!
+    std::vector<double> inlet_values{0,0,0,0,1,0.5,0,0,0};
     for(auto y = 1; y < VERTICAL_NODES - 2; ++y)
     {
         access::set_all_distribution_values(inlet_values, distribution_values, access::get_node_index(1, y), access_function);
     }
     std::cout << "All distribution values were set." << std::endl;
 
-    swap_info = bounce_back::retrieve_border_swap_information(fluid_nodes, phase_information);
+    /* Set all nodes for direct access */
+    for(auto i = 0; i < TOTAL_NODE_COUNT; ++i)
+    {
+        if(i % HORIZONTAL_NODES != 0 && i % HORIZONTAL_NODES != HORIZONTAL_NODES - 1) nodes.push_back(i);
+    }
+    std::cout << "Vector 'nodes' now includes all nodes in direct access scheme." << std::endl;
 
+    /* Set up vector containing fluid nodes within the simulation domain. */
+    for(auto it = nodes.begin() + HORIZONTAL_NODES; it < nodes.end() - HORIZONTAL_NODES; ++it)
+    {
+        fluid_nodes.push_back(*it);
+    }
+    
+    /* Phase information vector */
+    phase_information.assign(TOTAL_NODE_COUNT, false);
+    for(auto x = 0; x < HORIZONTAL_NODES; ++x)
+    {
+        phase_information[access::get_node_index(x,0)] = true;
+        phase_information[access::get_node_index(x,VERTICAL_NODES - 1)] = true;
+    }
+    std::cout << "Phase information set. " << std::endl;
+
+    /* Set up border swap information */
+    swap_info = bounce_back::retrieve_border_swap_information(fluid_nodes, phase_information);
     std::cout << "Retrieved border swap information." << std::endl;
 }
 
@@ -89,38 +100,49 @@ void setup_example_domain
     access_function access_function
 )
 {
-    std::cout << "Entered setup of example domain " << std::endl;
-    distribution_values.assign(TOTAL_NODE_COUNT * DIRECTION_COUNT, 0.5);
-    //nodes.assign(TOTAL_NODE_COUNT, 0);
+    std::cout << "Setting up example domain." << std::endl;
+
+    /* Set up distribution values */
+    std::vector<double> values = {0,0,0,0,1,0,0,0,0};
     for(auto i = 0; i < TOTAL_NODE_COUNT; ++i)
     {
-        if(i % HORIZONTAL_NODES != 0 && i % HORIZONTAL_NODES != HORIZONTAL_NODES - 1) nodes.push_back(i);
+        distribution_values.insert(distribution_values.end(), values.begin(), values.end());
     }
-    phase_information.assign(TOTAL_NODE_COUNT, false);
-    //fluid_nodes = {nodes.begin() + HORIZONTAL_NODES, nodes.end() - HORIZONTAL_NODES};
-    for(auto it = nodes.begin() + HORIZONTAL_NODES; it < nodes.end() - HORIZONTAL_NODES; ++it)
-    {
-        fluid_nodes.push_back(*it);
-        //std::cout << *it << std::endl;
-    }
+    std::cout << "Set the distribution values of all nodes to ";
+    print_vector(values); 
+    std::cout << std::endl;
     
-    // Make upper and lower ghost nodes solid
-    for(auto x = 0; x < HORIZONTAL_NODES; ++x)
-    {
-        phase_information[access::get_node_index(x,0)] = true;
-        phase_information[access::get_node_index(x,VERTICAL_NODES - 1)] = true;
-    }
-    std::cout << "Phase information set " << std::endl;
-
-    // Setup inlet nodes
-    std::vector<double> inlet_values{0,0,0,0,0,4.5,0,0,0};
+    // TODO: PUT THIS IN RUN!!!!
+    std::vector<double> inlet_values{0,0,0,0,1,0.5,0,0,0};
     for(auto y = 1; y < VERTICAL_NODES - 2; ++y)
     {
         access::set_all_distribution_values(inlet_values, distribution_values, access::get_node_index(1, y), access_function);
     }
     std::cout << "All distribution values were set." << std::endl;
 
-    ba = bounce_back::retrieve_border_adjacencies(fluid_nodes, phase_information);
+    /* Set all nodes for direct access */
+    for(auto i = 0; i < TOTAL_NODE_COUNT; ++i)
+    {
+        if(i % HORIZONTAL_NODES != 0 && i % HORIZONTAL_NODES != HORIZONTAL_NODES - 1) nodes.push_back(i);
+    }
+    std::cout << "Vector 'nodes' now includes all nodes in direct access scheme." << std::endl;
 
+    /* Set up vector containing fluid nodes within the simulation domain. */
+    for(auto it = nodes.begin() + HORIZONTAL_NODES; it < nodes.end() - HORIZONTAL_NODES; ++it)
+    {
+        fluid_nodes.push_back(*it);
+    }
+    
+    /* Phase information vector */
+    phase_information.assign(TOTAL_NODE_COUNT, false);
+    for(auto x = 0; x < HORIZONTAL_NODES; ++x)
+    {
+        phase_information[access::get_node_index(x,0)] = true;
+        phase_information[access::get_node_index(x,VERTICAL_NODES - 1)] = true;
+    }
+    std::cout << "Phase information set. " << std::endl;
+
+    /* Set up boundary adjacencies */
+    ba = bounce_back::retrieve_border_adjacencies(fluid_nodes, phase_information);
     std::cout << "Retrieved border adjacencies." << std::endl;
 }

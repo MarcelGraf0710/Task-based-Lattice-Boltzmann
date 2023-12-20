@@ -28,4 +28,4 @@ set(SOURCE_FILES src/access.cpp
                  )
                  
 #add_executable(sequential_lbm main.cpp ${SOURCE_FILES} ${HEADER_FILES} )
-add_executable(sequential_lbm main_two_lattice.cpp ${SOURCE_FILES})
+add_executable(sequential_lbm main.cpp ${SOURCE_FILES})

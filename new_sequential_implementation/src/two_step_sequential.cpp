@@ -3,6 +3,7 @@
 #include "../include/boundaries.hpp"
 #include "../include/macroscopic.hpp"
 #include "../include/new_collision.hpp"
+#include <iostream>
 
 /**
  * @brief Performs a vertical streaming step for all fluid nodes, i.e. all f_i with i in {1,7} will be propagated.
