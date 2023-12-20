@@ -17,7 +17,7 @@
  * @param values_1 source for odd time steps and destination for even time steps
  * @param access_function the access function according to which the values are to be accessed
  */
-sim_data_tuple two_lattice_sequential::perform_tl_stream_and_collide
+std::vector<double> two_lattice_sequential::perform_tl_stream_and_collide
 (
     std::vector<unsigned int> &fluid_nodes,
     border_swap_information &boundary_nodes,
@@ -33,7 +33,7 @@ sim_data_tuple two_lattice_sequential::perform_tl_stream_and_collide
     double density;
     std::vector<velocity> velocities(fluid_nodes.size(), velocity{0,0});
     std::vector<double> densities(fluid_nodes.size(), 0);
-    sim_data_tuple result{velocities, densities};
+    std::vector<double> result(4);
 
     // Pre-streaming boundary condition fulfillment
     bounce_back::perform_early_boundary_update(boundary_nodes, destination, access_function);
@@ -118,7 +118,7 @@ sim_data_tuple two_lattice_sequential::perform_tl_stream_and_collide
  * @param iterations this many iterations will be performed
  * @return a vector of tuples containing all flow velocities and density values for all time steps
  */
-std::vector<sim_data_tuple> two_lattice_sequential::run
+std::vector<std::vector<double>> two_lattice_sequential::run
 (  
     std::vector<unsigned int> &fluid_nodes,       
     border_swap_information &boundary_nodes,
@@ -132,15 +132,15 @@ std::vector<sim_data_tuple> two_lattice_sequential::run
     std::vector<double> &source = values_0;
     std::vector<double> &destination = values_1;
     std::vector<double> &temp = values_1;
-    std::vector<sim_data_tuple> result;
+    std::vector<std::vector<double>> result;
 
     for(auto time = 0; time < iterations; ++time)
     {
         std::cout << "Iteration " << time << ":" << std::endl;
-        result.push_back(
-            two_lattice_sequential::perform_tl_stream_and_collide(
-                fluid_nodes, boundary_nodes, source, destination, access_function)
-            );
+        // result.push_back(
+        //     two_lattice_sequential::perform_tl_stream_and_collide(
+        //         fluid_nodes, boundary_nodes, source, destination, access_function)
+        //     );
         std::cout << "\tBoth stream and collide performed for all nodes, back at run(...), now changing source and destination..." << std::endl;
         temp = source;
         source = destination;

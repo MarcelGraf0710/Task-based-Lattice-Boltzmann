@@ -15,20 +15,21 @@ inline unsigned int matrix_access(unsigned int row,
 template <typename T>
 void print_vector(std::vector<T> &vector)
 {
-    // int current_value_count = 0;
-    // std::string message = "[";
-    // for(auto i = 0; i < vector.size(); ++i)
-    // {
-    //     if(current_value_count = HORIZONTAL_NODES - 1)
-    //     {
-    //         current_value_count = 0;
-    //         message = message.append("\n");
-    //     }
-    //     //message = message.append(std::to_string(vector[i]));
-    //     message = message.append(",");
-    //     current_value_count++;
-
-    // }
+    int current_value_count = 0;
+    std::cout << "[";
+    for(auto i = 0; i < vector.size(); ++i)
+    {
+        if(current_value_count == HORIZONTAL_NODES)
+        {
+            current_value_count = 0;
+            std::cout << std::endl;
+        }
+        std::cout << vector[i];
+        std::cout << " ";
+        current_value_count++;
+    }
+    std::cout << "]";
+    std::cout << std::endl;
 } 
 
 

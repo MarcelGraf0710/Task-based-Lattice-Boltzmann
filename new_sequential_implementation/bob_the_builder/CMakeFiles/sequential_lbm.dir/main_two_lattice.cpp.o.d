@@ -1,5 +1,5 @@
-CMakeFiles/sequential_lbm.dir/main.cpp.o: \
- /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/new_sequential_implementation/main.cpp \
+CMakeFiles/sequential_lbm.dir/main_two_lattice.cpp.o: \
+ /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/new_sequential_implementation/main_two_lattice.cpp \
  /usr/include/stdc-predef.h /usr/include/c++/11/iostream \
  /usr/include/x86_64-linux-gnu/c++/11/bits/c++config.h \
  /usr/include/x86_64-linux-gnu/c++/11/bits/os_defines.h \

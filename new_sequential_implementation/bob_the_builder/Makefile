@@ -129,29 +129,29 @@ sequential_lbm/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/build
 .PHONY : sequential_lbm/fast
 
-main.o: main.cpp.o
-.PHONY : main.o
+main_two_lattice.o: main_two_lattice.cpp.o
+.PHONY : main_two_lattice.o
 
 # target to build an object file
-main.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/main.cpp.o
-.PHONY : main.cpp.o
+main_two_lattice.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/main_two_lattice.cpp.o
+.PHONY : main_two_lattice.cpp.o
 
-main.i: main.cpp.i
-.PHONY : main.i
+main_two_lattice.i: main_two_lattice.cpp.i
+.PHONY : main_two_lattice.i
 
 # target to preprocess a source file
-main.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/main.cpp.i
-.PHONY : main.cpp.i
+main_two_lattice.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/main_two_lattice.cpp.i
+.PHONY : main_two_lattice.cpp.i
 
-main.s: main.cpp.s
-.PHONY : main.s
+main_two_lattice.s: main_two_lattice.cpp.s
+.PHONY : main_two_lattice.s
 
 # target to generate assembly for a file
-main.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/main.cpp.s
-.PHONY : main.cpp.s
+main_two_lattice.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/main_two_lattice.cpp.s
+.PHONY : main_two_lattice.cpp.s
 
 src/access.o: src/access.cpp.o
 .PHONY : src/access.o
@@ -354,9 +354,9 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... sequential_lbm"
-	@echo "... main.o"
-	@echo "... main.i"
-	@echo "... main.s"
+	@echo "... main_two_lattice.o"
+	@echo "... main_two_lattice.i"
+	@echo "... main_two_lattice.s"
 	@echo "... src/access.o"
 	@echo "... src/access.i"
 	@echo "... src/access.s"
