@@ -40,7 +40,6 @@ void setup_example_domain
     }
     std::cout << "Set the distribution values of all nodes to ";
     print_vector(values); 
-    std::cout << std::endl;
     
     // TODO: PUT THIS IN RUN!!!!
     std::vector<double> inlet_values{0,0,0,0,1,0.5,0,0,0};
@@ -53,14 +52,13 @@ void setup_example_domain
     /* Set all nodes for direct access */
     for(auto i = 0; i < TOTAL_NODE_COUNT; ++i)
     {
-        if(i % HORIZONTAL_NODES != 0 && i % HORIZONTAL_NODES != HORIZONTAL_NODES - 1) nodes.push_back(i);
+        nodes.push_back(i);
     }
-    std::cout << "Vector 'nodes' now includes all nodes in direct access scheme." << std::endl;
 
     /* Set up vector containing fluid nodes within the simulation domain. */
     for(auto it = nodes.begin() + HORIZONTAL_NODES; it < nodes.end() - HORIZONTAL_NODES; ++it)
     {
-        fluid_nodes.push_back(*it);
+        if(((*it % HORIZONTAL_NODES) != 0) && ((*it % HORIZONTAL_NODES) != (HORIZONTAL_NODES - 1))) fluid_nodes.push_back(*it);
     }
     
     /* Phase information vector */
@@ -70,11 +68,9 @@ void setup_example_domain
         phase_information[access::get_node_index(x,0)] = true;
         phase_information[access::get_node_index(x,VERTICAL_NODES - 1)] = true;
     }
-    std::cout << "Phase information set. " << std::endl;
 
     /* Set up border swap information */
     swap_info = bounce_back::retrieve_border_swap_information(fluid_nodes, phase_information);
-    std::cout << "Retrieved border swap information." << std::endl;
 }
 
 /**

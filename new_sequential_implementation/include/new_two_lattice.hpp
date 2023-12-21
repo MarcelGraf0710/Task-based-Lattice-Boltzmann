@@ -5,6 +5,8 @@
 #include <set>
 #include "defines.hpp"
 #include "access.hpp"
+#include <iostream>
+#include "utils.hpp"
 
 namespace two_lattice_sequential
 {
@@ -27,7 +29,7 @@ namespace two_lattice_sequential
         std::vector<double> &source, 
         std::vector<double> &destination,    
         access_function access_function,
-        sim_data_vector &sim_data
+        sim_data_tuple &sim_data
     );
 
     /**
@@ -49,7 +51,7 @@ namespace two_lattice_sequential
         std::vector<double> &values_1,   
         access_function access_function,
         unsigned int iterations,
-        sim_data_vector &data
+        sim_data_tuple &data
     );
 
     /**
@@ -67,8 +69,27 @@ namespace two_lattice_sequential
         for (auto i = current_border_info.begin() + 1; i < current_border_info.end(); ++i)
         {
             remaining_dirs.erase(*i);
+            std::cout << "Erased direction " << *i << std::endl;
         }
+        print_set(remaining_dirs);
         return remaining_dirs;  
+    }
+
+
+    inline void determine_remaining_directions
+    (
+        std::vector<unsigned int> &current_border_info,
+        std::set<unsigned int> &remaining_dirs
+    )
+    {
+        std::set<unsigned int> result = {streaming_directions.begin(), streaming_directions.end()};
+        for (auto i = current_border_info.begin() + 1; i < current_border_info.end(); ++i)
+        {
+            result.erase(*i);
+            //std::cout << "Erased direction " << *i << std::endl;
+        }
+        //print_set(result);
+        remaining_dirs = result;
     }
 
     /**

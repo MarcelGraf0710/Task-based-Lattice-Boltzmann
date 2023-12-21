@@ -2,6 +2,7 @@
 #define UTILS_HPP
 #include <array>
 #include <vector>
+#include <set>
 #include <iostream>
 #include "defines.hpp"
 
@@ -25,10 +26,81 @@ void print_vector(std::vector<T> &vector)
             std::cout << std::endl;
         }
         std::cout << vector[i];
-        std::cout << " ";
+        std::cout << "\t";
         current_value_count++;
     }
     std::cout << "]";
+    std::cout << std::endl;
+} 
+
+inline void print_phase_vector(std::vector<bool> &vector)
+{
+    int current_value_count = 0;
+    for(auto i = 0; i < vector.size(); ++i)
+    {
+        if(current_value_count == HORIZONTAL_NODES)
+        {
+            current_value_count = 0;
+            std::cout << std::endl;
+        }
+        if(vector[i]) std::cout << "#";
+        else std::cout << "~"; 
+        std::cout << " ";
+        current_value_count++;
+    }
+    std::cout << std::endl;
+} 
+
+template <typename T>
+void print_vector(std::vector<T> &vector, int row_length)
+{
+    int current_value_count = 0;
+    std::cout << "[";
+    for(auto i = 0; i < vector.size(); ++i)
+    {
+        if(current_value_count == row_length)
+        {
+            current_value_count = 0;
+            std::cout << std::endl;
+        }
+        std::cout << vector[i];
+        std::cout << "\t";
+        current_value_count++;
+    }
+    std::cout << "]";
+    std::cout << std::endl;
+}
+
+inline void print_velocity_vector(std::vector<velocity> &vector)
+{
+    int current_value_count = 0;
+    std::cout << "[";
+    for(auto i = 0; i < vector.size(); ++i)
+    {
+        if(current_value_count == HORIZONTAL_NODES - 2)
+        {
+            current_value_count = 0;
+            std::cout << std::endl;
+        }
+        std::cout << "("<< vector[i][0] << ", " << vector[i][1] << ")";
+        std::cout << "\t  ";
+        current_value_count++;
+    }
+    std::cout << "]";
+    std::cout << std::endl;
+} 
+
+
+template <typename T>
+void print_set(std::set<T> &set)
+{
+    std::cout << "(";
+    for(auto element : set)
+    {
+        std::cout << element;
+        std::cout << ", ";
+    }
+    std::cout << ")";
     std::cout << std::endl;
 } 
 

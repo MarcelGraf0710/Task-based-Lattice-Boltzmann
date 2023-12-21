@@ -14,7 +14,7 @@ bool is_edge_node(unsigned int node_index)
     std::tuple<unsigned int, unsigned int> coordinates = access::get_node_coordinates(node_index);
     unsigned int x = std::get<0>(coordinates);
     unsigned int y = std::get<1>(coordinates);
-    bool result = ((x == 1) || (x = HORIZONTAL_NODES - 2)) && ((y == 1) || (y = VERTICAL_NODES - 2));
+    bool result = ((x == 1) || (x == (HORIZONTAL_NODES - 2))) && ((y == 1) || (y == (VERTICAL_NODES - 2)));
     return result;
 }
 
@@ -28,7 +28,11 @@ bool is_ghost_node(unsigned int node_index)
     std::tuple<unsigned int, unsigned int> coordinates = access::get_node_coordinates(node_index);
     unsigned int x = std::get<0>(coordinates);
     unsigned int y = std::get<1>(coordinates);
-    bool result = ((x == 0) || (x = HORIZONTAL_NODES - 1)) && ((y == 0) || (y = VERTICAL_NODES - 1));
+    //std::cout << "Determining whether node with coordinates (" << x << ", " << y << ") is a ghost node" << std::endl;  
+    //std::cout << "((x == 0) || (x == (HORIZONTAL_NODES - 1))) evaluates to " << ((x == 0) || (x == (HORIZONTAL_NODES - 1))) << std::endl;
+    //std::cout << "((y == 0) || (y == (VERTICAL_NODES - 1))) evaluates to " << ((y == 0) || (y == (VERTICAL_NODES - 1))) << std::endl;
+
+    bool result = ((x == 0) || (x == (HORIZONTAL_NODES - 1))) || ((y == 0) || (y == (VERTICAL_NODES - 1)));
     return result;
 }
 
@@ -108,27 +112,19 @@ border_swap_information bounce_back::retrieve_border_swap_information
 )
 {
     border_swap_information result;
-    std::cout << "Starting to retrieve border swap information " << std::endl;
-    //std::cout << "Got phase information vector with length " << phase_information.size() << std::endl;
-
     for(auto node : fluid_nodes)
     {
-        //std::cout << "Currently processing node " << node << std::endl;
         std::vector<unsigned int> current_adjacencies{node};
         for(auto direction : {0,1,2,3,5,6,7,8})
         {
-            //std::cout << "\t Direction: " << direction << std::endl;
             unsigned int current_neighbor = access::get_neighbor(node, direction);
-            //std::cout << "Determined current neighbor to be " << current_neighbor << std::endl;
             if(is_ghost_node(current_neighbor) | phase_information[current_neighbor])
             {
                 current_adjacencies.push_back(direction);
-                //std::cout << "Actually added something to current adjacencies" << std::endl;
             }
-            if(current_adjacencies.size() > 1) result.push_back(current_adjacencies);
         }
+        if(current_adjacencies.size() > 1) result.push_back(current_adjacencies);
     }
-    std::cout << "Finished retrieving border swap information." << std::endl;
     return result;
 }
 
@@ -180,13 +176,20 @@ void bounce_back::perform_early_boundary_update
     access_function access_function
 )
 {
+    //std::cout << "Performing early boundary update..." << std::endl;
     for(auto current : border_nodes)
     {
         int current_border_node = current[0];
+        //std::cout << "Currently processing node " << current_border_node << std::endl;
         for(auto direction = current.begin() + 1; direction < current.end(); ++direction)
         {
+            //std::cout << "Current direction is " << *direction << std::endl;
+            //std::cout << "Target index: " << access_function(current_border_node, invert_direction(*direction)) << std::endl;
+            //std::cout << "Source index: " << access_function(current_border_node, *direction) << std::endl;
+
             distribution_values[access_function(current_border_node, invert_direction(*direction))] = 
-            distribution_values[access_function(current_border_node, current[*direction])];
+            distribution_values[access_function(current_border_node, *direction)];
+            //std::cout << "Next... " << std::endl;
         }
     }
 }
