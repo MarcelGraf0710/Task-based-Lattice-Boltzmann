@@ -25,7 +25,7 @@ void two_lattice_sequential::perform_tl_stream_and_collide
     std::vector<double> &source, 
     std::vector<double> &destination,    
     access_function access_function,
-    sim_data_tuple &sim_data
+    std::vector<double> &sim_data
 )
 {
     std::set<unsigned int> remaining_nodes = {fluid_nodes.begin(), fluid_nodes.end()};
@@ -40,17 +40,10 @@ void two_lattice_sequential::perform_tl_stream_and_collide
     
     for(auto current_border_info : bsi)
     {
-        //std::cout << "+++++++++++++++++++++++++++++++++++++++++++++++++++" << std::endl;
-        //std::cout << "Will now perform border updates till node " << bsi[bsi.size() - 1][0] << std::endl;
-        //std::cout << "+++++++++++++++++++++++++++++++++++++++++++++++++++" << std::endl;
-        //std::cout << "Current border node: " << current_border_info[0] << std::endl;
+        std::cout << "Currently dealing with node " << current_border_info[0] << std::endl;
         two_lattice_sequential::determine_remaining_directions(current_border_info, remaining_dirs);
-        //std::cout << "Remaining directions: ";
-        //print_set(remaining_dirs);
-        //std::cout << "Perform streaming " << std::endl;
         for(auto dir : remaining_dirs) 
             two_lattice_sequential::tl_stream(source, destination, access_function, current_border_info[0], dir);
-        //std::cout << "Perform collision" << std::endl;
         two_lattice_sequential::tl_collision(destination, current_border_info[0], access_function, velocities, densities);
         remaining_nodes.erase(current_border_info[0]);
     }
@@ -59,19 +52,19 @@ void two_lattice_sequential::perform_tl_stream_and_collide
 
     /* Treatment of non-boundary nodes */
     for(auto fluid_node : remaining_nodes)
-    {
-        
+    {   
         for (auto direction = 0; direction < DIRECTION_COUNT; ++direction)
             two_lattice_sequential::tl_stream(source, destination, access_function, fluid_node, direction);
         two_lattice_sequential::tl_collision(destination, fluid_node, access_function, velocities, densities);
     }
     std::cout << "Done treating all non-boundary nodes." << std::endl;
-    std::vector<velocity> velocities_sim_data = std::get<0>(sim_data);
-    std::vector<double> densities_sim_data = std::get<1>(sim_data);
-    std::cout << "Refernces set." << std::endl;
+
+    std::vector<double> new_sim_data(10,0); //get_simulation_data(velocities, densities);
+    sim_data.insert(sim_data.end(), new_sim_data.begin(), new_sim_data.end());
+    //std::cout << "Refernces set." << std::endl;
 
     //print_vector(velocities_sim_data);
-    print_vector(densities, HORIZONTAL_NODES - 2);
+    //print_vector(densities, HORIZONTAL_NODES - 2);
     //print_velocity_vector(velocities);
 
     //std::vector<velocity> test = std::move(velocities);
@@ -80,8 +73,7 @@ void two_lattice_sequential::perform_tl_stream_and_collide
     //print_velocity_vector(test);
     //std::cout << *velocities.begin() << std::endl;
     //velocities_sim_data.insert(velocities_sim_data.begin(), velocities.begin(), velocities.end());
-    //std::cout << "Velocities set." << std::endl;
-    densities_sim_data.insert(densities_sim_data.begin(), densities.begin(), densities.end());
+    std::cout << "Velocities set." << std::endl;
     std::cout << "Densities set." << std::endl;
 }
 
@@ -121,7 +113,7 @@ void two_lattice_sequential::run
     std::vector<double> &values_1,   
     access_function access_function,
     unsigned int iterations,
-    sim_data_tuple &data
+    std::vector<double> &data
 )
 {
     std::cout << "--------------------------------------------------------------------------------" << std::endl;

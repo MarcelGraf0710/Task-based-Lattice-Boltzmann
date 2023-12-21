@@ -10,7 +10,7 @@ int main()
     std::vector<unsigned int> nodes;
     std::vector<unsigned int> fluid_nodes;
     std::vector<bool> phase_information;
-    sim_data_tuple data{{}, {}};
+    std::vector<double> data;
     border_swap_information swap_info;
     access_function access_function = access::collision;
 

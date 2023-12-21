@@ -29,7 +29,7 @@ namespace two_lattice_sequential
         std::vector<double> &source, 
         std::vector<double> &destination,    
         access_function access_function,
-        sim_data_tuple &sim_data
+        std::vector<double> &sim_data
     );
 
     /**
@@ -51,7 +51,7 @@ namespace two_lattice_sequential
         std::vector<double> &values_1,   
         access_function access_function,
         unsigned int iterations,
-        sim_data_tuple &data
+        std::vector<double> &data
     );
 
     /**

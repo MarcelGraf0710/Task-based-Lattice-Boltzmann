@@ -146,4 +146,25 @@ namespace math_utils
     }
 }
 
+inline std::vector<double> get_simulation_data(std::vector<velocity>& velocities, std::vector<double>& densities)
+{
+    std::cout << "Got sizes " << velocities.size() << " and " << densities.size() << std::endl;
+    std::vector<double> result(1000, 0);
+    std::cout << "Entering loop" << std::endl;
+    for(auto i = 0; i < velocities.size(); ++i)
+    {
+        std::cout << "\t\t Currently at entry " << i << std::endl;
+        std::cout << "Got velocity (" << velocities[i][0] << ", " << velocities[i][1] << ")" << std::endl;
+        std::cout << "Got density " << densities[i] << std::endl;
+        //result.push_back(velocities[i][0]);
+        //std::cout << "Pushed back velocity entry 0 "<< std::endl;
+        //result.push_back(velocities[i][1]);
+        //std::cout << "Pushed back velocity entry 1 "<< std::endl;
+        //result.push_back(densities[i]);
+        //std::cout << "Pushed back density entry 0 "<< std::endl;
+    }
+    std::cout << "Leaving get_simulation data" << std::endl;
+    return result;
+}
+
 #endif
