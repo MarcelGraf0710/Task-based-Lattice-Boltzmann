@@ -13,25 +13,25 @@
  * @param access_function the access to node values will be performed according to this access function.
  * @param positive_direction true if the velocity vector index is greater than four, false otherwise
  */
-void two_step_sequential::perform_vertical_stream
-(
-    std::vector<unsigned int> &fluid_nodes,       
-    std::vector<double> &values, 
-    access_function access_function
-)
-{
-    // Downward streaming with direction 1
-    for(auto it = fluid_nodes.begin() + 1; it < fluid_nodes.end() - 2; ++it)
-    {
-        values[access_function(access::get_neighbor(*it, 1), 1)] = values[access_function(*it, 1)];
-    }
+// void two_step_sequential::perform_vertical_stream
+// (
+//     std::vector<unsigned int> &fluid_nodes,       
+//     std::vector<double> &values, 
+//     access_function access_function
+// )
+// {
+//     // Downward streaming with direction 1
+//     for(auto it = fluid_nodes.begin() + 1; it < fluid_nodes.end() - 2; ++it)
+//     {
+//         values[access_function(access::get_neighbor(*it, 1), 1)] = values[access_function(*it, 1)];
+//     }
 
-    // Upward streaming with direction 7
-    for(auto it = fluid_nodes.end() - 2; it >= fluid_nodes.begin(); --it)
-    {
-        values[access_function(access::get_neighbor(*it, 7), 7)] = values[access_function(*it, 7)];
-    }
-}
+//     // Upward streaming with direction 7
+//     for(auto it = fluid_nodes.end() - 2; it >= fluid_nodes.begin(); --it)
+//     {
+//         values[access_function(access::get_neighbor(*it, 7), 7)] = values[access_function(*it, 7)];
+//     }
+// }
 
 /**
  * @brief Performs a horizontal streaming step for all fluid nodes, i.e. all f_i with i in {3,5} will be propagated.
@@ -41,35 +41,35 @@ void two_step_sequential::perform_vertical_stream
  * @param access_function the access to node values will be performed according to this access function.
  * @param positive_direction true if the velocity vector index is greater than four, false otherwise
  */
-void two_step_sequential::perform_horizontal_stream
-(
-    std::vector<unsigned int> &fluid_nodes,       
-    std::vector<double> &values, 
-    access_function access_function
-)
-{
-    unsigned int current_index = 0;
+// void two_step_sequential::perform_horizontal_stream
+// (
+//     std::vector<unsigned int> &fluid_nodes,       
+//     std::vector<double> &values, 
+//     access_function access_function
+// )
+// {
+//     unsigned int current_index = 0;
 
-    // Leftward streaming with direction 3
-    for(auto column = 1; column < HORIZONTAL_NODES-1; ++column)
-    {
-        for(auto row = 1; row < VERTICAL_NODES-1; ++row)
-        {
-            current_index = access::get_node_index(column, row);
-            values[access_function(access::get_neighbor(current_index, 3), 3)] = values[access_function(current_index, 3)];
-        }
-    }
+//     // Leftward streaming with direction 3
+//     for(auto column = 1; column < HORIZONTAL_NODES-1; ++column)
+//     {
+//         for(auto row = 1; row < VERTICAL_NODES-1; ++row)
+//         {
+//             current_index = access::get_node_index(column, row);
+//             values[access_function(access::get_neighbor(current_index, 3), 3)] = values[access_function(current_index, 3)];
+//         }
+//     }
 
-    // Rightward streaming with direction 5
-    for(auto column = HORIZONTAL_NODES-1; column >= 1 ; --column)
-    {
-        for(auto row = 1; row < VERTICAL_NODES-1; ++row)
-        {
-            current_index = access::get_node_index(column, row);
-            values[access_function(access::get_neighbor(current_index, 5), 5)] = values[access_function(current_index, 5)];
-        }
-    }
-}
+//     // Rightward streaming with direction 5
+//     for(auto column = HORIZONTAL_NODES-1; column >= 1 ; --column)
+//     {
+//         for(auto row = 1; row < VERTICAL_NODES-1; ++row)
+//         {
+//             current_index = access::get_node_index(column, row);
+//             values[access_function(access::get_neighbor(current_index, 5), 5)] = values[access_function(current_index, 5)];
+//         }
+//     }
+// }
 
 /**
  * @brief Performs the streaming step for all fluid nodes within the simulation domain.

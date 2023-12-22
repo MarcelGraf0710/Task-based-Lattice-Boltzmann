@@ -4,8 +4,8 @@
 #include "defines.hpp"
 
 /**
- * @brief This namespace includes functions for calculating macroscopic observables of non-boundary nodes for the D2Q9I model.
- *        Notice that those functions assume an imcompressible fluid and are false otherwise!
+ * @brief This namespace includes functions for calculating macroscopic observables of non-boundary nodes 
+ *        for the D2Q9(I) model.
  */
 namespace macroscopic
 {

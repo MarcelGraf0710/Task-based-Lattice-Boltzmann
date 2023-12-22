@@ -17,31 +17,26 @@ std::tuple<unsigned int, unsigned int> access::get_node_coordinates(unsigned int
  * @param source the distribution values will be read from this vector
  * @param node_index this is the index of the node in the domain
  * @param access this access function will be used
- * @return All distribution values
+ * @return A vector containing all distribution values
  */
-std::vector<double> access::get_all_distribution_values(std::vector<double> &source, int node_index, access_function access)
+std::vector<double> access::get_all_distribution_values
+(
+    std::vector<double> &source, 
+    int node_index, 
+    access_function access
+)
 {
-    //std::cout << "Getting all distribution values " << std::endl;
     std::vector<double> dist_vals(9,0);
-    //dist_vals.reserve(9);
     for(auto direction = 0; direction < DIRECTION_COUNT; ++direction)
     {
-        //std::cout << "Accessing array index "<<  access(node_index, direction) << std::endl;
         dist_vals[direction] = source[access(node_index, direction)];
-        //std::cout << dist_vals[direction] << std::endl;
     }
-    //std::cout << "Leaving from getting all distribution values " << std::endl;
-    // if(node_index == 31 || node_index == 28)
-    // {
-    //     std::cout << "Length of vals is " << dist_vals.size() << std::endl;
-    //     std::cout << "Distribution values of node " << node_index << std::endl;
-    //     print_vector(dist_vals);
-    // }
     return dist_vals;
 }
 
 /**
- * @brief This function sets all distribution values of the node with the specified index to the specified values using the specified access pattern.
+ * @brief This function sets all distribution values of the node with the specified index to the specified values 
+ *        using the specified access pattern.
  * 
  * @param dist_vals a vector containing the values to which the distribution values shall be set
  * @param destination the distribution values will be written to this vector
@@ -58,11 +53,6 @@ void access::set_all_distribution_values
 {
     for(auto direction = 0; direction < DIRECTION_COUNT; ++direction)
     {
-        //std::cout << "Attempting destination[";
-        //std::cout << access(node_index, direction);
-        //std::cout << "] = dist_vals[" << direction << "]" << std::endl;
-        //std::cout << destination[access(node_index, direction)] << std::endl;
-        //std::cout << dist_vals[0] << std::endl;
         destination[access(node_index, direction)] = dist_vals[direction];
     }
 }

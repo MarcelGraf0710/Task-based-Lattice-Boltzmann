@@ -6,53 +6,6 @@
 
 namespace two_step_sequential
 {
-
-    /**
-     * MARKED DEPRECATED
-     * @brief Performs a horizontal streaming step for all fluid nodes, i.e. all f_i with i in {3,5} will be propagated.
-     * 
-     * @param fluid_nodes A vector containing the indices of all fluid nodes in the domain
-     * @param values a vector containing all distribution values.
-     * @param access_function the access to node values will be performed according to this access function.
-     * @param positive_direction true if the velocity vector index is greater than four, false otherwise
-     */
-    void perform_horizontal_stream(
-        std::vector<unsigned int> &fluid_nodes,       
-        std::vector<double> &values, 
-        access_function access_function
-    );
-
-    /**
-     * MARKED DEPRECATED
-     * @brief Performs a vertical streaming step for all fluid nodes, i.e. all f_i with i in {1,7} will be propagated.
-     * 
-     * @param fluid_nodes A vector containing the indices of all fluid nodes in the domain
-     * @param values a vector containing all distribution values.
-     * @param access_function the access to node values will be performed according to this access function.
-     * @param positive_direction true if the velocity vector index is greater than four, false otherwise
-     */
-    void perform_vertical_stream(
-        std::vector<unsigned int> &fluid_nodes,       
-        std::vector<double> &values, 
-        access_function access_function
-    );
-
-    /**
-     * MARKED DEPRECATED
-     * @brief Performs a diagonal streaming step for all fluid nodes, i.e. all f_i with i in {0,2,6,8} will be propagated.
-     * 
-     * @param fluid_nodes A vector containing the indices of all fluid nodes in the domain
-     * @param values a vector containing all distribution values.
-     * @param access_function the access to node values will be performed according to this access function.
-     * @param flip_vertical false if the velocity vector index is greater than four (i.e. i in {0,2}), true otherwise
-     * @param flip_horizontal true if the module of the velocity vector is zero (i.e. i in {0,6}), false otherwise (i.e. i in {2,8})
-     */
-    void perform_diagonal_stream(
-        std::vector<unsigned int> &fluid_nodes,       
-        std::vector<double> &values, 
-        access_function access_function
-    );
-
     /**
      * @brief Performs the streaming step for all fluid nodes within the simulation domain.
      * 

@@ -69,9 +69,9 @@ namespace two_lattice_sequential
         for (auto i = current_border_info.begin() + 1; i < current_border_info.end(); ++i)
         {
             remaining_dirs.erase(*i);
-            std::cout << "Erased direction " << *i << std::endl;
+            //std::cout << "Erased direction " << *i << std::endl;
         }
-        print_set(remaining_dirs);
+        //print_set(remaining_dirs);
         return remaining_dirs;  
     }
 

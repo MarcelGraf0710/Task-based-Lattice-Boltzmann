@@ -22,12 +22,8 @@ namespace access
      */
     inline unsigned int get_neighbor(unsigned int node_index, unsigned int direction)
     {
-        //std::cout << "Welcome at get_neighbor debugging :)" << std::endl;
-        //std::cout << "I was accessed with values node_index = " << node_index << ", direction = " << direction << std::endl;
         int y_offset = direction / 3 - 1; // -1 for {0,1,2}, 0 for {3,4,5}, 1 for {6,7,8}
-        //std::cout << "y_offset = " << y_offset << std::endl;
-        int x_offset = direction - (3 * y_offset + 4); //-1 for {0,3,5}, 0 for {1,4,7}, 1 for {6,7,8}
-        //std::cout << "x_offset = " << x_offset << std::endl;
+        int x_offset = direction - (3 * y_offset + 4); //-1 for {0,3,6}, 0 for {1,4,7}, 1 for {2,5,8}
         return node_index + y_offset * HORIZONTAL_NODES + x_offset;
     }
 
@@ -86,7 +82,7 @@ namespace access
      * @param source the distribution values will be read from this vector
      * @param node_index this is the index of the node in the domain
      * @param access this access function will be used
-     * @return All distribution values
+     * @return A vector containing all distribution values
      */
     std::vector<double> get_all_distribution_values
     (
@@ -96,7 +92,8 @@ namespace access
     );
 
     /**
-     * @brief This function sets all distribution values of the node with the specified index to the specified values using the specified access pattern.
+     * @brief This function sets all distribution values of the node with the specified index to the specified values 
+     *        using the specified access pattern.
      * 
      * @param dist_vals a vector containing the values to which the distribution values shall be set
      * @param destination the distribution values will be written to this vector
