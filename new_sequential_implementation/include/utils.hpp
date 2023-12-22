@@ -167,4 +167,51 @@ inline std::vector<double> get_simulation_data(std::vector<velocity>& velocities
     return result;
 }
 
+inline void print_border_adjacencies(border_adjacency &ba)
+{
+    for(auto node : ba)
+    {
+        for(auto tuple : node)
+        {
+            std::cout << "(" << std::get<0>(tuple) << ", " << std::get<1>(tuple) << ")" << "\t";
+        }
+        std::cout << std::endl;
+    }
+}
+
+inline void print_sim_data_tuples(std::vector<sim_data_tuple>& data)
+{
+    int time = 0;
+    std::vector<velocity> current_velocities;
+    std::vector<double> current_densities;
+    int current_value_count = 0;
+
+    for(auto current_data : data)
+    {
+        std::cout << "t = " << time << ": " << std::endl;
+        std::cout << "------ " << std::endl;
+        time++;
+        
+        std::cout << "[";
+
+        for(auto i = 0; i < std::get<0>(current_data).size(); ++i)
+        {
+            current_velocities = std::get<0>(current_data);
+            current_densities = std::get<1>(current_data);
+
+            if(current_value_count == (HORIZONTAL_NODES - 2))
+            {
+                current_value_count = 0;
+                std::cout << "--------------------------------------------------------------------------------------" << std::endl;
+            }
+            std::cout << " v = ("<< std::ceil(current_velocities[i][0] * 100.0) / 100.0 << ", " << std::ceil(current_velocities[i][1] * 100.0) / 100.0 << "), ";
+            std::cout << "rho = " << std::ceil(current_densities[i] * 100.0) / 100.0;
+            std::cout << "|";
+            current_value_count++;
+        }
+        std::cout << "]";
+        std::cout << std::endl;
+    }
+}
+
 #endif

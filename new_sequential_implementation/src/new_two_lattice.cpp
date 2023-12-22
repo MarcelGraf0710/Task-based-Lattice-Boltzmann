@@ -30,8 +30,8 @@ void two_lattice_sequential::perform_tl_stream_and_collide
 {
     std::set<unsigned int> remaining_nodes = {fluid_nodes.begin(), fluid_nodes.end()};
     std::set<unsigned int> remaining_dirs;
-    std::vector<velocity> velocities(fluid_nodes.size(), velocity{0,0});
-    std::vector<double> densities(fluid_nodes.size(), 0);
+    std::vector<velocity> velocities(source.size()/9.0, velocity{0,0});
+    std::vector<double> densities(source.size()/9.0, 0);
     std::cout << "\t TL stream and collide: initializations and declarations" << std::endl;
 
     /* Boundary node treatment */
@@ -40,12 +40,47 @@ void two_lattice_sequential::perform_tl_stream_and_collide
     
     for(auto current_border_info : bsi)
     {
-        std::cout << "Currently dealing with node " << current_border_info[0] << std::endl;
+        //std::cout << "Currently dealing with node " << current_border_info[0] << std::endl;
+        // if(current_border_info[0] == 31 || current_border_info[0] == 28)
+        // {
+        //     std::cout << "Swap info:" << std::endl;
+        //     for(auto current : bsi)
+        //         print_vector(current);
+        //     std::cout << std::endl;   
+        // }
         two_lattice_sequential::determine_remaining_directions(current_border_info, remaining_dirs);
+        if(current_border_info[0] == 31 || current_border_info[0] == 28)
+        // {
+        //     std::cout << "Swap info:" << std::endl;
+        //     for(auto current : bsi)
+        //         print_vector(current);
+        //     std::cout << std::endl;   
+        // }
         for(auto dir : remaining_dirs) 
             two_lattice_sequential::tl_stream(source, destination, access_function, current_border_info[0], dir);
+        // if(current_border_info[0] == 31 || current_border_info[0] == 28)
+        // {
+        //     std::cout << "Swap info:" << std::endl;
+        //     for(auto current : bsi)
+        //         print_vector(current);
+        //     std::cout << std::endl;   
+        // }
         two_lattice_sequential::tl_collision(destination, current_border_info[0], access_function, velocities, densities);
+        // if(current_border_info[0] == 31 || current_border_info[0] == 28)
+        // {
+        //     std::cout << "Swap info bitches:" << std::endl;
+        //     for(auto current : bsi)
+        //         print_vector(current);
+        //     std::cout << std::endl;   
+        // }
         remaining_nodes.erase(current_border_info[0]);
+        // if(current_border_info[0] == 31 || current_border_info[0] == 28)
+        // {
+        //     std::cout << "Swap info:" << std::endl;
+        //     for(auto current : bsi)
+        //         print_vector(current);
+        //     std::cout << std::endl;   
+        // }
     }
 
     std::cout << "\t Performed stream and collision for all border nodes." << std::endl;
@@ -96,6 +131,13 @@ void two_lattice_sequential::tl_collision
 )
 {
     std::vector<double> vals = access::get_all_distribution_values(destination, fluid_node, access_function);
+    // if(fluid_node == 31 || fluid_node == 28)
+    // {
+    //     std::cout << "Length of vals is " << vals.size() << std::endl;
+    //     std::cout << "Distribution values of node " << fluid_node << std::endl;
+    //     print_vector(vals);
+    // }
+        
     velocity current_velocity = macroscopic::flow_velocity(vals);
     velocities[fluid_node] = current_velocity;
     double density = macroscopic::density(vals);

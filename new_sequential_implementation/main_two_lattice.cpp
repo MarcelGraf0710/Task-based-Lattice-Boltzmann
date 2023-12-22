@@ -7,10 +7,15 @@
 int main()
 {
     std::vector<double> distribution_values_0;
+    distribution_values_0.reserve(TOTAL_NODE_COUNT * DIRECTION_COUNT);
     std::vector<unsigned int> nodes;
+    nodes.reserve(TOTAL_NODE_COUNT);
     std::vector<unsigned int> fluid_nodes;
+    fluid_nodes.reserve(TOTAL_NODE_COUNT);
     std::vector<bool> phase_information;
+    phase_information.reserve(TOTAL_NODE_COUNT);
     std::vector<double> data;
+    data.reserve(3 * TOTAL_NODE_COUNT);
     border_swap_information swap_info;
     access_function access_function = access::collision;
 

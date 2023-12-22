@@ -1,4 +1,5 @@
 #include "../include/access.hpp"
+#include "../include/utils.hpp"
 #include <iostream>
 
 /**
@@ -21,8 +22,8 @@ std::tuple<unsigned int, unsigned int> access::get_node_coordinates(unsigned int
 std::vector<double> access::get_all_distribution_values(std::vector<double> &source, int node_index, access_function access)
 {
     //std::cout << "Getting all distribution values " << std::endl;
-    std::vector<double> dist_vals;
-    dist_vals.reserve(9);
+    std::vector<double> dist_vals(9,0);
+    //dist_vals.reserve(9);
     for(auto direction = 0; direction < DIRECTION_COUNT; ++direction)
     {
         //std::cout << "Accessing array index "<<  access(node_index, direction) << std::endl;
@@ -30,6 +31,12 @@ std::vector<double> access::get_all_distribution_values(std::vector<double> &sou
         //std::cout << dist_vals[direction] << std::endl;
     }
     //std::cout << "Leaving from getting all distribution values " << std::endl;
+    // if(node_index == 31 || node_index == 28)
+    // {
+    //     std::cout << "Length of vals is " << dist_vals.size() << std::endl;
+    //     std::cout << "Distribution values of node " << node_index << std::endl;
+    //     print_vector(dist_vals);
+    // }
     return dist_vals;
 }
 

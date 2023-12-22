@@ -535,7 +535,12 @@ CMakeFiles/sequential_lbm.dir/src/access.cpp.o: ../src/access.cpp \
   /usr/include/c++/11/bits/stl_numeric.h \
   /usr/include/c++/11/bit \
   /usr/include/c++/11/pstl/glue_numeric_defs.h \
-  /usr/include/c++/11/iostream
+  ../include/utils.hpp \
+  /usr/include/c++/11/set \
+  /usr/include/c++/11/bits/stl_set.h \
+  /usr/include/c++/11/bits/stl_multiset.h \
+  /usr/include/c++/11/iostream \
+  ../include/defines.hpp
 
 CMakeFiles/sequential_lbm.dir/src/boundaries.cpp.o: ../src/boundaries.cpp \
   /usr/include/stdc-predef.h \

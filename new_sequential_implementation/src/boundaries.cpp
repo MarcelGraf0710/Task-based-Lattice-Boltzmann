@@ -91,8 +91,8 @@ border_adjacency bounce_back::retrieve_border_adjacencies
             {
                 current_adjacencies.push_back(std::make_tuple(current_neighbor, direction));
             }
-            if(current_adjacencies.size() > 1) result.push_back(current_adjacencies);
         }
+        if(current_adjacencies.size() > 1) result.push_back(current_adjacencies);
     }
     return result;
 }

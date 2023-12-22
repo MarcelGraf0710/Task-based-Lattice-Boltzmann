@@ -49,12 +49,28 @@ int main()
 
     setup_example_domain(distribution_values, nodes, fluid_nodes, phase_information, ba, access_function);
 
-    std::cout << "distribution_values has size "<< distribution_values.size() << std::endl;
-    std::cout << "nodes has size "<< nodes.size() << std::endl;
-    std::cout << "fluid_nodes has size "<< fluid_nodes.size() << std::endl;
-    std::cout << "phase_information has size "<< phase_information.size() << std::endl;
+        std::cout << "'distribution_values' has size "<< distribution_values.size() << std::endl;
+    std::cout << std::endl;
+
+    std::cout << "Illustration of lattice: " << std::endl;
+    print_phase_vector(phase_information);
+    std::cout << std::endl;
+
+    std::cout << "Enumeration of all nodes within the lattice: " << std::endl;
+    print_vector(nodes);
+    std::cout << std::endl;
+
+    std::cout << "Enumeration of all fluid nodes within the simulation domain: " << std::endl;
+    print_vector(fluid_nodes, HORIZONTAL_NODES - 2);
+    std::cout << std::endl;
+
+    std::cout << "Illustration of border adjacencies: " << std::endl;
+    print_border_adjacencies(ba);
+    std::cout << std::endl;
 
     std::vector<sim_data_tuple> result = two_step_sequential::run(fluid_nodes, distribution_values, ba, access_function, 5);
+    
+    print_sim_data_tuples(result);
 
     return 0;
 }
