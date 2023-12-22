@@ -14,8 +14,7 @@ int main()
     fluid_nodes.reserve(TOTAL_NODE_COUNT);
     std::vector<bool> phase_information;
     phase_information.reserve(TOTAL_NODE_COUNT);
-    std::vector<double> data;
-    data.reserve(3 * TOTAL_NODE_COUNT);
+    std::vector<sim_data_tuple>result(5, std::make_tuple(std::vector<velocity>(TOTAL_NODE_COUNT, {0,0}), std::vector<double>(TOTAL_NODE_COUNT, 0)));
     border_swap_information swap_info;
     access_function access_function = access::collision;
 
@@ -54,7 +53,7 @@ int main()
         distribution_values_1,   
         access_function,
         5,
-        data
+        result
     );
 
     return 0;

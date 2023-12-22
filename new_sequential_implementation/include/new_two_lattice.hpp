@@ -22,14 +22,13 @@ namespace two_lattice_sequential
      * @param access_function the access function according to which the values are to be accessed
      * @return a tuple containing vectors of all flow velocities and density values for a fixed time step.
      */
-    void perform_tl_stream_and_collide
+    sim_data_tuple perform_tl_stream_and_collide
     (
         std::vector<unsigned int> &fluid_nodes,
         border_swap_information &bsi,
         std::vector<double> &source, 
         std::vector<double> &destination,    
-        access_function access_function,
-        std::vector<double> &sim_data
+        access_function access_function
     );
 
     /**
@@ -51,7 +50,7 @@ namespace two_lattice_sequential
         std::vector<double> &values_1,   
         access_function access_function,
         unsigned int iterations,
-        std::vector<double> &data
+        std::vector<sim_data_tuple> &data
     );
 
     /**
@@ -113,6 +112,24 @@ namespace two_lattice_sequential
         destination[access_function(fluid_node, direction)] =
             source[access_function(access::get_neighbor(fluid_node, direction), invert_direction(direction))];
     }
+
+    /**
+     * @brief 
+     * 
+     * @param destination 
+     * @param fluid_node 
+     * @param access_function 
+     * @param velocities 
+     * @param densities 
+     */
+    void OLD_tl_collision
+    (
+        std::vector<double> &destination, 
+        unsigned int fluid_node, 
+        access_function &access_function, 
+        std::vector<velocity> &velocities, 
+        std::vector<double> &densities
+    );
 
     /**
      * @brief 

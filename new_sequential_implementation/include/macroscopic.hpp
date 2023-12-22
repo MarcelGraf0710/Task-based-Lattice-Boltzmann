@@ -27,14 +27,46 @@ namespace macroscopic
      */
     velocity flow_velocity(const std::vector<double> &distribution_functions);
 
-    /**
+    /** DEPRECATED
      * @brief Calculates the velocity values for all fluid nodes in the simuation domain.
      * 
      * @param fluid_nodes A vector containing the indices of all fluid nodes within the simulation domain.
      * @param all_distributions A vector containing all distribution values. 
      * @param access_function This function is used to access the distribution values.
      */
+    std::vector<velocity> OLD_calculate_all_velocities
+    (
+        const std::vector<unsigned int> &fluid_nodes,
+        std::vector<double> &all_distributions, 
+        access_function access_function
+    );
+
+    /**
+     * @brief Calculates the velocity values for ALL nodes in the lattice.
+     *        Notice that all solid nodes will automatically be assigned the velocity (0,0) regardless of their
+     *        distribution values as they act as ghost nodes, and as such as containers for temporal data.
+     * 
+     * @param fluid_nodes A vector containing the indices of all fluid nodes within the simulation domain.
+     * @param all_distributions A vector containing all distribution values. 
+     * @param access_function This function is used to access the distribution values.
+     */
     std::vector<velocity> calculate_all_velocities
+    (
+        const std::vector<unsigned int> &fluid_nodes,
+        std::vector<double> &all_distributions, 
+        access_function access_function
+    );
+
+    /**
+     * @brief Calculates the density values for ALL nodes in the lattice.
+     *        Notice that for better distinction, all solid nodes will be assigned the value 
+     *        std::numeric_limits<double>::max().
+     * 
+     * @param fluid_nodes A vector containing the indices of all fluid nodes within the simulation domain.
+     * @param all_distributions A vector containing all distribution values. 
+     * @param access_function This function is used to access the distribution values.
+     */
+    std::vector<double> calculate_all_densities
     (
         const std::vector<unsigned int> &fluid_nodes,
         std::vector<double> &all_distributions, 

@@ -77,7 +77,7 @@ inline void print_velocity_vector(std::vector<velocity> &vector)
     std::cout << "[";
     for(auto i = 0; i < vector.size(); ++i)
     {
-        if(current_value_count == HORIZONTAL_NODES - 2)
+        if(current_value_count == HORIZONTAL_NODES)
         {
             current_value_count = 0;
             std::cout << std::endl;
@@ -199,17 +199,16 @@ inline void print_sim_data_tuples(std::vector<sim_data_tuple>& data)
             current_velocities = std::get<0>(current_data);
             current_densities = std::get<1>(current_data);
 
-            if(current_value_count == (HORIZONTAL_NODES - 2))
+            if(current_value_count == (HORIZONTAL_NODES))
             {
                 current_value_count = 0;
-                std::cout << "--------------------------------------------------------------------------------------" << std::endl;
             }
             std::cout << " v = ("<< std::ceil(current_velocities[i][0] * 100.0) / 100.0 << ", " << std::ceil(current_velocities[i][1] * 100.0) / 100.0 << "), ";
-            std::cout << "rho = " << std::ceil(current_densities[i] * 100.0) / 100.0;
-            std::cout << "|";
+            std::cout << "rho = " << (std::ceil(current_densities[i] * 100.0) / 100.0);
+            std::cout << "\t";
             current_value_count++;
         }
-        std::cout << "]";
+        std::cout << "]" << std::endl;;
         std::cout << std::endl;
     }
 }
