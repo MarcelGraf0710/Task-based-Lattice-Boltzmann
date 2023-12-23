@@ -48,7 +48,7 @@ void collision::collide_all_bgk
 {
     for (auto fluid_node : fluid_nodes)
     {
-        std::vector<double> current_dist_values = access::get_all_distribution_values(values, fluid_node, access);
+        std::vector<double> current_dist_values = access::get_distribution_values_of(values, fluid_node, access);
         std::vector<double> new_distributions = collision::collide_bgk(current_dist_values, all_velocities[fluid_node], all_densities[fluid_node]);
         access::set_all_distribution_values(new_distributions, values, fluid_node, access);
     }

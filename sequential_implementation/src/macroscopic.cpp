@@ -29,7 +29,7 @@ void macroscopic::update_all_velocities(std::vector<double> &all_distributions, 
         for(auto y = 0; y < VERTICAL_NODES; ++y)
         {
             int node_index = access::get_node_index(x,y);
-            std::vector<double> dist_vals = access::get_all_distribution_values(all_distributions, node_index, access_f);
+            std::vector<double> dist_vals = access::get_distribution_values_of(all_distributions, node_index, access_f);
             std::cout << "I'm back " << std::endl;
             std::cout << dist_vals[0] << std::endl;
             std::cout << "Flow velocity is " << flow_velocity(dist_vals)[0] << flow_velocity(dist_vals)[1] << std::endl;

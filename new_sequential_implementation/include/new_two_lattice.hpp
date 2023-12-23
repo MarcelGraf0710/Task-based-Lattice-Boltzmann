@@ -6,21 +6,22 @@
 #include "defines.hpp"
 #include "access.hpp"
 #include <iostream>
+#include "new_collision.hpp"
 #include "utils.hpp"
+#include "boundaries.hpp"
 
 namespace two_lattice_sequential
 {
 
     /**
-     * @brief Performs the combined streaming-and-collision step for all nodes within the simulation domain.
+     * @brief Performs the combined streaming and collision step for all fluid nodes within the simulation domain.
      * 
-     * @param time_step current iteration of the simulation
-     * @param fluid_nodes A vector containing the indices of all fluid nodes in the domain
-     * @param boundary_nodes A vector containing the indices of all fluid boundary nodes in the domain
-     * @param values_0 source for even time steps and destination for odd time steps
-     * @param values_1 source for odd time steps and destination for even time steps
-     * @param access_function the access function according to which the values are to be accessed
-     * @return a tuple containing vectors of all flow velocities and density values for a fixed time step.
+     * @param fluid_nodes a vector containing the indices of all fluid nodes within the simulation domain.
+     * @param bsi see documentation of border_swap_information
+     * @param source a vector containing the distribution values of the previous time step
+     * @param destination the distribution values will be written to this vector after performing both steps.
+     * @param access_function the function used to access the distribution values
+     * @return see documentation of sim_data_tuple
      */
     sim_data_tuple perform_tl_stream_and_collide
     (
@@ -38,9 +39,9 @@ namespace two_lattice_sequential
      * @param boundary_nodes A vector containing the indices of all fluid boundary nodes in the domain
      * @param values_0 source for even time steps and destination for odd time steps
      * @param values_1 source for odd time steps and destination for even time steps
-     * @param access_function the access function according to which the values are to be accessed
+     * @param access_function the access function according to which distribution values are to be accessed
      * @param iterations this many iterations will be performed
-     * @return a vector of tuples containing all flow velocities and density values for all time steps
+     * @param data the simulation data tuples will be placed in this vector (assumed to be pre-initialized)
      */
     void run
     (  
@@ -54,51 +55,42 @@ namespace two_lattice_sequential
     );
 
     /**
-     * @brief 
+     * @brief Determines the remaining streaming option for a node based on the specified border 
+     *        information vector.
      * 
-     * @param current_border_info 
-     * @return std::set<unsigned int> 
+     * @param current_border_info an entry of a border_swap_information object
+     * @return a set containing all remaining streaming directions
      */
-    inline std::set<unsigned int> determine_remaining_directions
+    inline std::set<unsigned int> determine_streaming_directions
     (
         std::vector<unsigned int> &current_border_info
     )
     {
+        
         std::set<unsigned int> remaining_dirs = {streaming_directions.begin(), streaming_directions.end()};
-        for (auto i = current_border_info.begin() + 1; i < current_border_info.end(); ++i)
+        std::set<unsigned int> bounce_back_dirs = bounce_back::determine_bounce_back_directions(current_border_info);
+        //std::cout << "Received current border info ";
+        //to_console::print_vector(current_border_info, 10);
+        //std::cout << "Bounce back dirs are ";
+        //to_console::print_set(bounce_back_dirs);
+        for (auto i : bounce_back_dirs)
         {
-            remaining_dirs.erase(*i);
-            //std::cout << "Erased direction " << *i << std::endl;
+            remaining_dirs.erase(invert_direction(i));
         }
-        //print_set(remaining_dirs);
+        //std::cout << "Returning remaining dirs ";
+        //to_console::print_set(remaining_dirs);
         return remaining_dirs;  
     }
 
-
-    inline void determine_remaining_directions
-    (
-        std::vector<unsigned int> &current_border_info,
-        std::set<unsigned int> &remaining_dirs
-    )
-    {
-        std::set<unsigned int> result = {streaming_directions.begin(), streaming_directions.end()};
-        for (auto i = current_border_info.begin() + 1; i < current_border_info.end(); ++i)
-        {
-            result.erase(*i);
-            //std::cout << "Erased direction " << *i << std::endl;
-        }
-        //print_set(result);
-        remaining_dirs = result;
-    }
-
     /**
-     * @brief 
+     * @brief Performs the steaming step in the specified directions for the fluid node with 
+     *        the specified index.
      * 
-     * @param source 
-     * @param destination 
-     * @param access_function 
-     * @param fluid_node 
-     * @param direction 
+     * @param source distribution values will be taken from this vector
+     * @param destination distribution values will be rearranged in this vector
+     * @param access_function function that will be used to access the distribution values
+     * @param fluid_node the index of the node for which the streaming step is performed
+     * @param directions a set specifying in which directions streaming will be executed
      */
     inline void tl_stream
     (
@@ -106,49 +98,72 @@ namespace two_lattice_sequential
         std::vector<double> &destination, 
         access_function &access_function, 
         unsigned int fluid_node, 
-        int direction 
+        std::set<unsigned int> &directions
     )
     {
-        destination[access_function(fluid_node, direction)] =
-            source[access_function(access::get_neighbor(fluid_node, direction), invert_direction(direction))];
+        //std::cout << "Executing streaming step for node " << fluid_node << std::endl;
+        //std::cout << "Got directions ";
+        //to_console::print_set(directions);
+        for(auto direction : directions) 
+        {
+            //std::cout << "\t performing stream (node = " << fluid_node << ", dir = " << direction << ") := " << "(node = " << access::get_neighbor(fluid_node, invert_direction(direction)) << ", dir = " << direction << ")" << std::endl; 
+            destination[access_function(fluid_node, direction)] =
+            source[
+                access_function(
+                    access::get_neighbor(fluid_node, invert_direction(direction)), 
+                    direction)];
+        }
     }
 
     /**
-     * @brief 
+     * @brief Performs the steaming step in all directions for the fluid node with 
+     *        the specified index.
      * 
-     * @param destination 
-     * @param fluid_node 
-     * @param access_function 
-     * @param velocities 
-     * @param densities 
+     * @param source distribution values will be taken from this vector
+     * @param destination distribution values will be rearranged in this vector
+     * @param access_function function that will be used to access the distribution values
+     * @param fluid_node the index of the node for which the streaming step is performed
      */
-    void OLD_tl_collision
+    inline void tl_stream
     (
+        std::vector<double> &source,
         std::vector<double> &destination, 
-        unsigned int fluid_node, 
         access_function &access_function, 
-        std::vector<velocity> &velocities, 
-        std::vector<double> &densities
-    );
+        unsigned int fluid_node
+    )
+    {
+        for (auto direction : streaming_directions)
+        {
+            destination[access_function(fluid_node, direction)] =
+                source[
+                    access_function(
+                        access::get_neighbor(fluid_node, invert_direction(direction)), 
+                        direction)];
+        }
+
+    }
 
     /**
-     * @brief 
+     * @brief Performs the collision step for the fluid node with the specified index.
      * 
-     * @param destination 
-     * @param fluid_node 
-     * @param access_function 
-     * @param velocities 
-     * @param densities 
+     * @param destination the updated distribution values will be written to this vector
+     * @param fluid_node the index of the fluid node
+     * @param access_function the function used to access the distribution values
+     * @param velocities a vector containing the velocities of ALL nodes within the lattice
+     * @param densities a vector containing the densities of ALL nodes within the lattice
      */
-    void tl_collision
+    inline void tl_collision
     (
         std::vector<double> &destination, 
         unsigned int fluid_node, 
         access_function &access_function, 
         std::vector<velocity> &velocities, 
         std::vector<double> &densities
-    );
-
+    )
+    {
+        std::vector<double >vals = collision::collide_bgk(vals, velocities[fluid_node], densities[fluid_node]);
+        access::set_all_distribution_values(vals, destination, fluid_node, access_function);
+    }
 }
 
 #endif

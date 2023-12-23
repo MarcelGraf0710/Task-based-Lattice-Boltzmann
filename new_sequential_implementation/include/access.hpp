@@ -84,7 +84,7 @@ namespace access
      * @param access this access function will be used
      * @return A vector containing all distribution values
      */
-    std::vector<double> get_all_distribution_values
+    std::vector<double> get_distribution_values_of
     (
         std::vector<double> &source, 
         int node_index, 

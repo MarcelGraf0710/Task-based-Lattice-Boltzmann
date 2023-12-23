@@ -1,6 +1,7 @@
 #ifndef BOUNDARIES_HPP
 #define BOUNDARIES_HPP
 #include "defines.hpp"
+#include <set>
 
 /**
  * @brief Returns whether the node with the specified index is located at the edge of the simulation domain.
@@ -83,6 +84,18 @@ namespace bounce_back
     (
         std::vector<unsigned int> &fluid_nodes, 
         std::vector<bool> &phase_information
+    );
+
+    /**
+     * @brief Determines the remaining streaming option for a node based on the specified border 
+     *        information vector.
+     * 
+     * @param current_border_info an entry of a border_swap_information object
+     * @return a set containing all remaining streaming directions
+     */
+    std::set<unsigned int> determine_bounce_back_directions
+    (
+        std::vector<unsigned int> &current_border_info
     );
 
     /**

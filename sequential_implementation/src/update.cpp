@@ -35,7 +35,7 @@ void collision::perform_collision_step(
         {
             int node_index = access::get_node_index(x,y);
             std::cout << all_distribution_values[0] << std::endl;
-            std::vector<double> current_dist_values = access::get_all_distribution_values(all_distribution_values, node_index, access);
+            std::vector<double> current_dist_values = access::get_distribution_values_of(all_distribution_values, node_index, access);
             std::cout << "Set current dist values, entering collide_bgk" << std::endl;
             current_dist_values = collide_bgk(current_dist_values, all_velocities[node_index], density);
             std::cout << "Setting all distribution values" << std::endl;

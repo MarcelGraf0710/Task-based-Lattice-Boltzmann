@@ -39,11 +39,11 @@ void setup_example_domain
         distribution_values.insert(distribution_values.end(), values.begin(), values.end());
     }
     std::cout << "Set the distribution values of all nodes to ";
-    print_vector(values); 
+    to_console::print_vector(values, DIRECTION_COUNT + 1); 
     
     // TODO: PUT THIS IN RUN!!!!
-    std::vector<double> inlet_values{0,0,0,0,1,0.5,0,0,0};
-    for(auto y = 1; y < VERTICAL_NODES - 2; ++y)
+    std::vector<double> inlet_values{0,0,0.01,0,1,0.5,0,0,0.02};
+    for(auto y = 1; y < VERTICAL_NODES - 1; ++y)
     {
         access::set_all_distribution_values(inlet_values, distribution_values, access::get_node_index(1, y), access_function);
     }
@@ -105,7 +105,7 @@ void setup_example_domain
         distribution_values.insert(distribution_values.end(), values.begin(), values.end());
     }
     std::cout << "Set the distribution values of all nodes to ";
-    print_vector(values); 
+    to_console::print_vector(values); 
     
     // TODO: PUT THIS IN RUN!!!!
     std::vector<double> inlet_values{0,0,0,0,1,0.5,0,0,0};

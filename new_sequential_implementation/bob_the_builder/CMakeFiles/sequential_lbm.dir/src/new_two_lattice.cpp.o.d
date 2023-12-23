@@ -219,7 +219,9 @@ CMakeFiles/sequential_lbm.dir/src/new_two_lattice.cpp.o: \
  /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/new_sequential_implementation/src/../include/access.hpp \
  /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/new_sequential_implementation/src/../include/../include/defines.hpp \
  /usr/include/c++/11/iostream \
+ /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/new_sequential_implementation/src/../include/new_collision.hpp \
  /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/new_sequential_implementation/src/../include/utils.hpp \
+ /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/new_sequential_implementation/src/../include/boundaries.hpp \
  /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/new_sequential_implementation/src/../include/access.hpp \
  /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/new_sequential_implementation/src/../include/defines.hpp \
  /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/new_sequential_implementation/src/../include/boundaries.hpp \

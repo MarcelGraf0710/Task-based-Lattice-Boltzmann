@@ -41,7 +41,7 @@ std::vector<velocity> macroscopic::OLD_calculate_all_velocities
     {
         result.push_back(
             macroscopic::flow_velocity(
-                access::get_all_distribution_values(all_distributions, fluid_node, access_function)));
+                access::get_distribution_values_of(all_distributions, fluid_node, access_function)));
     }
     return result;
 }
@@ -67,7 +67,7 @@ std::vector<velocity> macroscopic::calculate_all_velocities
     for(auto fluid_node : fluid_nodes)
     {
         result[fluid_node] = macroscopic::flow_velocity(
-                access::get_all_distribution_values(all_distributions, fluid_node, access_function));
+                access::get_distribution_values_of(all_distributions, fluid_node, access_function));
     }
     return result;
 }
@@ -93,7 +93,7 @@ std::vector<double> calculate_all_densities
     for(auto fluid_node : fluid_nodes)
     {
         result[fluid_node] = macroscopic::density(
-                access::get_all_distribution_values(all_distributions, fluid_node, access_function));
+                access::get_distribution_values_of(all_distributions, fluid_node, access_function));
     }
     return result;    
 }
@@ -122,7 +122,7 @@ sim_data_tuple macroscopic::get_sim_data_tuple
     std::vector<double> current_distibutions;
     for(auto fluid_node : fluid_nodes)
     {
-        current_distibutions = access::get_all_distribution_values(all_distributions, fluid_node, access_function);
+        current_distibutions = access::get_distribution_values_of(all_distributions, fluid_node, access_function);
         velocities.push_back(macroscopic::flow_velocity(current_distibutions));
         densities.push_back(macroscopic::density(current_distibutions));
     }

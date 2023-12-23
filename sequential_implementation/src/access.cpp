@@ -1,7 +1,7 @@
 #include "../include/access.hpp"
 #include <iostream>
 
-std::vector<double> access::get_all_distribution_values(std::vector<double> &source, int node_index, access_function access)
+std::vector<double> access::get_distribution_values_of(std::vector<double> &source, int node_index, access_function access)
 {
     std::cout << "Getting all distribution values " << std::endl;
     std::vector<double> dist_vals;

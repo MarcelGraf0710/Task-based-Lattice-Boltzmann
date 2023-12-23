@@ -19,7 +19,7 @@ std::tuple<unsigned int, unsigned int> access::get_node_coordinates(unsigned int
  * @param access this access function will be used
  * @return A vector containing all distribution values
  */
-std::vector<double> access::get_all_distribution_values
+std::vector<double> access::get_distribution_values_of
 (
     std::vector<double> &source, 
     int node_index, 

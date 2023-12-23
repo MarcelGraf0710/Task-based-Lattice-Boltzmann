@@ -27,21 +27,26 @@ int main()
     std::cout << std::endl;
 
     std::cout << "Illustration of lattice: " << std::endl;
-    print_phase_vector(phase_information);
+    to_console::print_phase_vector(phase_information);
     std::cout << std::endl;
 
     std::cout << "Enumeration of all nodes within the lattice: " << std::endl;
-    print_vector(nodes);
+    to_console::print_vector(nodes);
     std::cout << std::endl;
 
     std::cout << "Enumeration of all fluid nodes within the simulation domain: " << std::endl;
-    print_vector(fluid_nodes, HORIZONTAL_NODES - 2);
+    to_console::print_vector(fluid_nodes, HORIZONTAL_NODES - 2);
     std::cout << std::endl;
 
     std::cout << "Swap info:" << std::endl;
     for(auto current : swap_info)
-        print_vector(current);
+        to_console::print_vector(current);
     std::cout << std::endl;
+
+    std::cout << "Initial distributions:" << std::endl;
+    to_console::print_distribution_values(distribution_values_0, access_function);
+    std::cout << std::endl;
+
 
     std::vector<double> distribution_values_1 = distribution_values_0;
 
@@ -52,7 +57,7 @@ int main()
         distribution_values_0, 
         distribution_values_1,   
         access_function,
-        5,
+        2,
         result
     );
 

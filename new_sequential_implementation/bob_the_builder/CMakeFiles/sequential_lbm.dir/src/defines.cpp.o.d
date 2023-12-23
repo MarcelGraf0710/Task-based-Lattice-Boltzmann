@@ -216,4 +216,6 @@ CMakeFiles/sequential_lbm.dir/src/defines.cpp.o: \
  /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/new_sequential_implementation/src/../include/utils.hpp \
  /usr/include/c++/11/set /usr/include/c++/11/bits/stl_set.h \
  /usr/include/c++/11/bits/stl_multiset.h /usr/include/c++/11/iostream \
- /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/new_sequential_implementation/src/../include/defines.hpp
+ /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/new_sequential_implementation/src/../include/defines.hpp \
+ /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/new_sequential_implementation/src/../include/access.hpp \
+ /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/new_sequential_implementation/src/../include/../include/defines.hpp

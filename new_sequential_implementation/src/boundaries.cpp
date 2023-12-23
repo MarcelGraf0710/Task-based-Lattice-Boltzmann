@@ -1,5 +1,6 @@
 #include "../include/boundaries.hpp"
 #include "../include/access.hpp"
+#include "../include/utils.hpp"
 #include <iostream>
 
 /**
@@ -148,6 +149,38 @@ border_swap_information bounce_back::retrieve_border_swap_information
 }
 
 /**
+ * @brief Determines the remaining streaming option for a node based on the specified border 
+ *        information vector.
+ * 
+ * @param current_border_info an entry of a border_swap_information object
+ * @return a set containing all remaining streaming directions
+ */
+std::set<unsigned int> bounce_back::determine_bounce_back_directions
+(
+    std::vector<unsigned int> &current_border_info
+)
+{
+    //std::cout << "Determining bounce back directions for ";
+    //to_console::print_vector(current_border_info, 10);
+    
+    std::vector<unsigned int> inverted;
+    for(auto j = current_border_info.begin() + 1; j < current_border_info.end(); ++j)
+    {
+        inverted.push_back(invert_direction(*j));
+    }
+    //std::cout << "Inverted dirs are ";
+    //to_console::print_vector(inverted, 10);
+    std::set<unsigned int> remaining_dirs = {inverted.begin(), inverted.end()};
+    for (auto i = current_border_info.begin() + 1; i < current_border_info.end(); ++i)
+    {
+        remaining_dirs.erase(*i);
+    }
+    //std::cout << "Returning remaining dirs ";
+    //to_console::print_set(remaining_dirs);
+    return remaining_dirs;  
+}
+
+/**
  * @brief Performs a halfway bounce-back streaming update for all fluid nodes within the simulation domain.
  *        This version utilizes the ghost nodes bordering a boundary node. It is intended for use with
  *        the two-step, swap and shift algorithms.
@@ -201,13 +234,28 @@ void bounce_back::perform_early_boundary_update
     access_function access_function
 )
 {
+    std::vector<double> current_dist_vals;
+    std::set<unsigned int> remaining_dirs{streaming_directions.begin(), streaming_directions.end()};
+    int current_border_node = 0;
     for(auto current : bsi)
     {
-        int current_border_node = current[0];
-        for(auto direction = current.begin() + 1; direction < current.end(); ++direction)
+        current_border_node = current[0];
+        remaining_dirs = bounce_back::determine_bounce_back_directions(current);
+        //std::cout << "Currently treating node " << current_border_node << std::endl;
+        //std::cout << "\t with distribution values \t";
+        //current_dist_vals = access::get_distribution_values_of(distribution_values, current_border_node, access_function);
+        //to_console::print_vector(current_dist_vals, 10);
+        //std::cout << "\t and directions \t";
+        //to_console::print_set(remaining_dirs);
+        
+        for(auto direction : remaining_dirs)
         {
-            distribution_values[access_function(current_border_node, invert_direction(*direction))] = 
-            distribution_values[access_function(current_border_node, *direction)];
+            
+            //std::cout << "Early boundary update: for node " << current_border_node << ", performing entry change " << direction << " -> " << invert_direction(direction);
+            //std::cout << " (" << distribution_values[access_function(current_border_node, direction)] << " -> " << distribution_values[access_function(current_border_node, invert_direction(direction))] << " )"<<  std::endl;
+            distribution_values[access_function(current_border_node, direction)] = 
+            distribution_values[access_function(current_border_node, invert_direction(direction))];
         }
+        std::cout << std::endl;
     }
 }

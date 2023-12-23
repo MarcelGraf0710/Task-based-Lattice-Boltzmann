@@ -9,14 +9,14 @@
 #include <iostream>
 
 /**
- * @brief 
+ * @brief Performs the combined streaming and collision step for all fluid nodes within the simulation domain.
  * 
- * @param fluid_nodes 
- * @param bsi 
- * @param source 
- * @param destination 
- * @param access_function 
- * @param sim_data 
+ * @param fluid_nodes a vector containing the indices of all fluid nodes within the simulation domain.
+ * @param bsi see documentation of border_swap_information
+ * @param source a vector containing the distribution values of the previous time step
+ * @param destination the distribution values will be written to this vector after performing both steps.
+ * @param access_function the function used to access the distribution values
+ * @return see documentation of sim_data_tuple
  */
 sim_data_tuple two_lattice_sequential::perform_tl_stream_and_collide
 (
@@ -27,45 +27,109 @@ sim_data_tuple two_lattice_sequential::perform_tl_stream_and_collide
     access_function access_function
 )
 {
+    std::cout << "SOURCE as received by perform_tl_stream_and_collide: " << std::endl;
+    to_console::print_distribution_values(source, access_function);
+    std::cout << std::endl;
+
+    std::cout << "DESTINATION as received by perform_tl_stream_and_collide: " << std::endl;
+    to_console::print_distribution_values(destination, access_function);
+    std::cout << std::endl;
+
     std::set<unsigned int> remaining_nodes = {fluid_nodes.begin(), fluid_nodes.end()};
     std::set<unsigned int> remaining_dirs = {streaming_directions.begin(), streaming_directions.end()};
-    std::vector<velocity> velocities(source.size() / DIRECTION_COUNT, velocity{0,0});
-    std::vector<double> densities(source.size() / DIRECTION_COUNT, -1);
+    std::vector<velocity> velocities(TOTAL_NODE_COUNT, velocity{0,0});
+    std::vector<double> densities(TOTAL_NODE_COUNT, -1);
     std::vector<double> current_distributions(DIRECTION_COUNT, 0);
+    std::vector<double> current;
 
-    std::cout << "\t TL stream and collide: initializations and declarations" << std::endl;
+    std::cout << "\t TL stream and collide: initializations and declarations performed." << std::endl;
 
     /* Boundary node treatment */
+
     bounce_back::perform_early_boundary_update(bsi, destination, access_function);
     std::cout << "\t Early boundary update performed." << std::endl;
-    
+
+    std::cout << "SOURCE after boundary update: " << std::endl;
+    to_console::print_distribution_values(source, access_function);
+    std::cout << std::endl;
+
+    std::cout << "DESTINATION after boundary update: " << std::endl;
+    to_console::print_distribution_values(destination, access_function);
+    std::cout << std::endl;
+
     for(auto current_border_info : bsi)
     {
-        remaining_dirs = two_lattice_sequential::determine_remaining_directions(current_border_info);
+        remaining_dirs = determine_streaming_directions(current_border_info);
+        two_lattice_sequential::tl_stream(
+            source, 
+            destination, 
+            access_function, 
+            current_border_info[0], 
+            remaining_dirs);
+    }
 
-        for(auto dir : remaining_dirs) 
-            two_lattice_sequential::tl_stream(source, destination, access_function, current_border_info[0], dir);
+    std::cout << "DESTINATION after combined stream: " << std::endl;
+    to_console::print_distribution_values(destination, access_function);
+    std::cout << std::endl;
 
-        current_distributions = access::get_all_distribution_values(destination, current_border_info[0], access_function);
+    for(auto current_border_info : bsi)
+    {
+        current_distributions = 
+            access::get_distribution_values_of(destination, current_border_info[0], access_function);
+
         velocities[current_border_info[0]] = macroscopic::flow_velocity(current_distributions);
         densities[current_border_info[0]] = macroscopic::density(current_distributions);
 
-        two_lattice_sequential::tl_collision(destination, current_border_info[0], access_function, velocities, densities);
+        two_lattice_sequential::tl_collision(
+            destination, 
+            current_border_info[0], 
+            access_function, 
+            velocities, 
+            densities);
 
         remaining_nodes.erase(current_border_info[0]);
     }
+
+    std::cout << "DESTINATION after combined collide: " << std::endl;
+    to_console::print_distribution_values(destination, access_function);
+    std::cout << std::endl;
+
+
 
     std::cout << "\t Performed stream and collision for all border nodes." << std::endl;
 
     /* Treatment of non-boundary nodes */
     for(auto fluid_node : remaining_nodes)
     {   
-        for (auto direction = 0; direction < DIRECTION_COUNT; ++direction)
-            two_lattice_sequential::tl_stream(source, destination, access_function, fluid_node, direction);
+        two_lattice_sequential::tl_stream(
+            source, 
+            destination, 
+            access_function, 
+            fluid_node);
+    }
 
+    std::cout << "!!!!" << std::endl; 
+    std::cout << "SOURCE after combined stream: " << std::endl;
+    to_console::print_distribution_values(source, access_function);
+    std::cout << std::endl;
+    std::cout << "DESTINATION after combined stream: " << std::endl;
+    to_console::print_distribution_values(destination, access_function);
+    std::cout << std::endl;
+
+    for(auto fluid_node : remaining_nodes)
+    {   
+        current_distributions = 
+            access::get_distribution_values_of(destination, fluid_node, access_function);
+            
         velocities[fluid_node] = macroscopic::flow_velocity(current_distributions);
         densities[fluid_node] = macroscopic::density(current_distributions);
-        two_lattice_sequential::tl_collision(destination, fluid_node, access_function, velocities, densities);
+        
+        two_lattice_sequential::tl_collision(
+            destination, 
+            fluid_node, 
+            access_function, 
+            velocities, 
+            densities);
     }
     std::cout << "\t Done treating all non-boundary nodes." << std::endl;
     sim_data_tuple result{velocities, densities};
@@ -73,56 +137,16 @@ sim_data_tuple two_lattice_sequential::perform_tl_stream_and_collide
 }
 
 /**
- * @brief 
+ * @brief Performs the sequential two-lattice algorithm for the specified number of iterations.
  * 
- * @param destination 
- * @param fluid_node 
- * @param access_function 
- * @param velocities 
- * @param densities 
+ * @param fluid_nodes A vector containing the indices of all fluid nodes in the domain
+ * @param boundary_nodes A vector containing the indices of all fluid boundary nodes in the domain
+ * @param values_0 source for even time steps and destination for odd time steps
+ * @param values_1 source for odd time steps and destination for even time steps
+ * @param access_function the access function according to which distribution values are to be accessed
+ * @param iterations this many iterations will be performed
+ * @param data the simulation data tuples will be placed in this vector (assumed to be pre-initialized)
  */
-void two_lattice_sequential::OLD_tl_collision
-(
-    std::vector<double> &destination, 
-    unsigned int fluid_node, 
-    access_function &access_function, 
-    std::vector<velocity> &velocities, 
-    std::vector<double> &densities
-)
-{
-    std::vector<double> vals = access::get_all_distribution_values(destination, fluid_node, access_function);        
-    velocity current_velocity = macroscopic::flow_velocity(vals);
-    velocities[fluid_node] = current_velocity;
-    double density = macroscopic::density(vals);
-    densities[fluid_node] = density;
-    vals = collision::collide_bgk(vals, current_velocity, density);
-    access::set_all_distribution_values(vals, destination, fluid_node, access_function);
-}
-
-/**
- * @brief 
- * 
- * @param destination 
- * @param fluid_node 
- * @param access_function 
- * @param velocities 
- * @param densities 
- */
-void two_lattice_sequential::tl_collision
-(
-    std::vector<double> &destination, 
-    unsigned int fluid_node, 
-    access_function &access_function, 
-    std::vector<velocity> &velocities, 
-    std::vector<double> &densities
-)
-{
-    std::vector<double >vals = collision::collide_bgk(vals, velocities[fluid_node], densities[fluid_node]);
-    access::set_all_distribution_values(vals, destination, fluid_node, access_function);
-}
-
-
-
 void two_lattice_sequential::run
 (  
     std::vector<unsigned int> &fluid_nodes,       
@@ -136,10 +160,14 @@ void two_lattice_sequential::run
 {
     std::cout << "--------------------------------------------------------------------------------" << std::endl;
     std::cout << "Now running sequential two lattice algorithm for " << iterations << " iterations." << std::endl;
+    std::cout << std::endl;
+
     std::vector<double> &source = values_0;
     std::vector<double> &destination = values_1;
     std::vector<double> &temp = values_1;
-    std::vector<sim_data_tuple>result(iterations, std::make_tuple(std::vector<velocity>(TOTAL_NODE_COUNT, {0,0}), std::vector<double>(TOTAL_NODE_COUNT, 0)));
+    std::vector<sim_data_tuple>result(
+        iterations, 
+        std::make_tuple(std::vector<velocity>(TOTAL_NODE_COUNT, {0,0}), std::vector<double>(TOTAL_NODE_COUNT, 0)));
 
     for(auto time = 0; time < iterations; ++time)
     {
@@ -153,28 +181,29 @@ void two_lattice_sequential::run
             access_function
         );
             
-        std::cout << "\tBoth stream and collide performed for all nodes, back at run(...), now changing source and destination..." << std::endl;
-        temp = source;
-        source = destination;
-        destination = temp;
+        std::cout << "\t Finished iteration " << time << std::endl;
+        std::swap(source, destination);
+
+        std::cout << "\t Distribution values: " << std::endl;
+        std::cout << std::endl;
+        //to_console::print_distribution_values(source, access_function);
     }
-    std::cout << "All done. " << std::endl;
+
+    std::cout << std::endl;
     std::cout << std::endl;
 
-
-    std::cout << "All done. " << std::endl;
-    std::cout << std::endl;
     std::cout << "Velocity values: " << std::endl;
     std::cout << std::endl;
     for(auto i = 0; i < iterations; ++i)
     {
         std::cout << "t = " << i << std::endl;
         std::cout << "-------------------------------------------------------------------------------- " << std::endl;
-        print_velocity_vector(std::get<0>(result[i]));
+        to_console::print_velocity_vector(std::get<0>(result[i]));
         std::cout << std::endl;
     }
     std::cout << std::endl;
     std::cout << std::endl;
+
     std::cout << "Density values: " << std::endl;
     std::cout << std::endl;
     
@@ -182,9 +211,13 @@ void two_lattice_sequential::run
     {
         std::cout << "t = " << i << std::endl;
         std::cout << "-------------------------------------------------------------------------------- " << std::endl;
-        print_vector(std::get<1>(result[i]));
+        to_console::print_vector(std::get<1>(result[i]));
         std::cout << std::endl;
     }
+
+    std::cout << std::endl;
+    std::cout << "All done. " << std::endl;
+    
     
 }
 

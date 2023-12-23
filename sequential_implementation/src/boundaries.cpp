@@ -13,7 +13,7 @@
     {
         vec_of_dist_val result;
         unsigned int node_index = access::get_node_index(0, y);
-        result = access::get_all_distribution_values(source, node_index, access_function);
+        result = access::get_distribution_values_of(source, node_index, access_function);
         double rho_times_u_x = 1.0/6 * density * velocity_x;
 
         std::vector<unsigned int> changes = {5, 8, 2};
@@ -34,7 +34,7 @@
     {
         vec_of_dist_val result;
         unsigned int node_index = access::get_node_index(HORIZONTAL_NODES - 1, y);
-        result = access::get_all_distribution_values(source, node_index, access_function);
+        result = access::get_distribution_values_of(source, node_index, access_function);
         double rho_times_u_x = 1.0/6 * density * velocity_x;
 
         std::vector<unsigned int> changes = {5, 8, 2};
@@ -54,7 +54,7 @@
     {
         vec_of_dist_val result;
         unsigned int node_index = access::get_node_index(x, 0);
-        result = access::get_all_distribution_values(source, node_index, access_function);
+        result = access::get_distribution_values_of(source, node_index, access_function);
         double density = 1 / (1 - wall_velocity[1]) * (result[4] + result[5] + result[3] + 2 * (result[1] + result[0] + result[2]));
 
         double rho_times_u_x = 0.5 * density * wall_velocity[0];
@@ -78,7 +78,7 @@
     {
         vec_of_dist_val result;
         unsigned int node_index = access::get_node_index(x, VERTICAL_NODES - 1);
-        result = access::get_all_distribution_values(source, node_index, access_function);
+        result = access::get_distribution_values_of(source, node_index, access_function);
         double density = 1 / (1 - wall_velocity[1]) * (result[4] + result[5] + result[3] + 2 * (result[1] + result[0] + result[2]));
 
         double rho_times_u_x = 0.5 * density * wall_velocity[0];
@@ -101,7 +101,7 @@
     {
         vec_of_dist_val result;
         unsigned int lower_inlet_node = access::get_node_index(0, 0);
-        result = access::get_all_distribution_values(source, lower_inlet_node, access_function);
+        result = access::get_distribution_values_of(source, lower_inlet_node, access_function);
         std::cout << "lol" << std::endl;
 
         std::vector<unsigned int> changes = {5, 7, 8, 2, 6};
@@ -127,7 +127,7 @@
     {
         vec_of_dist_val result;
         unsigned int upper_inlet_node = access::get_node_index(0, HORIZONTAL_NODES - 1);
-        result = access::get_all_distribution_values(source, upper_inlet_node, access_function);
+        result = access::get_distribution_values_of(source, upper_inlet_node, access_function);
 
         std::vector<unsigned int> changes = {5, 1, 2, 0, 8};
         result[5] = result[3];
@@ -147,7 +147,7 @@
     {
         vec_of_dist_val result;
         unsigned int lower_outlet_node = access::get_node_index(VERTICAL_NODES - 1, 0);
-        result = access::get_all_distribution_values(source, lower_outlet_node, access_function);
+        result = access::get_distribution_values_of(source, lower_outlet_node, access_function);
         
         std::vector<unsigned int> changes = {3,7,6,0,8};
         result[3] = result[5];
@@ -167,7 +167,7 @@
     {
         vec_of_dist_val result;
         unsigned int lower_outlet_node = access::get_node_index(VERTICAL_NODES - 1, HORIZONTAL_NODES - 1);
-        result = access::get_all_distribution_values(source, lower_outlet_node, access_function);
+        result = access::get_distribution_values_of(source, lower_outlet_node, access_function);
         
         std::vector<unsigned int> changes = {3,1,0,2,6};
         result[3] = result[5];
