@@ -6,6 +6,8 @@
 
 int main()
 {
+    std::cout << "Starting simulation..." << std::endl;
+
     std::vector<double> distribution_values_0;
     distribution_values_0.reserve(TOTAL_NODE_COUNT * DIRECTION_COUNT);
     std::vector<unsigned int> nodes;
@@ -18,8 +20,8 @@ int main()
     border_swap_information swap_info;
     access_function access_function = access::collision;
 
-    std::cout << "All vectors declared. " << std::endl;
     std::cout << std::endl;
+    std::cout << "All vectors declared. " << std::endl;
 
     setup_example_domain(distribution_values_0, nodes, fluid_nodes, phase_information, swap_info, access_function);
 
@@ -28,6 +30,12 @@ int main()
 
     std::cout << "Illustration of lattice: " << std::endl;
     to_console::print_phase_vector(phase_information);
+    std::cout << std::endl;
+
+    std::cout << "This program utilizes ANSI color codes to output colored text. If your command line does not support those codes, your output may be corrupted." << std::endl;
+    std::cout << "In all following prints showing the entire simulation domain, "; 
+    std::cout << "the origin will be marked in \033[31mred\033[0m and the outmost coordinate will be marked in \033[34mblue\033[0m." << std::endl;
+    std::cout << "Milestones will be marked in \033[33myellow\033[0m." << std::endl;
     std::cout << std::endl;
 
     std::cout << "Enumeration of all nodes within the lattice: " << std::endl;
@@ -40,7 +48,7 @@ int main()
 
     std::cout << "Swap info:" << std::endl;
     for(auto current : swap_info)
-        to_console::print_vector(current);
+        to_console::print_vector(current, current.size());
     std::cout << std::endl;
 
     std::cout << "Initial distributions:" << std::endl;

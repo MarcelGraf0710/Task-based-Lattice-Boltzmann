@@ -26,7 +26,7 @@ std::vector<double> collision::collide_bgk
     std::cout << "Which is where we set cooler values" << std::endl;
     to_console::print_vector(values, 10);
     std::cout << "\t\t with a distribution vector of length " << values.size() << std::endl;
-    std::cout << "\t\t with velocity ";
+    std::cout << "\t\t with velocity \n";
     std::vector<velocity> cooler_velocities{u};
     to_console::print_velocity_vector(cooler_velocities);
     std::cout << "\t\t with density " << density;

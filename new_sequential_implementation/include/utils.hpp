@@ -6,6 +6,7 @@
 #include <iostream>
 #include "defines.hpp"
 #include "access.hpp"
+#include "boundaries.hpp"
 #include <iomanip>
 
 inline unsigned int matrix_access(unsigned int row, 
@@ -22,8 +23,8 @@ inline unsigned int matrix_access(unsigned int row,
 namespace to_console
 {
     /**
-     * @brief Allows to print out a vector representing a data layout whose column count is 
-     *        HORIZONTAL_NODES.
+     * @brief Allows to print out a vector representing a data layout whose column count is HORIZONTAL_NODES.
+     *        Notice that the vector is assumed to represent
      * 
      * @tparam T the type of the objects the specified vector holds (must be numeric)
      * @param vector the vector that is to be printed in the console
@@ -31,20 +32,17 @@ namespace to_console
     template <typename T>
     void print_vector(std::vector<T> &vector)
     {
-        int current_value_count = 0;
-        std::cout << "[";
-        for(auto i = 0; i < vector.size(); ++i)
+        for(auto y = VERTICAL_NODES - 1; y >= 0; --y)
         {
-            if(current_value_count == HORIZONTAL_NODES)
+            for(auto x = 0; x < HORIZONTAL_NODES; ++x)
             {
-                current_value_count = 0;
-                std::cout << std::endl;
+                if(x == 0 && y == 0) std::cout << "\033[31m";
+                else if(x == (HORIZONTAL_NODES - 1) && y == (VERTICAL_NODES -1)) std::cout << "\033[34m";
+                std::cout << vector[matrix_access(y,x, HORIZONTAL_NODES)];
+                std::cout << "\t\033[0m";
             }
-            std::cout << vector[i];
-            std::cout << "\t";
-            current_value_count++;
+            std::cout << std::endl;
         }
-        std::cout << "]";
         std::cout << std::endl;
     } 
 
@@ -86,43 +84,39 @@ namespace to_console
      */
     inline void print_phase_vector(std::vector<bool> &vector)
     {
-        int current_value_count = 0;
-        for(auto i = 0; i < vector.size(); ++i)
+        for(auto y = VERTICAL_NODES - 1; y >= 0; --y)
         {
-            if(current_value_count == HORIZONTAL_NODES)
+            for(auto x = 0; x < HORIZONTAL_NODES; ++x)
             {
-                current_value_count = 0;
-                std::cout << std::endl;
+                if(vector[matrix_access(y,x, HORIZONTAL_NODES)]) std::cout << "\033[32m#\033[0m";
+                else std::cout << "\033[34m~\033[0m"; 
+                std::cout << " ";
             }
-            if(vector[i]) std::cout << "#";
-            else std::cout << "~"; 
-            std::cout << " ";
-            current_value_count++;
+            std::cout << std::endl;
         }
         std::cout << std::endl;
     } 
 
     /**
      * @brief Prints all velocity values in the lattice to the console.
+     *        All values are printed in order, i.e. the origin is located at the lower left corner of the output.
      * 
      * @param vector a vector containing all velocity values
      */
     inline void print_velocity_vector(std::vector<velocity> &vector)
     {
-        int current_value_count = 0;
-        std::cout << "[";
-        for(auto i = 0; i < vector.size(); ++i)
+        for(auto y = VERTICAL_NODES - 1; y >= 0; --y)
         {
-            if(current_value_count == HORIZONTAL_NODES)
+            for(auto x = 0; x < HORIZONTAL_NODES; ++x)
             {
-                current_value_count = 0;
-                std::cout << std::endl;
+                if(x == 0 && y == 0) std::cout << "\033[31m";
+                else if(x == (HORIZONTAL_NODES - 1) && y == (VERTICAL_NODES -1)) std::cout << "\033[34m";
+                std::cout << "("<< vector[matrix_access(y,x, HORIZONTAL_NODES)][0] << ", " << vector[matrix_access(y,x, HORIZONTAL_NODES)][1] << ")";
+                std::cout << "\t  \033[0m";
+                std::cout << " ";
             }
-            std::cout << "("<< vector[i][0] << ", " << vector[i][1] << ")";
-            std::cout << "\t  ";
-            current_value_count++;
+            std::cout << std::endl;
         }
-        std::cout << "]";
         std::cout << std::endl;
     } 
 
@@ -161,33 +155,38 @@ namespace to_console
     }
 
     /**
-     * @brief 
+     * @brief Prints all distribution values in to the console.
+     *        They are displayed in the original order, i.e. the origin is located at the lower left corner of the printed distribution chart.
      * 
-     * @param distribution_values 
-     * @param access_function 
+     * @param distribution_values a vector containing the distribution values of all nodes 
+     * @param access_function the function used to access the distribution values
      */
     inline void print_distribution_values(std::vector<double> &distribution_values, access_function access_function)
     {
-        std::set<std::set<unsigned int>> print_dirs = {{6,7,8}, {3,4,5}, {0,1,2}};
+        std::vector<std::vector<unsigned int>> print_dirs = {{6,7,8}, {3,4,5}, {0,1,2}};
         unsigned int current_node_index = 0;
         unsigned int previous_direction = 0;
         std::vector<double> current_values(9,0);
         std::cout << std::setprecision(3) << std::fixed;
 
-        for(auto y = 0; y < VERTICAL_NODES; ++y)
+        for(auto y = VERTICAL_NODES - 1; y >= 0; --y)
         {
-            for(auto current_row : print_dirs)
+            for(auto i = 0; i < 3; ++i)
             {
+                auto current_row = print_dirs[i];
                 for(auto x = 0; x < HORIZONTAL_NODES; ++x)
                 {
+                    if(x == 0 && y == 0) std::cout << "\033[31m";
+                    else if(x == (HORIZONTAL_NODES - 1) && y == (VERTICAL_NODES -1)) std::cout << "\033[34m";
                     current_node_index = access::get_node_index(x, y);
                     current_values = access::get_distribution_values_of(distribution_values, current_node_index, access_function);
 
-                    for(auto direction : current_row)
+                    for(auto j = 0; j < 3; ++j)
                     {
+                        auto direction = current_row[j];
                         std::cout << current_values[direction] << "  ";
                     }
-                    std::cout << "\t";
+                    std::cout << "\t\033[0m";
                 }
                 std::cout << std::endl;
             }

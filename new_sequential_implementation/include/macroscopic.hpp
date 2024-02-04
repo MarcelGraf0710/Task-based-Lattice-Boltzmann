@@ -18,16 +18,16 @@ namespace macroscopic
      */
     inline double density(const std::vector<double> &distribution_functions)
     {
-        std::cout << "Density for distribution values ";
-        to_console::print_vector(distribution_functions, 10);
-        std::cout << "Accumulate pretends it is " << std::accumulate(distribution_functions.begin(), distribution_functions.end(), 0.0) << std::endl;
-        std::cout << "Loop knows it is "<< std::endl;
-        double sum = 0;
-        for(auto entry : distribution_functions)
-        {
-            sum += entry;
-        }
-        std::cout << sum << std::endl;
+        // std::cout << "Density for distribution values ";
+        // to_console::print_vector(distribution_functions, 10);
+        // std::cout << "Accumulate pretends it is " << std::accumulate(distribution_functions.begin(), distribution_functions.end(), 0.0) << std::endl;
+        // std::cout << "Loop knows it is "<< std::endl;
+        // double sum = 0;
+        // for(auto entry : distribution_functions)
+        // {
+        //     sum += entry;
+        // }
+        // std::cout << sum << std::endl;
         return std::accumulate(distribution_functions.begin(), distribution_functions.end(), 0.0);
     }
 
