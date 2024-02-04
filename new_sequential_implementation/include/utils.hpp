@@ -6,6 +6,7 @@
 #include <iostream>
 #include "defines.hpp"
 #include "access.hpp"
+#include <iomanip>
 
 inline unsigned int matrix_access(unsigned int row, 
     unsigned int column, 
@@ -57,7 +58,7 @@ namespace to_console
      * @param row_length a line break will be set after this many entries
      */
     template <typename T>
-    void print_vector(std::vector<T> &vector, int row_length)
+    void print_vector(const std::vector<T> &vector, int row_length)
     {
         int current_value_count = 0;
         std::cout << "[";
@@ -171,6 +172,7 @@ namespace to_console
         unsigned int current_node_index = 0;
         unsigned int previous_direction = 0;
         std::vector<double> current_values(9,0);
+        std::cout << std::setprecision(3) << std::fixed;
 
         for(auto y = 0; y < VERTICAL_NODES; ++y)
         {

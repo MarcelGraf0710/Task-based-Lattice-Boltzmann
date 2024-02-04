@@ -27,13 +27,13 @@ sim_data_tuple two_lattice_sequential::perform_tl_stream_and_collide
     access_function access_function
 )
 {
-    std::cout << "SOURCE as received by perform_tl_stream_and_collide: " << std::endl;
+    std::cout << "\t Distribution values before stream and collide: " << std::endl;
     to_console::print_distribution_values(source, access_function);
     std::cout << std::endl;
 
-    std::cout << "DESTINATION as received by perform_tl_stream_and_collide: " << std::endl;
-    to_console::print_distribution_values(destination, access_function);
-    std::cout << std::endl;
+    // std::cout << "DESTINATION as received by perform_tl_stream_and_collide: " << std::endl;
+    // to_console::print_distribution_values(destination, access_function);
+    // std::cout << std::endl;
 
     std::set<unsigned int> remaining_nodes = {fluid_nodes.begin(), fluid_nodes.end()};
     std::set<unsigned int> remaining_dirs = {streaming_directions.begin(), streaming_directions.end()};
@@ -49,13 +49,13 @@ sim_data_tuple two_lattice_sequential::perform_tl_stream_and_collide
     bounce_back::perform_early_boundary_update(bsi, destination, access_function);
     std::cout << "\t Early boundary update performed." << std::endl;
 
-    std::cout << "SOURCE after boundary update: " << std::endl;
-    to_console::print_distribution_values(source, access_function);
-    std::cout << std::endl;
+    // std::cout << "SOURCE after boundary update: " << std::endl;
+    // to_console::print_distribution_values(source, access_function);
+    // std::cout << std::endl;
 
-    std::cout << "DESTINATION after boundary update: " << std::endl;
-    to_console::print_distribution_values(destination, access_function);
-    std::cout << std::endl;
+    // std::cout << "DESTINATION after boundary update: " << std::endl;
+    // to_console::print_distribution_values(destination, access_function);
+    // std::cout << std::endl;
 
     for(auto current_border_info : bsi)
     {
@@ -68,9 +68,9 @@ sim_data_tuple two_lattice_sequential::perform_tl_stream_and_collide
             remaining_dirs);
     }
 
-    std::cout << "DESTINATION after combined stream: " << std::endl;
-    to_console::print_distribution_values(destination, access_function);
-    std::cout << std::endl;
+    // std::cout << "DESTINATION after combined stream: " << std::endl;
+    // to_console::print_distribution_values(destination, access_function);
+    // std::cout << std::endl;
 
     for(auto current_border_info : bsi)
     {
@@ -83,6 +83,7 @@ sim_data_tuple two_lattice_sequential::perform_tl_stream_and_collide
         two_lattice_sequential::tl_collision(
             destination, 
             current_border_info[0], 
+            current_distributions,
             access_function, 
             velocities, 
             densities);
@@ -90,9 +91,9 @@ sim_data_tuple two_lattice_sequential::perform_tl_stream_and_collide
         remaining_nodes.erase(current_border_info[0]);
     }
 
-    std::cout << "DESTINATION after combined collide: " << std::endl;
-    to_console::print_distribution_values(destination, access_function);
-    std::cout << std::endl;
+    // std::cout << "DESTINATION after combined collide: " << std::endl;
+    // to_console::print_distribution_values(destination, access_function);
+    // std::cout << std::endl;
 
 
 
@@ -108,13 +109,13 @@ sim_data_tuple two_lattice_sequential::perform_tl_stream_and_collide
             fluid_node);
     }
 
-    std::cout << "!!!!" << std::endl; 
-    std::cout << "SOURCE after combined stream: " << std::endl;
-    to_console::print_distribution_values(source, access_function);
-    std::cout << std::endl;
-    std::cout << "DESTINATION after combined stream: " << std::endl;
-    to_console::print_distribution_values(destination, access_function);
-    std::cout << std::endl;
+    // std::cout << "!!!!" << std::endl; 
+    // std::cout << "SOURCE after combined stream: " << std::endl;
+    // to_console::print_distribution_values(source, access_function);
+    // std::cout << std::endl;
+    // std::cout << "DESTINATION after combined stream: " << std::endl;
+    // to_console::print_distribution_values(destination, access_function);
+    // std::cout << std::endl;
 
     for(auto fluid_node : remaining_nodes)
     {   
@@ -127,12 +128,17 @@ sim_data_tuple two_lattice_sequential::perform_tl_stream_and_collide
         two_lattice_sequential::tl_collision(
             destination, 
             fluid_node, 
+            current_distributions,
             access_function, 
             velocities, 
             densities);
     }
     std::cout << "\t Done treating all non-boundary nodes." << std::endl;
     sim_data_tuple result{velocities, densities};
+
+    std::cout << "\t Distribution values after streaming and collision: " << std::endl;
+    to_console::print_distribution_values(destination, access_function);
+    std::cout << std::endl;
     return result;
 }
 
@@ -183,10 +189,6 @@ void two_lattice_sequential::run
             
         std::cout << "\t Finished iteration " << time << std::endl;
         std::swap(source, destination);
-
-        std::cout << "\t Distribution values: " << std::endl;
-        std::cout << std::endl;
-        //to_console::print_distribution_values(source, access_function);
     }
 
     std::cout << std::endl;

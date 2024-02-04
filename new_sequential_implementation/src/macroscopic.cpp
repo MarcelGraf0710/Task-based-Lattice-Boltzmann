@@ -1,4 +1,5 @@
 #include "../include/macroscopic.hpp"
+#include "../include/utils.hpp"
 #include <iostream>
 
 /**
@@ -10,13 +11,30 @@
 velocity macroscopic::flow_velocity(const std::vector<double> &distribution_functions)
 {
     velocity flow_velocity{0,0};
-    velocity velocity_vector;
+    velocity velocity_vector{0,0};
+    std::cout << "Calculating flow velocity with distribution values ";
+    to_console::print_vector(distribution_functions, 10);
     for(int i = 0; i < DIRECTION_COUNT; ++i)
     {
         velocity_vector = velocity_vectors[i];
         flow_velocity[0] += distribution_functions[i] * velocity_vector[0];
         flow_velocity[1] += distribution_functions[i] * velocity_vector[1];
     }
+    std::cout << "flow_velocity[0] = ";
+    for(int i = 0; i < DIRECTION_COUNT; ++i)
+    {
+        std::cout << distribution_functions[i] << " * " << velocity_vector[0] << " + ";
+    }
+    std::cout << std::endl;
+    std::cout << "flow_velocity[1] = ";
+    for(int i = 0; i < DIRECTION_COUNT; ++i)
+    {
+        std::cout << distribution_functions[i] << " * " << velocity_vector[1] << " + ";
+    }
+    std::cout << std::endl;
+
+
+    std::cout << "Resulting velocity is (" << flow_velocity[0] << ", " << flow_velocity[1] << ")" << std::endl; 
     return flow_velocity;
 }
 

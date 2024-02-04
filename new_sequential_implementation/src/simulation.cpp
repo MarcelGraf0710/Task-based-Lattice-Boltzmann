@@ -33,7 +33,7 @@ void setup_example_domain
     std::cout << "Setting up example domain." << std::endl;
 
     /* Set up distribution values */
-    std::vector<double> values = {0,0,0,0,1,0,0,0,0};
+    std::vector<double> values = maxwell_boltzmann_distribution(velocity_vectors[4], 1);
     for(auto i = 0; i < TOTAL_NODE_COUNT; ++i)
     {
         distribution_values.insert(distribution_values.end(), values.begin(), values.end());
@@ -42,7 +42,7 @@ void setup_example_domain
     to_console::print_vector(values, DIRECTION_COUNT + 1); 
     
     // TODO: PUT THIS IN RUN!!!!
-    std::vector<double> inlet_values{0,0,0.01,0,1,0.5,0,0,0.02};
+    std::vector<double> inlet_values{0,0,0,0,1,0.5,0,0,0};
     for(auto y = 1; y < VERTICAL_NODES - 1; ++y)
     {
         access::set_all_distribution_values(inlet_values, distribution_values, access::get_node_index(1, y), access_function);

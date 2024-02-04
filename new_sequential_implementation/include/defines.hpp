@@ -22,7 +22,7 @@
 #define TOTAL_NODE_COUNT VERTICAL_NODES * HORIZONTAL_NODES
 #define SPEED_OF_SOUND 1.0/9
 #define BOLTZMANN_CONSTANT 1.380649e-23
-#define RELAXATION_TIME 0.8
+#define RELAXATION_TIME 1.4
 
 /* Convenience and readability type definitions */
 

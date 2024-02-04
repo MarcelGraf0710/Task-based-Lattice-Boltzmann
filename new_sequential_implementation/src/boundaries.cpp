@@ -256,6 +256,5 @@ void bounce_back::perform_early_boundary_update
             distribution_values[access_function(current_border_node, direction)] = 
             distribution_values[access_function(current_border_node, invert_direction(direction))];
         }
-        std::cout << std::endl;
     }
 }

@@ -66,7 +66,6 @@ namespace two_lattice_sequential
         std::vector<unsigned int> &current_border_info
     )
     {
-        
         std::set<unsigned int> remaining_dirs = {streaming_directions.begin(), streaming_directions.end()};
         std::set<unsigned int> bounce_back_dirs = bounce_back::determine_bounce_back_directions(current_border_info);
         //std::cout << "Received current border info ";
@@ -156,12 +155,14 @@ namespace two_lattice_sequential
     (
         std::vector<double> &destination, 
         unsigned int fluid_node, 
+        std::vector<double> &distribution_values,
         access_function &access_function, 
         std::vector<velocity> &velocities, 
         std::vector<double> &densities
     )
     {
-        std::vector<double >vals = collision::collide_bgk(vals, velocities[fluid_node], densities[fluid_node]);
+        //std::cout << "!!!!!!!!!!!!!!!!!!!!!!! Accessin collide_bgk with vals of length " << distribution_values.size() << std::endl;
+        std::vector<double >vals = collision::collide_bgk(distribution_values, velocities[fluid_node], densities[fluid_node]);
         access::set_all_distribution_values(vals, destination, fluid_node, access_function);
     }
 }

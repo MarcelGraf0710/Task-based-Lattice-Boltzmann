@@ -1,5 +1,7 @@
 #include "../include/new_collision.hpp"
 #include "../include/access.hpp"
+#include "../include/utils.hpp"
+#include <iostream>
 
 /**
  * @brief Performs the collision step for a node with the specified distribution values, velocity and density.
@@ -16,14 +18,38 @@ std::vector<double> collision::collide_bgk
     double density
 )
 {
-    //std::cout << "Accessing mb distribution " << std::endl;
+    double sum = 0;
+    std::cout << "\t Accessing collide_bgk" << std::endl;
+    std::cout << "\t\t with distribution values ";
+    
+    std::vector<double> cooler_values(values);
+    std::cout << "Which is where we set cooler values" << std::endl;
+    to_console::print_vector(values, 10);
+    std::cout << "\t\t with a distribution vector of length " << values.size() << std::endl;
+    std::cout << "\t\t with velocity ";
+    std::vector<velocity> cooler_velocities{u};
+    to_console::print_velocity_vector(cooler_velocities);
+    std::cout << "\t\t with density " << density;
+    std::cout << std::endl;
+
+
     std::vector<double> result = maxwell_boltzmann_distribution(u, density);
-    //std::cout << "Back from mb distribution " << std::endl;
+    std::cout << "\t\t Corresponding Maxwell Boltzmann distribution is ";
+    to_console::print_vector(result, 10);
+
     for(auto i = 0; i < DIRECTION_COUNT; ++i)
     {
-        result[i] = -(1/RELAXATION_TIME) * (values[i] - result[i]);
+        result[i] = -(1/RELAXATION_TIME) * (values[i] - result[i]) + values[i];
     }
-    //std::cout << "Returning from mb distribution " << std::endl;
+
+    std::cout << "Final result is ";
+    to_console::print_vector(result, 10);
+    std::cout << "The density is ";
+    for(auto current : result)
+    {
+       sum += current;
+    }
+    std::cout << sum << std::endl;
     return result;
 }
 

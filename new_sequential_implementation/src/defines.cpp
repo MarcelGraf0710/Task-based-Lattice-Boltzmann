@@ -4,7 +4,7 @@
 /** Mapping of directions as proposed by Mattila to the corresponding velocity vectors */
 std::map<unsigned int, velocity> velocity_vectors =
 {
-    {6, {-1, 1}},  {7, {0, -1}}, {8, {1, 1}},   
+    {6, {-1, 1}},  {7, {0, 1}}, {8, {1, 1}},   
     {3, {-1, 0}},  {4, {0, 0}},  {5, {1, 0}},   
     {0, {-1, -1}}, {1, {0, -1}}, {2, {1, -1}}   
 };
@@ -37,9 +37,12 @@ std::vector<double> maxwell_boltzmann_distribution
 
     for(auto direction = 0; direction < DIRECTION_COUNT; ++direction)
     {
-        result[direction] = weights[direction] * rho * (1 + 3 * math_utils::dot(velocity_vectors[direction], u) 
-                    + 9.0/2 * pow(math_utils::dot(velocity_vectors[direction], u), 2)
-                    - 3.0/2 * math_utils::dot(velocity_vectors[direction], u));
+        result[direction] = weights[direction] * rho * 
+            (
+                1 + 3 * math_utils::dot(velocity_vectors[direction], u) 
+                + 9.0/2 * pow(math_utils::dot(velocity_vectors[direction], u), 2)
+                - 3.0/2 * math_utils::dot(u, u)
+            );
     }
     return result;
 }
