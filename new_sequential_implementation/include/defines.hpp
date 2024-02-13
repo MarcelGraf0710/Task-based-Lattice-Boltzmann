@@ -17,8 +17,8 @@
 #define DIRECTION_COUNT 9
 #define TIME_STEP 1
 #define SPACE_STEP 1
-#define VERTICAL_NODES 5
-#define HORIZONTAL_NODES 7
+#define VERTICAL_NODES 7
+#define HORIZONTAL_NODES 9
 #define TOTAL_NODE_COUNT VERTICAL_NODES * HORIZONTAL_NODES
 #define SPEED_OF_SOUND 1.0/9
 #define BOLTZMANN_CONSTANT 1.380649e-23
@@ -81,9 +81,10 @@ typedef std::vector<std::vector<velocity>, std::vector<double>> sim_data_vector;
 typedef std::function<unsigned int(unsigned int, unsigned int)> access_function;
 
 /* Inlet and outlet behavior */
-#define INLET_VELOCITY 1.0/100
-#define INLET_DENSITY 2
-#define OUTLET_DENSITY 2 
+#define INLET_VELOCITY velocity{0.1,0.0} // velocity{10.0/100,0}
+#define OUTLET_VELOCITY velocity{0.1,0.0}
+#define INLET_DENSITY 1 // 1
+#define OUTLET_DENSITY 1 
 
 /** Mapping of directions as proposed by Mattila to the corresponding velocity vectors */
 extern std::map<unsigned int, velocity> velocity_vectors;

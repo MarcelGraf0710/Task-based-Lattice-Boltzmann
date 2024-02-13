@@ -33,20 +33,29 @@ void setup_example_domain
     std::cout << "Setting up example domain." << std::endl;
 
     /* Set up distribution values */
-    std::vector<double> values = {0,1,2,3,4,5,6,7,8};//maxwell_boltzmann_distribution(velocity_vectors[4], 1);
+    std::vector<double> values_0 = {0.00,0.01,0.02,0.03,0.04,0.05,0.06,0.07,0.08}; //maxwell_boltzmann_distribution(velocity_vectors[4], 1);
+    std::vector<double> values_1 = {-0.00,0.001,0.002,0.003,0.004,0.005,0.006,0.007,0.008}; //maxwell_boltzmann_distribution(velocity_vectors[4], 1);
+    std::vector<double> values = maxwell_boltzmann_distribution(velocity_vectors[4], 1);
     for(auto i = 0; i < TOTAL_NODE_COUNT; ++i)
     {
+        // if(i % 2) distribution_values.insert(distribution_values.end(), values_0.begin(), values_0.end());
+        // else distribution_values.insert(distribution_values.end(), values_1.begin(), values_1.end());
         distribution_values.insert(distribution_values.end(), values.begin(), values.end());
     }
-    std::cout << "Set the distribution values of all nodes to ";
-    to_console::print_vector(values, DIRECTION_COUNT + 1); 
+    ///std::cout << "Set the distribution values of all nodes to ";
+    ///to_console::print_vector(values, DIRECTION_COUNT + 1); 
     
     // TODO: PUT THIS IN RUN!!!!
-    std::vector<double> inlet_values{0,0,0,0,1,0.5,0,0,0};
-    for(auto y = 1; y < VERTICAL_NODES - 1; ++y)
-    {
-        access::set_all_distribution_values(inlet_values, distribution_values, access::get_node_index(1, y), access_function);
-    }
+    // velocity v_1 = INLET_VELOCITY;
+    // velocity v_2 = OUTLET_VELOCITY;
+    // std::vector<double> inlet_values = maxwell_boltzmann_distribution(v_1, INLET_DENSITY);
+    // std::vector<double> outlet_values = maxwell_boltzmann_distribution(v_2, INLET_DENSITY);
+    // for(auto y = 1; y < VERTICAL_NODES - 1; ++y)
+    // {
+    //     access::set_all_distribution_values(inlet_values, distribution_values, access::get_node_index(1, y), access_function);
+    //     access::set_all_distribution_values(outlet_values, distribution_values, access::get_node_index(HORIZONTAL_NODES - 1, y), access_function);
+    // }
+    bounce_back::inout_update(distribution_values, access_function);
     std::cout << "All distribution values were set." << std::endl;
 
     /* Set all nodes for direct access */

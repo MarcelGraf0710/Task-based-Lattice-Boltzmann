@@ -8,6 +8,7 @@
 #include <set>
 #include <iostream>
 
+
 /**
  * @brief Performs the combined streaming and collision step for all fluid nodes within the simulation domain.
  * 
@@ -27,13 +28,14 @@ sim_data_tuple two_lattice_sequential::perform_tl_stream_and_collide
     access_function access_function
 )
 {
-    std::cout << "\t Distribution values before stream and collide: " << std::endl;
+    std::cout << "\t SOURCE before stream and collide: " << std::endl;
     to_console::print_distribution_values(source, access_function);
     std::cout << std::endl;
 
-    // std::cout << "DESTINATION as received by perform_tl_stream_and_collide: " << std::endl;
-    // to_console::print_distribution_values(destination, access_function);
-    // std::cout << std::endl;
+    std::cout << "DESTINATION as received by perform_tl_stream_and_collide: " << std::endl;
+    to_console::print_distribution_values(destination, access_function);
+    std::cout << std::endl;
+    destination = source;
 
     std::set<unsigned int> remaining_nodes = {fluid_nodes.begin(), fluid_nodes.end()};
     std::set<unsigned int> remaining_dirs = {streaming_directions.begin(), streaming_directions.end()};
@@ -46,7 +48,7 @@ sim_data_tuple two_lattice_sequential::perform_tl_stream_and_collide
 
     /* Boundary node treatment */
 
-    bounce_back::perform_early_boundary_update(bsi, destination, access_function);
+    bounce_back::perform_early_boundary_update(bsi, source, destination, access_function);
     std::cout << "\t Early boundary update performed." << std::endl;
 
     std::cout << "SOURCE after boundary update: " << std::endl;
@@ -80,7 +82,9 @@ sim_data_tuple two_lattice_sequential::perform_tl_stream_and_collide
         to_console::print_vector(current_distributions, current_distributions.size());
 
         velocities[current_border_info[0]] = macroscopic::flow_velocity(current_distributions);
-        std::cout << "Set velocity of node " << current_border_info[0] << " to " << "(" << velocities[current_border_info[0]][0] << ", " << velocities[current_border_info[0]][1] << ")" << std::endl;
+        //std::cout << "Set velocity of node " << current_border_info[0] << " to " << "(" << velocities[current_border_info[0]][0] << ", " << velocities[current_border_info[0]][1] << ")" << std::endl;
+        to_console::print_velocity_vector(velocities);
+        //std::cout << "Quick check: velocities[current_border_info[0]] = (" << velocities[current_border_info[0]][0] << ", " << velocities[current_border_info[0]][1] << ")" << std::endl;
         densities[current_border_info[0]] = macroscopic::density(current_distributions);
 
         two_lattice_sequential::tl_collision(

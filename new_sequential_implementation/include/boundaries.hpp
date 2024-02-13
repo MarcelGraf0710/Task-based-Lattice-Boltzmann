@@ -87,11 +87,10 @@ namespace bounce_back
     );
 
     /**
-     * @brief Determines the remaining streaming option for a node based on the specified border 
-     *        information vector.
+     * @brief Determines the directions in which the value will be reflected from the opposite direction.
      * 
      * @param current_border_info an entry of a border_swap_information object
-     * @return a set containing all remaining streaming directions
+     * @return a set containing all bounce back directions
      */
     std::set<unsigned int> determine_bounce_back_directions
     (
@@ -127,10 +126,44 @@ namespace bounce_back
     void perform_early_boundary_update
     (
         border_swap_information &border_nodes,
-        std::vector<double> &distribution_values, 
+        std::vector<double> &source, // NEW!!
+        std::vector<double> &destination, // RENAMED
         access_function access_function
     );
 
+    /**
+     * @brief Modified version of the halfway bounce-back streaming update for all fluid nodes 
+     *        within the simulation domain. Instead of using information stored in ghost nodes, 
+     *        This allows for a convenient unification of the streaming and collision step for
+     *        the two-lattice algorithm.
+     *        This variant will update inlets and outlets according to the specified velocity and density.
+     * 
+     * @param bsi see documentation of border_swap_information
+     * @param distribution_values a vector containing the distribution values of all nodes
+     * @param velocities a vector containing all velocities
+     * @param densities a vector containing all densities
+     * @param access_function the access function used to access the distribution values
+     */
+    void perform_inout_boundary_update
+    (
+        border_swap_information &bsi,
+        std::vector<double> &distribution_values, 
+        // std::vector<velocity> &velocities,
+        // std::vector<double> densities,
+        access_function access_function
+    );
+
+    /**
+     * @brief Updates the ghost nodes that represent inlet and outlet edges
+     * 
+     * @param distribution_values a vector containing the distribution values of all nodes
+     * @param access_function the access function used to access the distribution values
+     */
+    void inout_update
+    (
+        std::vector<double> &distribution_values, 
+        access_function access_function
+    );
 }
 
 #endif

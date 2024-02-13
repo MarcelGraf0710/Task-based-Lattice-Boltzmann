@@ -19,22 +19,16 @@ std::vector<double> collision::collide_bgk
 )
 {
     double sum = 0;
-    std::cout << "\t Accessing collide_bgk" << std::endl;
-    std::cout << "\t\t with distribution values ";
-    
-    std::vector<double> cooler_values(values);
-    std::cout << "Which is where we set cooler values" << std::endl;
+    std::cout << "\033[31mAccessing collide_bgk\033[0m" << std::endl;
+    std::cout << "distribution values: " << std::endl;
     to_console::print_vector(values, 10);
-    std::cout << "\t\t with a distribution vector of length " << values.size() << std::endl;
-    std::cout << "\t\t with velocity \n";
-    std::vector<velocity> cooler_velocities{u};
-    to_console::print_velocity_vector(cooler_velocities);
-    std::cout << "\t\t with density " << density;
+    std::cout << "velocity: (" << u[0] << ", " << u[1] << ")" << std::endl;
+    std::cout << "Density: " << density;
     std::cout << std::endl;
 
 
     std::vector<double> result = maxwell_boltzmann_distribution(u, density);
-    std::cout << "\t\t Corresponding Maxwell Boltzmann distribution is ";
+    std::cout << "Corresponding Maxwell Boltzmann distribution is ";
     to_console::print_vector(result, 10);
 
     for(auto i = 0; i < DIRECTION_COUNT; ++i)
@@ -50,6 +44,7 @@ std::vector<double> collision::collide_bgk
        sum += current;
     }
     std::cout << sum << std::endl;
+    std::cout << std::endl;
     return result;
 }
 

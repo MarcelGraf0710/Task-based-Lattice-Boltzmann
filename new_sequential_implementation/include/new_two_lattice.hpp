@@ -68,17 +68,58 @@ namespace two_lattice_sequential
     {
         std::set<unsigned int> remaining_dirs = {streaming_directions.begin(), streaming_directions.end()};
         std::set<unsigned int> bounce_back_dirs = bounce_back::determine_bounce_back_directions(current_border_info);
-        //std::cout << "Received current border info ";
-        //to_console::print_vector(current_border_info, 10);
-        //std::cout << "Bounce back dirs are ";
-        //to_console::print_set(bounce_back_dirs);
+        // if(current_border_info[0] == 19)
+        // {
+        //     std::cout << "Bounce back dirs for node 19 are ";
+        //     to_console::print_set(bounce_back_dirs); 
+        // }
+        
         for (auto i : bounce_back_dirs)
         {
-            remaining_dirs.erase(invert_direction(i));
+            // if(current_border_info[0] == 19)
+            // {
+            //     std::cout << "Removing direction " << i << std::endl;
+            // }
+            remaining_dirs.erase(i);
         }
-        //std::cout << "Returning remaining dirs ";
-        //to_console::print_set(remaining_dirs);
+        unsigned int x = std::get<0>(access::get_node_coordinates(current_border_info[0]));
+        unsigned int y = std::get<1>(access::get_node_coordinates(current_border_info[0]));
+        // if(current_border_info[0] == 19)
+        // {
+        //     std::cout << "x coordinate is " << std::get<0>(access::get_node_coordinates(current_border_info[0])) << std::endl;
+        // }
+        if(x == 1)
+        {
+            if(y == 1) remaining_dirs.insert({2,5});
+            else if(y == (VERTICAL_NODES - 2)) remaining_dirs.insert({5,8});
+            else remaining_dirs.insert({2,5,8});
+            
+        }
+        else if(x ==(HORIZONTAL_NODES - 2))
+        {
+            if(y == 1) remaining_dirs.insert({0,3});
+            else if(y == (VERTICAL_NODES - 2)) remaining_dirs.insert({3,6});
+            else remaining_dirs.insert({0,3,6});
+        }
+        if(current_border_info[0] == 19)
+        {
+            std::cout << "Streaming dirs for node 19 are ";
+            to_console::print_set(remaining_dirs); 
+        }
         return remaining_dirs;  
+        // std::set<unsigned int> remaining_dirs = {streaming_directions.begin(), streaming_directions.end()};
+        // std::set<unsigned int> bounce_back_dirs = bounce_back::determine_bounce_back_directions(current_border_info);
+        // //std::cout << "Received current border info ";
+        // //to_console::print_vector(current_border_info, 10);
+        // //std::cout << "Bounce back dirs are ";
+        // //to_console::print_set(bounce_back_dirs);
+        // for (auto i : bounce_back_dirs)
+        // {
+        //     remaining_dirs.erase(invert_direction(i));
+        // }
+        // //std::cout << "Returning remaining dirs ";
+        // //to_console::print_set(remaining_dirs);
+        // return remaining_dirs;  
     }
 
     /**
@@ -100,12 +141,12 @@ namespace two_lattice_sequential
         std::set<unsigned int> &directions
     )
     {
-        //std::cout << "Executing streaming step for node " << fluid_node << std::endl;
-        //std::cout << "Got directions ";
-        //to_console::print_set(directions);
+        std::cout << "Executing streaming step for node " << fluid_node << std::endl;
+        std::cout << "Got directions ";
+        to_console::print_set(directions);
         for(auto direction : directions) 
         {
-            //std::cout << "\t performing stream (node = " << fluid_node << ", dir = " << direction << ") := " << "(node = " << access::get_neighbor(fluid_node, invert_direction(direction)) << ", dir = " << direction << ")" << std::endl; 
+            std::cout << "\t performing stream (node = " << fluid_node << ", dir = " << direction << ") := " << "(node = " << access::get_neighbor(fluid_node, invert_direction(direction)) << ", dir = " << direction << ")" << std::endl; 
             destination[access_function(fluid_node, direction)] =
             source[
                 access_function(
