@@ -19,32 +19,32 @@ std::vector<double> collision::collide_bgk
 )
 {
     double sum = 0;
-    std::cout << "\033[31mAccessing collide_bgk\033[0m" << std::endl;
-    std::cout << "distribution values: " << std::endl;
-    to_console::print_vector(values, 10);
-    std::cout << "velocity: (" << u[0] << ", " << u[1] << ")" << std::endl;
-    std::cout << "Density: " << density;
-    std::cout << std::endl;
+    // std::cout << "\033[31mAccessing collide_bgk\033[0m" << std::endl;
+    // std::cout << "distribution values: " << std::endl;
+    // to_console::print_vector(values, 10);
+    // std::cout << "velocity: (" << u[0] << ", " << u[1] << ")" << std::endl;
+    // std::cout << "Density: " << density;
+    // std::cout << std::endl;
 
 
     std::vector<double> result = maxwell_boltzmann_distribution(u, density);
-    std::cout << "Corresponding Maxwell Boltzmann distribution is ";
-    to_console::print_vector(result, 10);
+    // std::cout << "Corresponding Maxwell Boltzmann distribution is ";
+    // to_console::print_vector(result, 10);
 
     for(auto i = 0; i < DIRECTION_COUNT; ++i)
     {
         result[i] = -(1/RELAXATION_TIME) * (values[i] - result[i]) + values[i];
     }
 
-    std::cout << "Final result is ";
-    to_console::print_vector(result, 10);
-    std::cout << "The density is ";
+    // std::cout << "Final result is ";
+    // to_console::print_vector(result, 10);
+    // std::cout << "The density is ";
     for(auto current : result)
     {
        sum += current;
     }
-    std::cout << sum << std::endl;
-    std::cout << std::endl;
+    // std::cout << sum << std::endl;
+    // std::cout << std::endl;
     return result;
 }
 

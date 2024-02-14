@@ -834,11 +834,11 @@ CMakeFiles/sequential_lbm.dir/src/boundaries.cpp.o: ../src/boundaries.cpp \
   /usr/include/c++/11/set \
   /usr/include/c++/11/bits/stl_set.h \
   /usr/include/c++/11/bits/stl_multiset.h \
+  ../include/macroscopic.hpp \
   ../include/access.hpp \
   ../include/defines.hpp \
-  ../include/utils.hpp \
   /usr/include/c++/11/iostream \
-  ../include/access.hpp \
+  ../include/utils.hpp \
   ../include/boundaries.hpp \
   /usr/include/c++/11/iomanip \
   /usr/include/c++/11/locale \
@@ -851,7 +851,9 @@ CMakeFiles/sequential_lbm.dir/src/boundaries.cpp.o: ../src/boundaries.cpp \
   /usr/include/c++/11/bits/locale_facets_nonio.tcc \
   /usr/include/c++/11/bits/locale_conv.h \
   /usr/include/c++/11/bits/unique_ptr.h \
-  /usr/include/c++/11/bits/quoted_string.h
+  /usr/include/c++/11/bits/quoted_string.h \
+  ../include/access.hpp \
+  ../include/utils.hpp
 
 CMakeFiles/sequential_lbm.dir/src/defines.cpp.o: ../src/defines.cpp \
   /usr/include/stdc-predef.h \

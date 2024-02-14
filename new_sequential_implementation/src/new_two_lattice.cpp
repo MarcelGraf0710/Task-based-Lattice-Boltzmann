@@ -76,14 +76,14 @@ sim_data_tuple two_lattice_sequential::perform_tl_stream_and_collide
 
     for(auto current_border_info : bsi)
     {
-        std::cout << "Currently treating border node " << current_border_info[0] << std::endl;
+        // std::cout << "Currently treating border node " << current_border_info[0] << std::endl;
         current_distributions = 
             access::get_distribution_values_of(destination, current_border_info[0], access_function);
-        to_console::print_vector(current_distributions, current_distributions.size());
+        // to_console::print_vector(current_distributions, current_distributions.size());
 
         velocities[current_border_info[0]] = macroscopic::flow_velocity(current_distributions);
         //std::cout << "Set velocity of node " << current_border_info[0] << " to " << "(" << velocities[current_border_info[0]][0] << ", " << velocities[current_border_info[0]][1] << ")" << std::endl;
-        to_console::print_velocity_vector(velocities);
+        // to_console::print_velocity_vector(velocities);
         //std::cout << "Quick check: velocities[current_border_info[0]] = (" << velocities[current_border_info[0]][0] << ", " << velocities[current_border_info[0]][1] << ")" << std::endl;
         densities[current_border_info[0]] = macroscopic::density(current_distributions);
 
@@ -116,14 +116,6 @@ sim_data_tuple two_lattice_sequential::perform_tl_stream_and_collide
             fluid_node);
     }
 
-    // std::cout << "!!!!" << std::endl; 
-    // std::cout << "SOURCE after combined stream: " << std::endl;
-    // to_console::print_distribution_values(source, access_function);
-    // std::cout << std::endl;
-    // std::cout << "DESTINATION after combined stream: " << std::endl;
-    // to_console::print_distribution_values(destination, access_function);
-    // std::cout << std::endl;
-
     for(auto fluid_node : remaining_nodes)
     {   
         current_distributions = 
@@ -141,11 +133,34 @@ sim_data_tuple two_lattice_sequential::perform_tl_stream_and_collide
             densities);
     }
     std::cout << "\t Done treating all non-boundary nodes." << std::endl;
-    sim_data_tuple result{velocities, densities};
-
     std::cout << "\t Distribution values after streaming and collision: " << std::endl;
     to_console::print_distribution_values(destination, access_function);
     std::cout << std::endl;
+
+    bounce_back::update_velocity_input_density_output(destination, access_function);
+    std::cout << "Updated inlet and outlet ghost nodes... hopefully. Check it out:" <<std::endl;
+    to_console::print_distribution_values(destination, access_function);
+
+    unsigned int update_node = 0;
+    for(auto x = 0; x < HORIZONTAL_NODES; x = x + HORIZONTAL_NODES - 1)
+    {
+        for(auto y = 1; y < VERTICAL_NODES - 1; ++y)
+        {
+            update_node = access::get_node_index(x,y);
+            current_distributions = 
+                access::get_distribution_values_of(destination, update_node, access_function);
+                
+            velocities[update_node] = macroscopic::flow_velocity(current_distributions);
+            densities[update_node] = macroscopic::density(current_distributions);
+        }
+    }
+
+
+    sim_data_tuple result{velocities, densities};
+
+
+
+
     return result;
 }
 

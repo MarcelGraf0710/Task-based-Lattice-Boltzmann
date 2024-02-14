@@ -37,9 +37,9 @@ std::vector<double> maxwell_boltzmann_distribution
     std::cout << "Accessing maxwell_boltzmann_distribution with velocity ( " << u[0] << ", " << u[1] << ") and density " << rho << std::endl;
     for(auto direction = 0; direction < DIRECTION_COUNT; ++direction)
     {
-        result[direction] = weights[direction] * rho * 
+        result[direction] = weights[direction] *
             (
-                1 + 3 * math_utils::dot(velocity_vectors[direction], u) 
+                rho + 3 * math_utils::dot(velocity_vectors[direction], u) 
                 + 9.0/2 * pow(math_utils::dot(velocity_vectors[direction], u), 2)
                 - 3.0/2 * math_utils::dot(u, u)
             );

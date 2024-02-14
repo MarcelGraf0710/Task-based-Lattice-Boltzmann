@@ -164,6 +164,30 @@ namespace bounce_back
         std::vector<double> &distribution_values, 
         access_function access_function
     );
+
+    /**
+     * @brief Updates the ghost nodes that represent inlet and outlet edges
+     * 
+     * @param distribution_values a vector containing the distribution values of all nodes
+     * @param access_function the access function used to access the distribution values
+     */
+    void update_velocity_input_velocity_output
+    (
+        std::vector<double> &distribution_values, 
+        access_function access_function
+    );
+
+    /**
+     * @brief Updates the ghost nodes that represent inlet and outlet edges
+     * 
+     * @param distribution_values a vector containing the distribution values of all nodes
+     * @param access_function the access function used to access the distribution values
+     */
+    void update_velocity_input_density_output
+    (
+        std::vector<double> &distribution_values, 
+        access_function access_function
+    );
 }
 
 #endif
