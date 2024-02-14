@@ -17,6 +17,7 @@ int main()
     border_swap_information swap_info;
     access_function access_function = access::collision;
     std::cout << "All vectors declared. " << std::endl;
+    std::cout << std::endl;
 
     /* Setting up example domain */
     setup_example_domain(distribution_values_0, nodes, fluid_nodes, phase_information, swap_info, access_function);
@@ -43,7 +44,7 @@ int main()
     std::cout << std::endl;
 
     std::cout << "Swap info:" << std::endl;
-    for(auto current : swap_info)
+    for(const auto& current : swap_info)
         to_console::print_vector(current, current.size());
     std::cout << std::endl;
 

@@ -102,10 +102,10 @@ border_adjacency bounce_back::retrieve_border_adjacencies
     std::vector<std::tuple<unsigned int, unsigned int>> current_adjacencies;
     unsigned int current_neighbor;
 
-    for(auto node : fluid_nodes)
+    for(const auto node : fluid_nodes)
     {
         current_adjacencies = {std::make_tuple(node, 4)};
-        for(auto direction : streaming_directions)
+        for(const auto direction : streaming_directions)
         {
             current_neighbor = access::get_neighbor(node, direction);
             if(is_ghost_node(current_neighbor, phase_information))
@@ -134,10 +134,10 @@ border_swap_information bounce_back::retrieve_border_swap_information
 )
 {
     border_swap_information result;
-    for(auto node : fluid_nodes)
+    for(const auto node : fluid_nodes)
     {
         std::vector<unsigned int> current_adjacencies{node};
-        for(auto direction : streaming_directions)
+        for(const auto direction : streaming_directions)
         {
             unsigned int current_neighbor = access::get_neighbor(node, direction);
             if(is_ghost_node(current_neighbor, phase_information))
@@ -190,7 +190,7 @@ void bounce_back::perform_boundary_update
     std::vector<std::tuple<unsigned int, unsigned int>> neighbors;
     unsigned int current_dir = 0;
 
-    for(auto current_border_node_information : ba)
+    for(const auto& current_border_node_information : ba)
     {
         current_border_node = std::get<0>(current_border_node_information[0]);
         neighbors = 
@@ -198,7 +198,7 @@ void bounce_back::perform_boundary_update
             current_border_node_information.begin() + 1, 
             current_border_node_information.end()
         };
-        for(auto neighbor : neighbors)
+        for(const auto& neighbor : neighbors)
         {
             current_dir = invert_direction(std::get<1>(neighbor));
             distribution_values[access_function(current_border_node, current_dir)] = 
@@ -229,12 +229,12 @@ void bounce_back::perform_early_boundary_update
     std::vector<double> current_dist_vals;
     std::set<unsigned int> remaining_dirs{streaming_directions.begin(), streaming_directions.end()};
     int current_border_node = 0;
-    for(auto current : bsi)
+    for(const auto& current : bsi)
     {
         current_border_node = current[0];
         remaining_dirs = bounce_back::determine_bounce_back_directions(current);
         
-        for(auto direction : remaining_dirs)
+        for(const auto direction : remaining_dirs)
         {
             destination[access_function(current_border_node, direction)] = 
             source[access_function(current_border_node, invert_direction(direction))];
@@ -265,7 +265,7 @@ void boundary_conditions::perform_inout_boundary_update
     int current_border_node = 0;
     velocity v = INLET_VELOCITY;
 
-    for(auto current : bsi)
+    for(const auto& current : bsi)
     {
         current_border_node = current[0];
         if(std::get<0>(access::get_node_coordinates(current_border_node)) == 1) // Inlet node
@@ -421,12 +421,10 @@ void boundary_conditions::update_density_input_density_output
     const access_function access_function
 )
 {
-    std::cout << "Entering" << std::endl;
     std::vector<double> current_dist_vals(DIRECTION_COUNT, 0);
     int current_border_node = 0;
     velocity v = INLET_VELOCITY;
     double density = 0;
-    std::cout << "EEverything set up" << std::endl;
 
     for(auto y = 0; y < VERTICAL_NODES; ++y)
     {

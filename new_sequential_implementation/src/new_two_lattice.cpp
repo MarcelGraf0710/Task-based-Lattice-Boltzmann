@@ -34,13 +34,12 @@ sim_data_tuple two_lattice_sequential::perform_tl_stream_and_collide
     std::vector<velocity> velocities(TOTAL_NODE_COUNT, velocity{0,0});
     std::vector<double> densities(TOTAL_NODE_COUNT, -1);
     std::vector<double> current_distributions(DIRECTION_COUNT, 0);
-    std::vector<double> current;
 
     /* Boundary node treatment */
     bounce_back::perform_early_boundary_update(bsi, source, destination, access_function);
 
     /* Combined streaming and collision step */
-    for(auto current_border_info : bsi)
+    for(const auto& current_border_info : bsi)
     {
         remaining_dirs = determine_streaming_directions(current_border_info);
         two_lattice_sequential::tl_stream(
@@ -67,7 +66,7 @@ sim_data_tuple two_lattice_sequential::perform_tl_stream_and_collide
     }
 
     /* Treatment of non-boundary nodes */
-    for(auto fluid_node : remaining_nodes)
+    for(const auto fluid_node : remaining_nodes)
     {   
         two_lattice_sequential::tl_stream(
             source, 
@@ -163,7 +162,7 @@ sim_data_tuple two_lattice_sequential::perform_tl_stream_and_collide_debug
     to_console::print_distribution_values(destination, access_function);
     std::cout << std::endl;
 
-    for(auto current_border_info : bsi)
+    for(const auto& current_border_info : bsi)
     {
         remaining_dirs = determine_streaming_directions(current_border_info);
         two_lattice_sequential::tl_stream(
@@ -178,7 +177,7 @@ sim_data_tuple two_lattice_sequential::perform_tl_stream_and_collide_debug
     to_console::print_distribution_values(destination, access_function);
     std::cout << std::endl;
 
-    for(auto current_border_info : bsi)
+    for(const auto& current_border_info : bsi)
     {
         current_distributions = 
             access::get_distribution_values_of(destination, current_border_info[0], access_function);
@@ -203,7 +202,7 @@ sim_data_tuple two_lattice_sequential::perform_tl_stream_and_collide_debug
     std::cout << "\t Performed stream and collision for all border nodes." << std::endl;
 
     /* Treatment of non-boundary nodes */
-    for(auto fluid_node : remaining_nodes)
+    for(const auto fluid_node : remaining_nodes)
     {   
         two_lattice_sequential::tl_stream(
             source, 
@@ -212,7 +211,7 @@ sim_data_tuple two_lattice_sequential::perform_tl_stream_and_collide_debug
             fluid_node);
     }
 
-    for(auto fluid_node : remaining_nodes)
+    for(const auto fluid_node : remaining_nodes)
     {   
         current_distributions = 
             access::get_distribution_values_of(destination, fluid_node, access_function);
@@ -350,7 +349,7 @@ std::set<unsigned int> two_lattice_sequential::determine_streaming_directions
     std::set<unsigned int> remaining_dirs = {streaming_directions.begin(), streaming_directions.end()};
     std::set<unsigned int> bounce_back_dirs = bounce_back::determine_bounce_back_directions(current_border_info);
     
-    for (auto i : bounce_back_dirs)
+    for (const auto i : bounce_back_dirs)
     {
         remaining_dirs.erase(i);
     }

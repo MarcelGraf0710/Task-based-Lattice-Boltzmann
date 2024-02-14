@@ -132,7 +132,7 @@ namespace to_console
     void print_set(const std::set<T> &set)
     {
         std::cout << "(";
-        for(auto element : set)
+        for(const auto element : set)
         {
             std::cout << element;
             std::cout << ", ";
@@ -146,9 +146,9 @@ namespace to_console
      */
     inline void print_border_adjacencies(const border_adjacency &ba)
     {
-        for(auto node : ba)
+        for(const auto node : ba)
         {
-            for(auto tuple : node)
+            for(const auto tuple : node)
             {
                 std::cout << "(" << std::get<0>(tuple) << ", " << std::get<1>(tuple) << ")" << "\t";
             }

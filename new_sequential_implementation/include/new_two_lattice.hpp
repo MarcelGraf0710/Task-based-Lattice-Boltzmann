@@ -107,7 +107,7 @@ namespace two_lattice_sequential
         const std::set<unsigned int> &directions
     )
     {
-        for(auto direction : directions) 
+        for(const auto direction : directions) 
         {
             destination[access_function(fluid_node, direction)] =
             source[
@@ -134,7 +134,7 @@ namespace two_lattice_sequential
         unsigned int fluid_node
     )
     {
-        for (auto direction : streaming_directions)
+        for (const auto direction : streaming_directions)
         {
             destination[access_function(fluid_node, direction)] =
                 source[
@@ -164,8 +164,7 @@ namespace two_lattice_sequential
         const std::vector<double> &densities
     )
     {
-        velocity v = velocities[fluid_node];
-        std::vector<double >vals = collision::collide_bgk(distribution_values, v, densities[fluid_node]);
+        std::vector<double >vals = collision::collide_bgk(distribution_values, velocities[fluid_node], densities[fluid_node]);
         access::set_distribution_values_of(vals, destination, fluid_node, access_function);
     }
 }

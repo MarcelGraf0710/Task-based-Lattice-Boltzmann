@@ -39,7 +39,7 @@ std::vector<velocity> macroscopic::calculate_all_velocities
 {
     std::vector<velocity> result(all_distributions.size() / DIRECTION_COUNT, {0,0});
 
-    for(auto fluid_node : fluid_nodes)
+    for(const auto fluid_node : fluid_nodes)
     {
         result[fluid_node] = macroscopic::flow_velocity(
                 access::get_distribution_values_of(all_distributions, fluid_node, access_function));
@@ -65,7 +65,7 @@ std::vector<double> calculate_all_densities
 {
     std::vector<double> result(all_distributions.size() / DIRECTION_COUNT, -1);
 
-    for(auto fluid_node : fluid_nodes)
+    for(const auto fluid_node : fluid_nodes)
     {
         result[fluid_node] = macroscopic::density(
                 access::get_distribution_values_of(all_distributions, fluid_node, access_function));
@@ -93,7 +93,7 @@ sim_data_tuple macroscopic::get_sim_data_tuple
     std::vector<double> densities(fluid_nodes.size(), 0);
     
     std::vector<double> current_distibutions;
-    for(auto fluid_node : fluid_nodes)
+    for(const auto fluid_node : fluid_nodes)
     {
         current_distibutions = access::get_distribution_values_of(all_distributions, fluid_node, access_function);
         velocities.push_back(macroscopic::flow_velocity(current_distibutions));
