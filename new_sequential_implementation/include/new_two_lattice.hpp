@@ -15,6 +15,7 @@ namespace two_lattice_sequential
 
     /**
      * @brief Performs the combined streaming and collision step for all fluid nodes within the simulation domain.
+     *        The border conditions are enforced through ghost nodes.
      * 
      * @param fluid_nodes a vector containing the indices of all fluid nodes within the simulation domain.
      * @param bsi see documentation of border_swap_information
@@ -25,11 +26,32 @@ namespace two_lattice_sequential
      */
     sim_data_tuple perform_tl_stream_and_collide
     (
-        std::vector<unsigned int> &fluid_nodes,
-        border_swap_information &bsi,
-        std::vector<double> &source, 
+        const std::vector<unsigned int> &fluid_nodes,
+        const border_swap_information &bsi,
+        const std::vector<double> &source, 
         std::vector<double> &destination,    
-        access_function access_function
+        const access_function access_function
+    );
+
+    /**
+     * @brief Performs the combined streaming and collision step for all fluid nodes within the simulation domain.
+     *        The border conditions are enforced through ghost nodes.
+     *        This variant of the combined streaming and collision step will print several debug comments to the console.
+     * 
+     * @param fluid_nodes a vector containing the indices of all fluid nodes within the simulation domain.
+     * @param bsi see documentation of border_swap_information
+     * @param source a vector containing the distribution values of the previous time step
+     * @param destination the distribution values will be written to this vector after performing both steps.
+     * @param access_function the function used to access the distribution values
+     * @return see documentation of sim_data_tuple
+     */
+    sim_data_tuple perform_tl_stream_and_collide_debug
+    (
+        const std::vector<unsigned int> &fluid_nodes,
+        const border_swap_information &bsi,
+        const std::vector<double> &source, 
+        std::vector<double> &destination,    
+        const access_function access_function
     );
 
     /**
@@ -45,11 +67,11 @@ namespace two_lattice_sequential
      */
     void run
     (  
-        std::vector<unsigned int> &fluid_nodes,       
-        border_swap_information &boundary_nodes,
+        const std::vector<unsigned int> &fluid_nodes,       
+        const border_swap_information &boundary_nodes,
         std::vector<double> &values_0, 
         std::vector<double> &values_1,   
-        access_function access_function,
+        const access_function access_function,
         unsigned int iterations,
         std::vector<sim_data_tuple> &data
     );
@@ -61,36 +83,10 @@ namespace two_lattice_sequential
      * @param current_border_info an entry of a border_swap_information object
      * @return a set containing all remaining streaming directions
      */
-    inline std::set<unsigned int> determine_streaming_directions
+    std::set<unsigned int> determine_streaming_directions
     (
-        std::vector<unsigned int> &current_border_info
-    )
-    {
-        std::set<unsigned int> remaining_dirs = {streaming_directions.begin(), streaming_directions.end()};
-        std::set<unsigned int> bounce_back_dirs = bounce_back::determine_bounce_back_directions(current_border_info);
-        
-        for (auto i : bounce_back_dirs)
-        {
-            remaining_dirs.erase(i);
-        }
-        unsigned int x = std::get<0>(access::get_node_coordinates(current_border_info[0]));
-        unsigned int y = std::get<1>(access::get_node_coordinates(current_border_info[0]));
-        if(x == 1)
-        {
-                // if(y == 1) remaining_dirs.insert({2,5});
-                // else if(y == (VERTICAL_NODES - 2)) remaining_dirs.insert({5,8});
-                // else remaining_dirs.insert({2,5,8});
-            remaining_dirs.insert({2,5,8});
-        }
-        else if(x ==(HORIZONTAL_NODES - 2))
-        {
-            // if(y == 1) remaining_dirs.insert({0,3});
-            // else if(y == (VERTICAL_NODES - 2)) remaining_dirs.insert({3,6});
-            // else remaining_dirs.insert({0,3,6});
-            remaining_dirs.insert({0,3,6});
-        }
-        return remaining_dirs;  
-    }
+        const std::vector<unsigned int> &current_border_info
+    );
 
     /**
      * @brief Performs the steaming step in the specified directions for the fluid node with 
@@ -104,19 +100,15 @@ namespace two_lattice_sequential
      */
     inline void tl_stream
     (
-        std::vector<double> &source,
+        const std::vector<double> &source,
         std::vector<double> &destination, 
-        access_function &access_function, 
+        const access_function &access_function, 
         unsigned int fluid_node, 
-        std::set<unsigned int> &directions
+        const std::set<unsigned int> &directions
     )
     {
-        // std::cout << "Executing streaming step for node " << fluid_node << std::endl;
-        // std::cout << "Got directions ";
-        // to_console::print_set(directions);
         for(auto direction : directions) 
         {
-            // std::cout << "\t performing stream (node = " << fluid_node << ", dir = " << direction << ") := " << "(node = " << access::get_neighbor(fluid_node, invert_direction(direction)) << ", dir = " << direction << ")" << std::endl; 
             destination[access_function(fluid_node, direction)] =
             source[
                 access_function(
@@ -136,9 +128,9 @@ namespace two_lattice_sequential
      */
     inline void tl_stream
     (
-        std::vector<double> &source,
+        const std::vector<double> &source,
         std::vector<double> &destination, 
-        access_function &access_function, 
+        const access_function &access_function, 
         unsigned int fluid_node
     )
     {
@@ -166,15 +158,15 @@ namespace two_lattice_sequential
     (
         std::vector<double> &destination, 
         unsigned int fluid_node, 
-        std::vector<double> &distribution_values,
-        access_function &access_function, 
-        std::vector<velocity> &velocities, 
-        std::vector<double> &densities
+        const std::vector<double> &distribution_values,
+        const access_function &access_function, 
+        const std::vector<velocity> &velocities, 
+        const std::vector<double> &densities
     )
     {
-        //std::cout << "!!!!!!!!!!!!!!!!!!!!!!! Accessin collide_bgk with vals of length " << distribution_values.size() << std::endl;
-        std::vector<double >vals = collision::collide_bgk(distribution_values, velocities[fluid_node], densities[fluid_node]);
-        access::set_all_distribution_values(vals, destination, fluid_node, access_function);
+        velocity v = velocities[fluid_node];
+        std::vector<double >vals = collision::collide_bgk(distribution_values, v, densities[fluid_node]);
+        access::set_distribution_values_of(vals, destination, fluid_node, access_function);
     }
 }
 

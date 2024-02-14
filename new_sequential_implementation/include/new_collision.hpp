@@ -18,7 +18,7 @@ namespace collision
     std::vector<double> collide_bgk
     (
         const std::vector<double> &values, 
-        velocity &u, 
+        const velocity &u, 
         double density
     );
     

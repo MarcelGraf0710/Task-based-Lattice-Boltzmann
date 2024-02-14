@@ -35,7 +35,7 @@ bool is_edge_node(unsigned int node_index);
  * @param node_index the index of the node in question
  * @param phase_information a vector containing the phase information for all nodes of the lattice
  */
-bool is_ghost_node(unsigned int node_index, std::vector<bool> &phase_information);
+bool is_ghost_node(unsigned int node_index, const std::vector<bool> &phase_information);
 
 /**
  * @brief Returns a vector containing all fluid non-border nodes within the simulation domain.
@@ -45,8 +45,8 @@ bool is_ghost_node(unsigned int node_index, std::vector<bool> &phase_information
  */
 std::vector<unsigned int> get_non_border_nodes
 (
-    std::vector<unsigned int> &fluid_nodes,
-    border_adjacency &ba
+    const std::vector<unsigned int> &fluid_nodes,
+    const border_adjacency &ba
 );
 
 /**
@@ -67,8 +67,8 @@ namespace bounce_back
      */
     border_adjacency retrieve_border_adjacencies
     (
-        std::vector<unsigned int> &fluid_nodes, 
-        std::vector<bool> &phase_information
+        const std::vector<unsigned int> &fluid_nodes, 
+        const std::vector<bool> &phase_information
     );
 
     /**
@@ -82,8 +82,8 @@ namespace bounce_back
      */
     border_swap_information retrieve_border_swap_information
     (
-        std::vector<unsigned int> &fluid_nodes, 
-        std::vector<bool> &phase_information
+        const std::vector<unsigned int> &fluid_nodes, 
+        const std::vector<bool> &phase_information
     );
 
     /**
@@ -94,7 +94,7 @@ namespace bounce_back
      */
     std::set<unsigned int> determine_bounce_back_directions
     (
-        std::vector<unsigned int> &current_border_info
+        const std::vector<unsigned int> &current_border_info
     );
 
     /**
@@ -108,29 +108,38 @@ namespace bounce_back
      */
     void perform_boundary_update
     (
-        border_adjacency &ba,
+        const border_adjacency &ba,
         std::vector<double> &distribution_values, 
-        access_function access_function
+        const access_function access_function
     );
 
     /**
-     * @brief Modified version of the bounce-back streaming update for all fluid nodes within the simulation domain.
-     *        Instead of using information stored in ghost nodes, it inverts the pre-streaming values such that it is 
-     *        already available when a streaming step concluded. This allows for the collision step to be merged with
-     *        the streaming step.
+     * @brief Modified version of the halfway bounce-back streaming update for all fluid nodes 
+     *        within the simulation domain. Instead of using information stored in ghost nodes, 
+     *        This allows for a convenient unification of the streaming and collision step for
+     *        the two-lattice algorithm.
      * 
-     * @param border_nodes see documentation of border_swap_information
-     * @param distribution_values a vector containing the distribution values of all nodes
+     * @param bsi see documentation of border_swap_information
+     * @param source the distribution values will be read from this vector
+     * @param destination the updated distribution values will be written to this vector
      * @param access_function the access function used to access the distribution values
      */
     void perform_early_boundary_update
     (
-        border_swap_information &border_nodes,
-        std::vector<double> &source, // NEW!!
-        std::vector<double> &destination, // RENAMED
-        access_function access_function
+        const border_swap_information &bsi,
+        const std::vector<double> &source, 
+        std::vector<double> &destination, 
+        const access_function access_function
     );
+}
 
+/**
+ * @brief This namespace contains all functions that are required for enforcing boundary conditions.
+ *        It uses the ghost nodes for this purpose.
+ * 
+ */
+namespace boundary_conditions
+{
     /**
      * @brief Modified version of the halfway bounce-back streaming update for all fluid nodes 
      *        within the simulation domain. Instead of using information stored in ghost nodes, 
@@ -140,17 +149,13 @@ namespace bounce_back
      * 
      * @param bsi see documentation of border_swap_information
      * @param distribution_values a vector containing the distribution values of all nodes
-     * @param velocities a vector containing all velocities
-     * @param densities a vector containing all densities
      * @param access_function the access function used to access the distribution values
      */
     void perform_inout_boundary_update
     (
-        border_swap_information &bsi,
+        const border_swap_information &bsi,
         std::vector<double> &distribution_values, 
-        // std::vector<velocity> &velocities,
-        // std::vector<double> densities,
-        access_function access_function
+        const access_function access_function
     );
 
     /**
@@ -162,7 +167,7 @@ namespace bounce_back
     void update_velocity_input_velocity_output
     (
         std::vector<double> &distribution_values, 
-        access_function access_function
+        const access_function access_function
     );
 
     /**
@@ -176,7 +181,7 @@ namespace bounce_back
     void update_velocity_input_density_output
     (
         std::vector<double> &distribution_values, 
-        access_function access_function
+        const access_function access_function
     );
 
     /**
@@ -190,7 +195,7 @@ namespace bounce_back
     void update_density_input_density_output
     (
         std::vector<double> &distribution_values, 
-        access_function access_function
+        const access_function access_function
     );
 
     /**
@@ -203,14 +208,30 @@ namespace bounce_back
     void initialize_inout
     (
         std::vector<double> &distribution_values, 
-        access_function access_function
+        const access_function access_function
     );
 }
 
+/**
+ * @brief This namespace contains discrete versions of important velocity profiles that occur for streaming fluids.
+ * 
+ */
 namespace velocity_profiles
 {
+    /**
+     * @brief Computes a laminary velocity profile for inlet or outlet nodes.
+     * 
+     * @param u the mean velocity of the profile
+     * @return std::vector<velocity> a vector containing the velocity values for the inlet or outlet nodes.
+     */
     std::vector<velocity> ideal_laminary(velocity &u);
 
+    /**
+     * @brief Computes a turbulent velocity profile for inlet or outlet nodes using the rule of the seventh.
+     * 
+     * @param u the mean velocity of the profile
+     * @return std::vector<velocity> a vector containing the velocity values for the inlet or outlet nodes.
+     */
     std::vector<velocity> seventh_rule_turbulent(velocity &u);
 }
 

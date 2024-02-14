@@ -43,7 +43,7 @@ bool is_edge_node(unsigned int node_index)
  * @param node_index the index of the node in question
  * @param phase_information a vector containing the phase information for all nodes of the lattice
  */
-bool is_ghost_node(unsigned int node_index, std::vector<bool> &phase_information)
+bool is_ghost_node(unsigned int node_index, const std::vector<bool> &phase_information)
 {
     std::tuple<unsigned int, unsigned int> coordinates = access::get_node_coordinates(node_index);
     unsigned int x = std::get<0>(coordinates);
@@ -60,16 +60,17 @@ bool is_ghost_node(unsigned int node_index, std::vector<bool> &phase_information
  */
 std::vector<unsigned int> get_non_border_nodes
 (
-    std::vector<unsigned int> &fluid_nodes,
-    border_adjacency &ba
+    const std::vector<unsigned int> &fluid_nodes,
+    const border_adjacency &ba
 )
 {
+    border_adjacency border_adjacency = ba;
     std::vector<unsigned int> result;
-    border_adjacency::iterator next_border_node = ba.begin();
+    border_adjacency::iterator next_border_node = border_adjacency.begin();
     for(auto i = 0; i < fluid_nodes.size(); ++i)
     {
         if((fluid_nodes[i] == std::get<0>((*next_border_node)[0])) 
-            & (next_border_node < ba.end() - 1))
+            & (next_border_node < border_adjacency.end() - 1))
         {
             ++next_border_node;
         }
@@ -93,8 +94,8 @@ std::vector<unsigned int> get_non_border_nodes
  */
 border_adjacency bounce_back::retrieve_border_adjacencies
 (        
-    std::vector<unsigned int> &fluid_nodes, 
-    std::vector<bool> &phase_information
+    const std::vector<unsigned int> &fluid_nodes, 
+    const std::vector<bool> &phase_information
 )
 {
     border_adjacency result;
@@ -128,8 +129,8 @@ border_adjacency bounce_back::retrieve_border_adjacencies
  */
 border_swap_information bounce_back::retrieve_border_swap_information
 (
-    std::vector<unsigned int> &fluid_nodes, 
-    std::vector<bool> &phase_information
+    const std::vector<unsigned int> &fluid_nodes, 
+    const std::vector<bool> &phase_information
 )
 {
     border_swap_information result;
@@ -149,34 +150,23 @@ border_swap_information bounce_back::retrieve_border_swap_information
     return result;
 }
 
-    /**
-     * @brief Determines the directions in which the value will be reflected from the opposite direction.
-     * 
-     * @param current_border_info an entry of a border_swap_information object
-     * @return a set containing all bounce back directions
-     */
+/**
+ * @brief Determines the directions in which the value will be reflected from the opposite direction.
+ * 
+ * @param current_border_info an entry of a border_swap_information object
+ * @return a set containing all bounce back directions
+ */
 std::set<unsigned int> bounce_back::determine_bounce_back_directions
 (
-    std::vector<unsigned int> &current_border_info
+    const std::vector<unsigned int> &current_border_info
 )
 {
-    //std::cout << "Determining bounce back directions for ";
-    //to_console::print_vector(current_border_info, 10);
-    
     std::vector<unsigned int> inverted;
     for(auto j = current_border_info.begin() + 1; j < current_border_info.end(); ++j)
     {
         inverted.push_back(invert_direction(*j));
     }
-    //std::cout << "Inverted dirs are ";
-    //to_console::print_vector(inverted, 10);
     std::set<unsigned int> remaining_dirs = {inverted.begin(), inverted.end()};
-    // for (auto i = current_border_info.begin() + 1; i < current_border_info.end(); ++i)
-    // {
-    //     remaining_dirs.erase(*i);
-    // }
-    //std::cout << "Returning remaining dirs ";
-    //to_console::print_set(remaining_dirs);
     return remaining_dirs;  
 }
 
@@ -191,9 +181,9 @@ std::set<unsigned int> bounce_back::determine_bounce_back_directions
  */
 void bounce_back::perform_boundary_update
 (
-    border_adjacency &ba,
+    const border_adjacency &ba,
     std::vector<double> &distribution_values, 
-    access_function access_function
+    const access_function access_function
 )
 {
     int current_border_node = 0;
@@ -224,15 +214,16 @@ void bounce_back::perform_boundary_update
  *        the two-lattice algorithm.
  * 
  * @param bsi see documentation of border_swap_information
- * @param distribution_values a vector containing the distribution values of all nodes
+ * @param source the distribution values will be read from this vector
+ * @param destination the updated distribution values will be written to this vector
  * @param access_function the access function used to access the distribution values
  */
 void bounce_back::perform_early_boundary_update
 (
-    border_swap_information &bsi,
-    std::vector<double> &source, // NEW!!
-    std::vector<double> &destination, // RENAMED
-    access_function access_function
+    const border_swap_information &bsi,
+    const std::vector<double> &source, 
+    std::vector<double> &destination, 
+    const access_function access_function
 )
 {
     std::vector<double> current_dist_vals;
@@ -242,27 +233,9 @@ void bounce_back::perform_early_boundary_update
     {
         current_border_node = current[0];
         remaining_dirs = bounce_back::determine_bounce_back_directions(current);
-        // if (current_border_node == 8 || current_border_node == 12 || current_border_node == 22 || current_border_node == 26)
-        // {
-        //     std::cout << "Currently treating node " << current_border_node << std::endl;
-        //     std::cout << "\t with distribution values \t";
-        //     current_dist_vals = access::get_distribution_values_of(destination, current_border_node, access_function);
-        //     to_console::print_vector(current_dist_vals, 10);
-        //     std::cout << "\t and directions \t";
-        //     to_console::print_set(remaining_dirs);
-        // }
-        //std::cout << "Currently treating node " << current_border_node << std::endl;
-        //std::cout << "\t with distribution values \t";
-        //current_dist_vals = access::get_distribution_values_of(distribution_values, current_border_node, access_function);
-        //to_console::print_vector(current_dist_vals, 10);
-        //std::cout << "\t and directions \t";
-        //to_console::print_set(remaining_dirs);
         
         for(auto direction : remaining_dirs)
         {
-            
-            //std::cout << "Early boundary update: for node " << current_border_node << ", performing entry change " << direction << " -> " << invert_direction(direction);
-            //std::cout << " (" << distribution_values[access_function(current_border_node, direction)] << " -> " << distribution_values[access_function(current_border_node, invert_direction(direction))] << " )"<<  std::endl;
             destination[access_function(current_border_node, direction)] = 
             source[access_function(current_border_node, invert_direction(direction))];
         }
@@ -278,30 +251,28 @@ void bounce_back::perform_early_boundary_update
  * 
  * @param bsi see documentation of border_swap_information
  * @param distribution_values a vector containing the distribution values of all nodes
- * @param velocities a vector containing all velocities
- * @param densities a vector containing all densities
  * @param access_function the access function used to access the distribution values
  */
-void bounce_back::perform_inout_boundary_update
+void boundary_conditions::perform_inout_boundary_update
 (
-    border_swap_information &bsi,
+    const border_swap_information &bsi,
     std::vector<double> &distribution_values, 
-    // std::vector<velocity> &velocities,
-    // std::vector<double> densities,
-    access_function access_function
+    const access_function access_function
 )
 {
     std::vector<double> current_dist_vals(DIRECTION_COUNT, 0);
     std::set<unsigned int> remaining_dirs{streaming_directions.begin(), streaming_directions.end()};
     int current_border_node = 0;
+    velocity v = INLET_VELOCITY;
+
     for(auto current : bsi)
     {
         current_border_node = current[0];
         if(std::get<0>(access::get_node_coordinates(current_border_node)) == 1) // Inlet node
         {
-            velocity v = INLET_VELOCITY;
-            current_dist_vals = maxwell_boltzmann_distribution(v, INLET_DENSITY); // current_dist_vals = maxwell_boltzmann_distribution(velocities[current_border_node], densities[current_border_node]);
-            access::set_all_distribution_values
+            v = INLET_VELOCITY;
+            current_dist_vals = maxwell_boltzmann_distribution(v, INLET_DENSITY);
+            access::set_distribution_values_of
             (
                 current_dist_vals,
                 distribution_values,
@@ -311,9 +282,9 @@ void bounce_back::perform_inout_boundary_update
         }
         else if(std::get<0>(access::get_node_coordinates(current_border_node)) == HORIZONTAL_NODES - 1) // Outlet node
         {
-            velocity v = OUTLET_VELOCITY;
-            current_dist_vals = maxwell_boltzmann_distribution(v, OUTLET_DENSITY); // current_dist_vals = maxwell_boltzmann_distribution(velocities[current_border_node], densities[current_border_node]);
-            access::set_all_distribution_values
+            v = OUTLET_VELOCITY;
+            current_dist_vals = maxwell_boltzmann_distribution(v, OUTLET_DENSITY);
+            access::set_distribution_values_of
             (
                 current_dist_vals,
                 distribution_values,
@@ -324,18 +295,8 @@ void bounce_back::perform_inout_boundary_update
         else
         {
             remaining_dirs = bounce_back::determine_bounce_back_directions(current);
-            //std::cout << "Currently treating node " << current_border_node << std::endl;
-            //std::cout << "\t with distribution values \t";
-            //current_dist_vals = access::get_distribution_values_of(distribution_values, current_border_node, access_function);
-            //to_console::print_vector(current_dist_vals, 10);
-            //std::cout << "\t and directions \t";
-            //to_console::print_set(remaining_dirs);
-            
             for(auto direction : remaining_dirs)
             {
-                
-                //std::cout << "Early boundary update: for node " << current_border_node << ", performing entry change " << direction << " -> " << invert_direction(direction);
-                //std::cout << " (" << distribution_values[access_function(current_border_node, direction)] << " -> " << distribution_values[access_function(current_border_node, invert_direction(direction))] << " )"<<  std::endl;
                 distribution_values[access_function(current_border_node, direction)] = 
                 distribution_values[access_function(current_border_node, invert_direction(direction))];
             }
@@ -352,10 +313,10 @@ void bounce_back::perform_inout_boundary_update
  * @param distribution_values a vector containing the distribution values of all nodes
  * @param access_function the access function used to access the distribution values
  */
-void bounce_back::update_velocity_input_velocity_output
+void boundary_conditions::update_velocity_input_velocity_output
 (
     std::vector<double> &distribution_values, 
-    access_function access_function
+    const access_function access_function
 )
 {
     std::vector<double> current_dist_vals(DIRECTION_COUNT, 0);
@@ -373,7 +334,7 @@ void bounce_back::update_velocity_input_velocity_output
         density = macroscopic::density(access::get_distribution_values_of(distribution_values, access::get_neighbor(current_border_node, 5), access_function));
         density = INLET_DENSITY + (INLET_DENSITY - density);
         current_dist_vals = maxwell_boltzmann_distribution(inlet[y-1], density);
-        access::set_all_distribution_values
+        access::set_distribution_values_of
         (
             current_dist_vals,
             distribution_values,
@@ -386,7 +347,7 @@ void bounce_back::update_velocity_input_velocity_output
         density = macroscopic::density(access::get_distribution_values_of(distribution_values, access::get_neighbor(current_border_node, 3), access_function));
         density = OUTLET_DENSITY + (OUTLET_DENSITY - density);
         current_dist_vals = maxwell_boltzmann_distribution(outlet[y-1], density);
-        access::set_all_distribution_values
+        access::set_distribution_values_of
         (
             current_dist_vals,
             distribution_values,
@@ -405,10 +366,10 @@ void bounce_back::update_velocity_input_velocity_output
  * @param distribution_values a vector containing the distribution values of all nodes
  * @param access_function the access function used to access the distribution values
  */
-void bounce_back::update_velocity_input_density_output
+void boundary_conditions::update_velocity_input_density_output
 (
     std::vector<double> &distribution_values, 
-    access_function access_function
+    const access_function access_function
 )
 {
     std::vector<double> current_dist_vals(DIRECTION_COUNT, 0);
@@ -423,7 +384,7 @@ void bounce_back::update_velocity_input_density_output
         v = INLET_VELOCITY;
         density = INLET_DENSITY;
         current_dist_vals = maxwell_boltzmann_distribution(v, density);
-        access::set_all_distribution_values
+        access::set_distribution_values_of
         (
             current_dist_vals,
             distribution_values,
@@ -436,7 +397,7 @@ void bounce_back::update_velocity_input_density_output
         v = macroscopic::flow_velocity(access::get_distribution_values_of(distribution_values, access::get_neighbor(current_border_node, 3), access_function));
         density = OUTLET_DENSITY;
         current_dist_vals = maxwell_boltzmann_distribution(v, density);
-        access::set_all_distribution_values
+        access::set_distribution_values_of
         (
             current_dist_vals,
             distribution_values,
@@ -454,10 +415,10 @@ void bounce_back::update_velocity_input_density_output
  * @param distribution_values a vector containing the distribution values of all nodes
  * @param access_function the access function used to access the distribution values
  */
-void bounce_back::update_density_input_density_output
+void boundary_conditions::update_density_input_density_output
 (
     std::vector<double> &distribution_values, 
-    access_function access_function
+    const access_function access_function
 )
 {
     std::cout << "Entering" << std::endl;
@@ -474,7 +435,7 @@ void bounce_back::update_density_input_density_output
         v = {0,0};
         density = INLET_DENSITY;
         current_dist_vals = maxwell_boltzmann_distribution(v, density);
-        access::set_all_distribution_values
+        access::set_distribution_values_of
         (
             current_dist_vals,
             distribution_values,
@@ -487,7 +448,7 @@ void bounce_back::update_density_input_density_output
         v = macroscopic::flow_velocity(access::get_distribution_values_of(distribution_values, access::get_neighbor(current_border_node, 3), access_function));
         density = OUTLET_DENSITY;
         current_dist_vals = maxwell_boltzmann_distribution(v, density);
-        access::set_all_distribution_values
+        access::set_distribution_values_of
         (
             current_dist_vals,
             distribution_values,
@@ -504,10 +465,10 @@ void bounce_back::update_density_input_density_output
  * @param distribution_values a vector containing the distribution values of all nodes
  * @param access_function the access function used to access the distribution values
  */
-void bounce_back::initialize_inout
+void boundary_conditions::initialize_inout
 (
     std::vector<double> &distribution_values, 
-    access_function access_function
+    const access_function access_function
 )
 {
     std::vector<double> current_dist_vals(DIRECTION_COUNT, 0);
@@ -522,7 +483,7 @@ void bounce_back::initialize_inout
         v = INLET_VELOCITY;
         density = INLET_DENSITY;
         current_dist_vals = maxwell_boltzmann_distribution(v, density);
-        access::set_all_distribution_values
+        access::set_distribution_values_of
         (
             current_dist_vals,
             distribution_values,
@@ -535,7 +496,7 @@ void bounce_back::initialize_inout
         v = OUTLET_VELOCITY;
         density = OUTLET_DENSITY;
         current_dist_vals = maxwell_boltzmann_distribution(v, density);
-        access::set_all_distribution_values
+        access::set_distribution_values_of
         (
             current_dist_vals,
             distribution_values,
@@ -545,6 +506,12 @@ void bounce_back::initialize_inout
     }
 }
 
+/**
+ * @brief Computes a laminary velocity profile for inlet or outlet nodes.
+ * 
+ * @param u the mean velocity of the profile
+ * @return std::vector<velocity> a vector containing the velocity values for the inlet or outlet nodes.
+ */
 std::vector<velocity> velocity_profiles::ideal_laminary(velocity &u)
 {
     std::vector<velocity> result;
@@ -557,6 +524,12 @@ std::vector<velocity> velocity_profiles::ideal_laminary(velocity &u)
     return result;
 }
 
+/**
+ * @brief Computes a turbulent velocity profile for inlet or outlet nodes using the rule of the seventh.
+ * 
+ * @param u the mean velocity of the profile
+ * @return std::vector<velocity> a vector containing the velocity values for the inlet or outlet nodes.
+ */
 std::vector<velocity> velocity_profiles::seventh_rule_turbulent(velocity &u)
 {
     std::vector<velocity> result;

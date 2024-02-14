@@ -81,9 +81,10 @@ typedef std::vector<std::vector<velocity>, std::vector<double>> sim_data_vector;
 typedef std::function<unsigned int(unsigned int, unsigned int)> access_function;
 
 /* Inlet and outlet behavior */
-#define INLET_VELOCITY velocity{0.00,0.0} // velocity{10.0/100,0}
+
+#define INLET_VELOCITY velocity{0.05,0.0}
 #define OUTLET_VELOCITY velocity{0.00,0.0}
-#define INLET_DENSITY 2 // 1
+#define INLET_DENSITY 1
 #define OUTLET_DENSITY 1 
 
 /** Mapping of directions as proposed by Mattila to the corresponding velocity vectors */
@@ -110,6 +111,6 @@ inline unsigned int invert_direction(unsigned int dir)
  * @param rho density
  * @return the probability of there being a particle with velocity v_direction 
  */
-std::vector<double> maxwell_boltzmann_distribution(velocity &u, double rho);
+std::vector<double> maxwell_boltzmann_distribution(const velocity &u, double rho);
 
 #endif

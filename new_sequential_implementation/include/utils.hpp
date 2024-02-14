@@ -9,7 +9,9 @@
 #include "boundaries.hpp"
 #include <iomanip>
 
-inline unsigned int matrix_access(unsigned int row, 
+inline unsigned int matrix_access
+(
+    unsigned int row, 
     unsigned int column, 
     unsigned int column_count)
 {
@@ -24,13 +26,13 @@ namespace to_console
 {
     /**
      * @brief Allows to print out a vector representing a data layout whose column count is HORIZONTAL_NODES.
-     *        Notice that the vector is assumed to represent
+     *        Notice that the vector is assumed to represent a matrix.
      * 
      * @tparam T the type of the objects the specified vector holds (must be numeric)
      * @param vector the vector that is to be printed in the console
      */
     template <typename T>
-    void print_vector(std::vector<T> &vector)
+    void print_vector(const std::vector<T> &vector)
     {
         for(auto y = VERTICAL_NODES - 1; y >= 0; --y)
         {
@@ -56,7 +58,7 @@ namespace to_console
      * @param row_length a line break will be set after this many entries
      */
     template <typename T>
-    void print_vector(const std::vector<T> &vector, int row_length)
+    void print_vector(const std::vector<T> &vector, unsigned int row_length)
     {
         int current_value_count = 0;
         std::cout << "[";
@@ -82,7 +84,7 @@ namespace to_console
      * 
      * @param vector the phase vector
      */
-    inline void print_phase_vector(std::vector<bool> &vector)
+    inline void print_phase_vector(const std::vector<bool> &vector)
     {
         for(auto y = VERTICAL_NODES - 1; y >= 0; --y)
         {
@@ -103,7 +105,7 @@ namespace to_console
      * 
      * @param vector a vector containing all velocity values
      */
-    inline void print_velocity_vector(std::vector<velocity> &vector)
+    inline void print_velocity_vector(const std::vector<velocity> &vector)
     {
         for(auto y = VERTICAL_NODES - 1; y >= 0; --y)
         {
@@ -127,7 +129,7 @@ namespace to_console
      * @param set the set whose contents are to be printed
      */
     template <typename T>
-    void print_set(std::set<T> &set)
+    void print_set(const std::set<T> &set)
     {
         std::cout << "(";
         for(auto element : set)
@@ -142,7 +144,7 @@ namespace to_console
     /**
      * @brief Prints the specified border adjacency to the console.
      */
-    inline void print_border_adjacencies(border_adjacency &ba)
+    inline void print_border_adjacencies(const border_adjacency &ba)
     {
         for(auto node : ba)
         {
@@ -161,7 +163,11 @@ namespace to_console
      * @param distribution_values a vector containing the distribution values of all nodes 
      * @param access_function the function used to access the distribution values
      */
-    inline void print_distribution_values(std::vector<double> &distribution_values, access_function access_function)
+    inline void print_distribution_values
+    (
+        const std::vector<double> &distribution_values, 
+        const access_function access_function
+    )
     {
         std::vector<std::vector<unsigned int>> print_dirs = {{6,7,8}, {3,4,5}, {0,1,2}};
         unsigned int current_node_index = 0;
@@ -221,7 +227,7 @@ namespace math_utils
      * @brief Calculates the dot product of the specified arrays
      */
     template <unsigned long int d>
-    double dot(std::array<double, d> x, std::array<double, d> y)
+    double dot(const std::array<double, d> &x, const std::array<double, d> &y)
     {
         double result = 0;
         for(auto i = 0; i < d; ++i) result += x[i] * y[i];
@@ -232,7 +238,7 @@ namespace math_utils
      * @brief Calculates the contraction of two matrices stored as arrays in row-major order.
      */
     template<unsigned int d>
-    double contraction(std::array<double, d> x, std::array<double, d> y)
+    double contraction(const std::array<double, d> &x, const std::array<double, d> &y)
     {
         double result = 0;
         for(auto i = 0; i < d; ++i) result += x[i] * y[i];
@@ -244,7 +250,7 @@ namespace math_utils
      * @return the resulting matrix stored as an array in row-major order.
      */
     template<unsigned int d>
-    std::array<double, d*d> outer(std::array<double, d> x, std::array<double, d> y)
+    std::array<double, d*d> outer(const std::array<double, d> &x, const std::array<double, d> &y)
     {
         std::array<double, d*d> result;
         for(auto i = 0; i < d; ++i)

@@ -21,7 +21,7 @@
         result[8] = result[0] - 0.5 * (result[7] - result[1]) + rho_times_u_x;
         result[2] = result[6] + 0.5 * (result[7] - result[1]) + rho_times_u_x;
         
-        access::set_all_distribution_values(result, destination, node_index, access_function);
+        access::set_distribution_values_of(result, destination, node_index, access_function);
     }
 
     void boundaries::outlet_boundary_stream(
@@ -42,7 +42,7 @@
         result[0] = result[8] + 0.5 * (result[7] - result[1]) - rho_times_u_x;
         result[6] = result[2] - 0.5 * (result[7] - result[1]) - rho_times_u_x;
 
-        access::set_all_distribution_values(result, destination, node_index, access_function);
+        access::set_distribution_values_of(result, destination, node_index, access_function);
     }
 
     double boundaries::lower_wall_boundary_stream(  
@@ -65,7 +65,7 @@
         result[8] = result[0] + 0.5 * (result[5] - result[3]) + rho_times_u_x + rho_times_u_y;
         result[6] = result[2] + 0.5 * (result[5] - result[3]) - rho_times_u_x + rho_times_u_y;
 
-        access::set_all_distribution_values(result, destination, node_index, access_function);
+        access::set_distribution_values_of(result, destination, node_index, access_function);
         return density;
     }
 
@@ -89,7 +89,7 @@
         result[0] = result[8] - 0.5 * (result[3] - result[5]) - rho_times_u_x - rho_times_u_y;
         result[2] = result[6] + 0.5 * (result[3] - result[5]) + rho_times_u_x - rho_times_u_y;
 
-        access::set_all_distribution_values(result, destination, node_index, access_function);
+        access::set_distribution_values_of(result, destination, node_index, access_function);
         return density;
     }
 
@@ -116,7 +116,7 @@
             std::cout << result[i] << " ";
         }
         std::cout << std::endl;
-        access::set_all_distribution_values(result, destination, lower_inlet_node, access_function);
+        access::set_distribution_values_of(result, destination, lower_inlet_node, access_function);
     }
 
     void boundaries::upper_inlet_boundary_stream(
@@ -136,7 +136,7 @@
         result[0] = 0.5 * (density - (result[4] + 2 * result[3] + 2 * result[6] + 2 * result[7]));
         result[8] = result[0];
 
-        access::set_all_distribution_values(result, destination, upper_inlet_node, access_function);
+        access::set_distribution_values_of(result, destination, upper_inlet_node, access_function);
     }
 
     void boundaries::lower_outlet_boundary_stream(
@@ -156,7 +156,7 @@
         result[0] = 0.5 * (density - (result[4] + 2 * result[1] + 2 * result[2] + 2 * result[5]));
         result[8] = result[0];
 
-        access::set_all_distribution_values(result, destination, lower_outlet_node, access_function);
+        access::set_distribution_values_of(result, destination, lower_outlet_node, access_function);
     }
 
     void boundaries::upper_outlet_boundary_stream(   
@@ -176,6 +176,6 @@
         result[2] = 0.5 * (density - (result[4] + 2 * result[5] + 2 * result[7] + 2 * result[8]));
         result[6] = result[2];
 
-        access::set_all_distribution_values(result, destination, lower_outlet_node, access_function);
+        access::set_distribution_values_of(result, destination, lower_outlet_node, access_function);
     }
 

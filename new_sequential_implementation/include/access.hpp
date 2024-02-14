@@ -77,22 +77,22 @@ namespace access
     }
 
     /**
-     * @brief This function gets all distribution values of the node with the specified index using the specified access pattern.
+     * @brief This function returns the distribution values of the node with the specified index using the specified access pattern.
      * 
      * @param source the distribution values will be read from this vector
      * @param node_index this is the index of the node in the domain
      * @param access this access function will be used
-     * @return A vector containing all distribution values
+     * @return A vector containing the distribution values
      */
     std::vector<double> get_distribution_values_of
     (
-        std::vector<double> &source, 
+        const std::vector<double> &source, 
         int node_index, 
         access_function access
     );
 
     /**
-     * @brief This function sets all distribution values of the node with the specified index to the specified values 
+     * @brief This function sets the distribution values of the node with the specified index to the specified values 
      *        using the specified access pattern.
      * 
      * @param dist_vals a vector containing the values to which the distribution values shall be set
@@ -100,9 +100,9 @@ namespace access
      * @param node_index this is the index of the node in the domain
      * @param access this access function will be used
      */
-    void set_all_distribution_values
+    void set_distribution_values_of
     (
-        std::vector<double> &dist_vals, 
+        const std::vector<double> &dist_vals, 
         std::vector<double> &destination, 
         int node_index, 
         access_function access
@@ -124,7 +124,7 @@ namespace semi_direct_access
      * @param phase_space a vector containing the phase information for each node where "true" means solid
      * @return a vector containing the fluid segments in the explained arrangement
      */
-    std::vector<unsigned int> get_fluid_segments(std::vector<bool> &node_phases);
+    std::vector<unsigned int> get_fluid_segments(const std::vector<bool> &node_phases);
 }
 
 #endif

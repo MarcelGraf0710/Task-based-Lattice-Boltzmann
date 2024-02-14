@@ -74,7 +74,7 @@ namespace access
      * @param node_index this is the index of the node in the domain
      * @param access this access function will be used
      */
-    void set_all_distribution_values(std::vector<double> &dist_vals, std::vector<double> &destination, int node_index, access_function access);
+    void set_distribution_values_of(std::vector<double> &dist_vals, std::vector<double> &destination, int node_index, access_function access);
 }
 
 /**

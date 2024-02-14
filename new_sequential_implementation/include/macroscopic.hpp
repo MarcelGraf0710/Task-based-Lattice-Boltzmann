@@ -7,7 +7,7 @@
 
 /**
  * @brief This namespace includes functions for calculating macroscopic observables of non-boundary nodes 
- *        for the D2Q9(I) model.
+ *        for the D2Q9I model.
  */
 namespace macroscopic
 {
@@ -18,16 +18,6 @@ namespace macroscopic
      */
     inline double density(const std::vector<double> &distribution_functions)
     {
-        // std::cout << "Density for distribution values ";
-        // to_console::print_vector(distribution_functions, 10);
-        // std::cout << "Accumulate pretends it is " << std::accumulate(distribution_functions.begin(), distribution_functions.end(), 0.0) << std::endl;
-        // std::cout << "Loop knows it is "<< std::endl;
-        // double sum = 0;
-        // for(auto entry : distribution_functions)
-        // {
-        //     sum += entry;
-        // }
-        // std::cout << sum << std::endl;
         return std::accumulate(distribution_functions.begin(), distribution_functions.end(), 0.0);
     }
 
@@ -38,20 +28,6 @@ namespace macroscopic
      * @return velocity a two-dimensional array representing the flow velocity
      */
     velocity flow_velocity(const std::vector<double> &distribution_functions);
-
-    /** DEPRECATED
-     * @brief Calculates the velocity values for all fluid nodes in the simuation domain.
-     * 
-     * @param fluid_nodes A vector containing the indices of all fluid nodes within the simulation domain.
-     * @param all_distributions A vector containing all distribution values. 
-     * @param access_function This function is used to access the distribution values.
-     */
-    std::vector<velocity> OLD_calculate_all_velocities
-    (
-        const std::vector<unsigned int> &fluid_nodes,
-        std::vector<double> &all_distributions, 
-        access_function access_function
-    );
 
     /**
      * @brief Calculates the velocity values for ALL nodes in the lattice.
@@ -65,8 +41,8 @@ namespace macroscopic
     std::vector<velocity> calculate_all_velocities
     (
         const std::vector<unsigned int> &fluid_nodes,
-        std::vector<double> &all_distributions, 
-        access_function access_function
+        const std::vector<double> &all_distributions, 
+        const access_function access_function
     );
 
     /**
@@ -81,8 +57,8 @@ namespace macroscopic
     std::vector<double> calculate_all_densities
     (
         const std::vector<unsigned int> &fluid_nodes,
-        std::vector<double> &all_distributions, 
-        access_function access_function
+        const std::vector<double> &all_distributions, 
+        const access_function access_function
     );
 
     /**
@@ -96,9 +72,9 @@ namespace macroscopic
      */
     sim_data_tuple get_sim_data_tuple
     (
-        std::vector<unsigned int> &fluid_nodes,
-        std::vector<double> &all_distributions, 
-        access_function access_function
+        const std::vector<unsigned int> &fluid_nodes,
+        const std::vector<double> &all_distributions, 
+        const access_function access_function
     );
 }
 

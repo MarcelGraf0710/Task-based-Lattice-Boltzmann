@@ -16,7 +16,7 @@ std::vector<double> access::get_distribution_values_of(std::vector<double> &sour
     return dist_vals;
 }
 
-void access::set_all_distribution_values(std::vector<double> &dist_vals, std::vector<double> &destination, int node_index, access_function access)
+void access::set_distribution_values_of(std::vector<double> &dist_vals, std::vector<double> &destination, int node_index, access_function access)
 {
     for(auto direction = 0; direction < DIRECTION_COUNT; ++direction)
     {

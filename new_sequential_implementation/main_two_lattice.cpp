@@ -61,7 +61,7 @@ int main()
         distribution_values_0, 
         distribution_values_1,   
         access_function,
-        500,
+        50,
         result
     );
 
