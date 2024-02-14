@@ -159,18 +159,6 @@ namespace bounce_back
      * @param distribution_values a vector containing the distribution values of all nodes
      * @param access_function the access function used to access the distribution values
      */
-    void inout_update
-    (
-        std::vector<double> &distribution_values, 
-        access_function access_function
-    );
-
-    /**
-     * @brief Updates the ghost nodes that represent inlet and outlet edges
-     * 
-     * @param distribution_values a vector containing the distribution values of all nodes
-     * @param access_function the access function used to access the distribution values
-     */
     void update_velocity_input_velocity_output
     (
         std::vector<double> &distribution_values, 
@@ -178,7 +166,9 @@ namespace bounce_back
     );
 
     /**
-     * @brief Updates the ghost nodes that represent inlet and outlet edges
+     * @brief Updates the ghost nodes that represent inlet and outlet edges.
+     *        When updating, a velocity border condition will be considered for the input
+     *        and a density border condition for the output.
      * 
      * @param distribution_values a vector containing the distribution values of all nodes
      * @param access_function the access function used to access the distribution values
@@ -188,6 +178,40 @@ namespace bounce_back
         std::vector<double> &distribution_values, 
         access_function access_function
     );
+
+    /**
+     * @brief Updates the ghost nodes that represent inlet and outlet edges.
+     *        When updating, a density border condition will be considered for both the input and the output.
+     *        The corresponding values are constants defined in "../include/"defines.hpp".
+     * 
+     * @param distribution_values a vector containing the distribution values of all nodes
+     * @param access_function the access function used to access the distribution values
+     */
+    void update_density_input_density_output
+    (
+        std::vector<double> &distribution_values, 
+        access_function access_function
+    );
+
+    /**
+     * @brief Initializes all inlet and outlet nodes with their corresponding initial values.
+     *        The corresponding values are constants defined in "../include/"defines.hpp".
+     * 
+     * @param distribution_values a vector containing the distribution values of all nodes
+     * @param access_function the access function used to access the distribution values
+     */
+    void initialize_inout
+    (
+        std::vector<double> &distribution_values, 
+        access_function access_function
+    );
+}
+
+namespace velocity_profiles
+{
+    std::vector<velocity> ideal_laminary(velocity &u);
+
+    std::vector<velocity> seventh_rule_turbulent(velocity &u);
 }
 
 #endif

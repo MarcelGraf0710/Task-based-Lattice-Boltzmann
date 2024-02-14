@@ -136,8 +136,9 @@ sim_data_tuple two_lattice_sequential::perform_tl_stream_and_collide
     std::cout << "\t Distribution values after streaming and collision: " << std::endl;
     to_console::print_distribution_values(destination, access_function);
     std::cout << std::endl;
+    std::cout << "\t PASSED #1 " << std::endl;
 
-    bounce_back::update_velocity_input_density_output(destination, access_function);
+    bounce_back::update_density_input_density_output(destination, access_function);
     std::cout << "Updated inlet and outlet ghost nodes... hopefully. Check it out:" <<std::endl;
     to_console::print_distribution_values(destination, access_function);
 

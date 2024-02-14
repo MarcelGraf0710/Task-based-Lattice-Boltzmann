@@ -55,7 +55,7 @@ void setup_example_domain
     //     access::set_all_distribution_values(inlet_values, distribution_values, access::get_node_index(1, y), access_function);
     //     access::set_all_distribution_values(outlet_values, distribution_values, access::get_node_index(HORIZONTAL_NODES - 1, y), access_function);
     // }
-    bounce_back::inout_update(distribution_values, access_function);
+    bounce_back::initialize_inout(distribution_values, access_function);
     std::cout << "All distribution values were set." << std::endl;
 
     /* Set all nodes for direct access */

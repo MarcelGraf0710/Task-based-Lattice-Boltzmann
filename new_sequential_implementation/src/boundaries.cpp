@@ -345,52 +345,9 @@ void bounce_back::perform_inout_boundary_update
 }
 
 /**
- * @brief Updates the ghost nodes that represent inlet and outlet edges
- * 
- * @param distribution_values a vector containing the distribution values of all nodes
- * @param access_function the access function used to access the distribution values
- */
-void bounce_back::inout_update
-(
-    std::vector<double> &distribution_values, 
-    access_function access_function
-)
-{
-    std::vector<double> current_dist_vals(DIRECTION_COUNT, 0);
-    std::set<unsigned int> remaining_dirs{streaming_directions.begin(), streaming_directions.end()};
-    int current_border_node = 0;
-    velocity v = INLET_VELOCITY;
-
-    for(auto y = 0; y < VERTICAL_NODES; ++y)
-    {
-        // Update inlets
-        current_border_node = access::get_node_index(0,y);
-        v = INLET_VELOCITY;
-        current_dist_vals = maxwell_boltzmann_distribution(v, INLET_DENSITY); // current_dist_vals = maxwell_boltzmann_distribution(velocities[current_border_node], densities[current_border_node]);
-        access::set_all_distribution_values
-        (
-            current_dist_vals,
-            distribution_values,
-            current_border_node,
-            access_function
-        );
-
-        // Update outlets
-        current_border_node = access::get_node_index(HORIZONTAL_NODES - 1,y);
-        v = OUTLET_VELOCITY;
-        current_dist_vals = maxwell_boltzmann_distribution(v, OUTLET_DENSITY); // current_dist_vals = maxwell_boltzmann_distribution(velocities[current_border_node], densities[current_border_node]);
-        access::set_all_distribution_values
-        (
-            current_dist_vals,
-            distribution_values,
-            current_border_node,
-            access_function
-        );
-    }
-}
-
-/**
- * @brief Updates the ghost nodes that represent inlet and outlet edges
+ * @brief Updates the ghost nodes that represent inlet and outlet edges.
+ *        When updating, a velocity border condition will be considered for both the input and the output.
+ *        The corresponding values are constants defined in "../include/"defines.hpp".
  * 
  * @param distribution_values a vector containing the distribution values of all nodes
  * @param access_function the access function used to access the distribution values
@@ -402,21 +359,20 @@ void bounce_back::update_velocity_input_velocity_output
 )
 {
     std::vector<double> current_dist_vals(DIRECTION_COUNT, 0);
-    std::set<unsigned int> remaining_dirs{streaming_directions.begin(), streaming_directions.end()};
     int current_border_node = 0;
-    velocity v = INLET_VELOCITY;
+    velocity in = INLET_VELOCITY;
+    velocity out = OUTLET_VELOCITY;
+    std::vector<velocity> inlet = velocity_profiles::ideal_laminary(in);
+    std::vector<velocity> outlet = velocity_profiles::seventh_rule_turbulent(out);
     double density = 0;
 
-    for(auto y = 0; y < VERTICAL_NODES; ++y)
+    for(auto y = 1; y < VERTICAL_NODES - 1; ++y)
     {
         // Update inlets
         current_border_node = access::get_node_index(0,y);
-        v = INLET_VELOCITY;
         density = macroscopic::density(access::get_distribution_values_of(distribution_values, access::get_neighbor(current_border_node, 5), access_function));
         density = INLET_DENSITY + (INLET_DENSITY - density);
-        current_dist_vals = maxwell_boltzmann_distribution(v, density); // current_dist_vals = maxwell_boltzmann_distribution(velocities[current_border_node], densities[current_border_node]);
-        v = macroscopic::flow_velocity(current_dist_vals);
-        std::cout << "When updating inlet, got new velocity (" << v[0] << ", " << v[1] << "), density: " << macroscopic::density(current_dist_vals) << std::endl;
+        current_dist_vals = maxwell_boltzmann_distribution(inlet[y-1], density);
         access::set_all_distribution_values
         (
             current_dist_vals,
@@ -427,12 +383,9 @@ void bounce_back::update_velocity_input_velocity_output
 
         // Update outlets
         current_border_node = access::get_node_index(HORIZONTAL_NODES - 1,y);
-        v = OUTLET_VELOCITY;
         density = macroscopic::density(access::get_distribution_values_of(distribution_values, access::get_neighbor(current_border_node, 3), access_function));
         density = OUTLET_DENSITY + (OUTLET_DENSITY - density);
-        current_dist_vals = maxwell_boltzmann_distribution(v, density); // current_dist_vals = maxwell_boltzmann_distribution(velocities[current_border_node], densities[current_border_node]);
-        v = macroscopic::flow_velocity(current_dist_vals);
-        std::cout << "When updating outlet, got new velocity (" << v[0] << ", " << v[1] << "), density: " << macroscopic::density(current_dist_vals) << std::endl;
+        current_dist_vals = maxwell_boltzmann_distribution(outlet[y-1], density);
         access::set_all_distribution_values
         (
             current_dist_vals,
@@ -444,7 +397,10 @@ void bounce_back::update_velocity_input_velocity_output
 }
 
 /**
- * @brief Updates the ghost nodes that represent inlet and outlet edges
+ * @brief Updates the ghost nodes that represent inlet and outlet edges.
+ *        When updating, a velocity border condition will be considered for the input
+ *        and a density border condition for the output.
+ *        The corresponding values are constants defined in "../include/"defines.hpp".
  * 
  * @param distribution_values a vector containing the distribution values of all nodes
  * @param access_function the access function used to access the distribution values
@@ -456,7 +412,6 @@ void bounce_back::update_velocity_input_density_output
 )
 {
     std::vector<double> current_dist_vals(DIRECTION_COUNT, 0);
-    std::set<unsigned int> remaining_dirs{streaming_directions.begin(), streaming_directions.end()};
     int current_border_node = 0;
     velocity v = INLET_VELOCITY;
     double density = 0;
@@ -466,11 +421,8 @@ void bounce_back::update_velocity_input_density_output
         // Update inlets
         current_border_node = access::get_node_index(0,y);
         v = INLET_VELOCITY;
-        density = INLET_DENSITY; // macroscopic::density(access::get_distribution_values_of(distribution_values, access::get_neighbor(current_border_node, 5), access_function));
-        //density = INLET_DENSITY + (INLET_DENSITY - density);
-        current_dist_vals = maxwell_boltzmann_distribution(v, density); // current_dist_vals = maxwell_boltzmann_distribution(velocities[current_border_node], densities[current_border_node]);
-        v = macroscopic::flow_velocity(current_dist_vals);
-        std::cout << "When updating inlet, got new velocity (" << v[0] << ", " << v[1] << "), density: " << macroscopic::density(current_dist_vals) << std::endl;
+        density = INLET_DENSITY;
+        current_dist_vals = maxwell_boltzmann_distribution(v, density);
         access::set_all_distribution_values
         (
             current_dist_vals,
@@ -482,12 +434,8 @@ void bounce_back::update_velocity_input_density_output
         // Update outlets
         current_border_node = access::get_node_index(HORIZONTAL_NODES - 1,y);
         v = macroscopic::flow_velocity(access::get_distribution_values_of(distribution_values, access::get_neighbor(current_border_node, 3), access_function));
-        // v = {sqrt(v[0] * v[0] + v[1] * v[1]),0};
         density = OUTLET_DENSITY;
-        current_dist_vals = maxwell_boltzmann_distribution(v, density); // current_dist_vals = maxwell_boltzmann_distribution(velocities[current_border_node], densities[current_border_node]);
-        v = macroscopic::flow_velocity(current_dist_vals);
-        
-        std::cout << "When updating outlet, got new velocity (" << v[0] << ", " << v[1] << "), density: " << macroscopic::density(current_dist_vals) << std::endl;
+        current_dist_vals = maxwell_boltzmann_distribution(v, density);
         access::set_all_distribution_values
         (
             current_dist_vals,
@@ -496,4 +444,127 @@ void bounce_back::update_velocity_input_density_output
             access_function
         );
     }
+}
+
+/**
+ * @brief Updates the ghost nodes that represent inlet and outlet edges.
+ *        When updating, a density border condition will be considered for both the input and the output.
+ *        The corresponding values are constants defined in "../include/"defines.hpp".
+ * 
+ * @param distribution_values a vector containing the distribution values of all nodes
+ * @param access_function the access function used to access the distribution values
+ */
+void bounce_back::update_density_input_density_output
+(
+    std::vector<double> &distribution_values, 
+    access_function access_function
+)
+{
+    std::cout << "Entering" << std::endl;
+    std::vector<double> current_dist_vals(DIRECTION_COUNT, 0);
+    int current_border_node = 0;
+    velocity v = INLET_VELOCITY;
+    double density = 0;
+    std::cout << "EEverything set up" << std::endl;
+
+    for(auto y = 0; y < VERTICAL_NODES; ++y)
+    {
+        // Update inlets
+        current_border_node = access::get_node_index(0,y);
+        v = {0,0};
+        density = INLET_DENSITY;
+        current_dist_vals = maxwell_boltzmann_distribution(v, density);
+        access::set_all_distribution_values
+        (
+            current_dist_vals,
+            distribution_values,
+            current_border_node,
+            access_function
+        );
+
+        // Update outlets
+        current_border_node = access::get_node_index(HORIZONTAL_NODES - 1,y);
+        v = macroscopic::flow_velocity(access::get_distribution_values_of(distribution_values, access::get_neighbor(current_border_node, 3), access_function));
+        density = OUTLET_DENSITY;
+        current_dist_vals = maxwell_boltzmann_distribution(v, density);
+        access::set_all_distribution_values
+        (
+            current_dist_vals,
+            distribution_values,
+            current_border_node,
+            access_function
+        );
+    }
+}
+
+/**
+ * @brief Initializes all inlet and outlet nodes with their corresponding initial values.
+ *        The corresponding values are constants defined in "../include/"defines.hpp".
+ * 
+ * @param distribution_values a vector containing the distribution values of all nodes
+ * @param access_function the access function used to access the distribution values
+ */
+void bounce_back::initialize_inout
+(
+    std::vector<double> &distribution_values, 
+    access_function access_function
+)
+{
+    std::vector<double> current_dist_vals(DIRECTION_COUNT, 0);
+    int current_border_node = 0;
+    velocity v = INLET_VELOCITY;
+    double density = 0;
+
+    for(auto y = 0; y < VERTICAL_NODES; ++y)
+    {
+        // Update inlets
+        current_border_node = access::get_node_index(0,y);
+        v = INLET_VELOCITY;
+        density = INLET_DENSITY;
+        current_dist_vals = maxwell_boltzmann_distribution(v, density);
+        access::set_all_distribution_values
+        (
+            current_dist_vals,
+            distribution_values,
+            current_border_node,
+            access_function
+        );
+
+        // Update outlets
+        current_border_node = access::get_node_index(HORIZONTAL_NODES - 1,y);
+        v = OUTLET_VELOCITY;
+        density = OUTLET_DENSITY;
+        current_dist_vals = maxwell_boltzmann_distribution(v, density);
+        access::set_all_distribution_values
+        (
+            current_dist_vals,
+            distribution_values,
+            current_border_node,
+            access_function
+        );
+    }
+}
+
+std::vector<velocity> velocity_profiles::ideal_laminary(velocity &u)
+{
+    std::vector<velocity> result;
+    double middle_line = (VERTICAL_NODES)/2.0f;
+    double radius = (VERTICAL_NODES - 2)/2.0f;
+    for(auto y = 1; y < VERTICAL_NODES; ++y)
+    {
+        result.push_back({2 * INLET_VELOCITY[0] * (1 - pow((y + 0.5f - middle_line)/radius,2)) ,0});
+    }
+    return result;
+}
+
+std::vector<velocity> velocity_profiles::seventh_rule_turbulent(velocity &u)
+{
+    std::vector<velocity> result;
+    double middle_line = (VERTICAL_NODES)/2.0f;
+    double radius = (VERTICAL_NODES - 2)/2.0f;
+    for(auto y = 1; y < VERTICAL_NODES; ++y)
+    {
+        result.push_back({1.1f * OUTLET_VELOCITY[0] * (1 - pow((abs(y + 0.5f - middle_line))/radius,7)) ,0});
+    }
+    return result;
 }
