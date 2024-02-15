@@ -2,32 +2,29 @@
 #define SIMULATION_HPP
 #include "defines.hpp"
 
-struct simulation_data
-{
-    std::vector<double> all_distributions_0;
-    std::vector<double> all_distributions_1;
-    std::vector<velocity> all_velocities; 
-    access_function access;
-
-    // simulation_data(const std::vector<double> &initial_distributions, access_function access);
-};
-
 /**
- * @brief Returns a vector containing the distribution values set up according to the specified access pattern and inlet velocity.
+ * @brief Create an example domain for testing purposes. The domain is a rectangle with
+ *        dimensions specified in the defines file where the outermost nodes are ghost nodes.
+ *        The upper and lower ghost nodes are solid whereas the leftmost and rightmost columns are fluid
+ *        nodes that mark the inlet and outlet respectively.
+ *        Notice that all data will be written to the parameters which are assumed to be empty initially.
  * 
- * @param access 
- * @param inlet_velocity 
- * @return std::vector<double> 
+ * @param distribution_values a vector containing all distribution values.
+ * @param nodes a vector containing all node indices, including those of solid nodes and ghost nodes.
+ * @param fluid_nodes a vector containing the indices of all fluid nodes.
+ * @param phase_information a vector containing the phase information of all nodes where true means solid.
+ * @param swap_info see documentation of border_swap_information
+ * @param access_function the domain will be prepared for access with this access function.
  */
-std::vector<double> setup_distributions(access_function access, double inlet_velocity = INLET_VELOCITY, double inlet_density = INLET_DENSITY);
+void setup_example_domain
+(
+    std::vector<double> &distribution_values,
+    std::vector<unsigned int> &nodes,
+    std::vector<unsigned int> &fluid_nodes,
+    std::vector<bool> &phase_information,
+    border_swap_information &swap_info,
+    access_function access_function
+);
 
-/**
- * @brief
- *
- * @param time_steps
- * @param simulation_data
- * @param access
- */
-void run_two_lattice(int time_steps, simulation_data &simulation_data, access_function access);
 
 #endif

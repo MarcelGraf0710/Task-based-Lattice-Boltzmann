@@ -7,6 +7,26 @@
  */
 namespace access
 {
+   /**
+    * @brief Retrieves the coordinates of the node with the specified node index.
+    * @return A tuple containing the x and y coordinate of the specified node.
+    */
+    std::tuple<unsigned int, unsigned int> get_node_coordinates(unsigned int node_index);
+
+    /**
+     * @brief Returns the index of the neighbor that is reached when moving in the specified direction.
+     * 
+     * @param node_index the index of the current node
+     * @param direction the direction of movement
+     * @return the node index of the neighbor
+     */
+    inline unsigned int get_neighbor(unsigned int node_index, unsigned int direction)
+    {
+        int y_offset = direction / 3 - 1; // -1 for {0,1,2}, 0 for {3,4,5}, 1 for {6,7,8}
+        int x_offset = direction - (3 * y_offset + 4); //-1 for {0,3,6}, 0 for {1,4,7}, 1 for {2,5,8}
+        return node_index + y_offset * HORIZONTAL_NODES + x_offset;
+    }
+
     /**
      * @brief Returns the array index of the collision layout
      * 
@@ -57,28 +77,41 @@ namespace access
     }
 
     /**
-     * @brief This function gets all distribution values of the node with the specified index using the specified access pattern.
+     * @brief This function returns the distribution values of the node with the specified index using the specified access pattern.
      * 
      * @param source the distribution values will be read from this vector
      * @param node_index this is the index of the node in the domain
      * @param access this access function will be used
-     * @return All distribution values
+     * @return A vector containing the distribution values
      */
-    std::vector<double> get_distribution_values_of(std::vector<double> &source, int node_index, access_function access);
+    std::vector<double> get_distribution_values_of
+    (
+        const std::vector<double> &source, 
+        int node_index, 
+        access_function access
+    );
 
     /**
-     * @brief This function sets all distribution values of the node with the specified index to the specified values using the specified access pattern.
+     * @brief This function sets the distribution values of the node with the specified index to the specified values 
+     *        using the specified access pattern.
      * 
      * @param dist_vals a vector containing the values to which the distribution values shall be set
      * @param destination the distribution values will be written to this vector
      * @param node_index this is the index of the node in the domain
      * @param access this access function will be used
      */
-    void set_distribution_values_of(std::vector<double> &dist_vals, std::vector<double> &destination, int node_index, access_function access);
+    void set_distribution_values_of
+    (
+        const std::vector<double> &dist_vals, 
+        std::vector<double> &destination, 
+        int node_index, 
+        access_function access
+    );
 }
 
 /**
  * @brief This namespace contains utility functions for semi-direct access schemes.
+ *        Currently, only direct access is used. It is possible, however, to implement semi-direct access.
  */
 namespace semi_direct_access
 {
@@ -91,7 +124,7 @@ namespace semi_direct_access
      * @param phase_space a vector containing the phase information for each node where "true" means solid
      * @return a vector containing the fluid segments in the explained arrangement
      */
-    std::vector<unsigned int> get_fluid_segments(std::vector<bool> node_phases);
+    std::vector<unsigned int> get_fluid_segments(const std::vector<bool> &node_phases);
 }
 
 #endif
