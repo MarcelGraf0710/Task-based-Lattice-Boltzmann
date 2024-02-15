@@ -213,12 +213,12 @@ CMakeFiles/sequential_lbm.dir/src/two_step_sequential.cpp.o: \
  /usr/include/c++/11/bits/mask_array.h \
  /usr/include/c++/11/bits/indirect_array.h /usr/include/c++/11/numeric \
  /usr/include/c++/11/bits/stl_numeric.h /usr/include/c++/11/bit \
- /usr/include/c++/11/pstl/glue_numeric_defs.h \
+ /usr/include/c++/11/pstl/glue_numeric_defs.h /usr/include/c++/11/set \
+ /usr/include/c++/11/bits/stl_set.h \
+ /usr/include/c++/11/bits/stl_multiset.h \
  /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/new_sequential_implementation/src/../include/access.hpp \
  /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/new_sequential_implementation/src/../include/../include/defines.hpp \
  /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/new_sequential_implementation/src/../include/boundaries.hpp \
- /usr/include/c++/11/set /usr/include/c++/11/bits/stl_set.h \
- /usr/include/c++/11/bits/stl_multiset.h \
  /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/new_sequential_implementation/src/../include/macroscopic.hpp \
  /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/new_sequential_implementation/src/../include/access.hpp \
  /usr/include/c++/11/iostream \
@@ -233,4 +233,4 @@ CMakeFiles/sequential_lbm.dir/src/two_step_sequential.cpp.o: \
  /usr/include/c++/11/bits/locale_conv.h \
  /usr/include/c++/11/bits/unique_ptr.h \
  /usr/include/c++/11/bits/quoted_string.h \
- /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/new_sequential_implementation/src/../include/new_collision.hpp
+ /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/new_sequential_implementation/src/../include/collision.hpp

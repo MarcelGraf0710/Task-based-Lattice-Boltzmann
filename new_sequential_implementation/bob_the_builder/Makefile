@@ -129,29 +129,29 @@ sequential_lbm/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/build
 .PHONY : sequential_lbm/fast
 
-main_two_lattice.o: main_two_lattice.cpp.o
-.PHONY : main_two_lattice.o
+main_two_step.o: main_two_step.cpp.o
+.PHONY : main_two_step.o
 
 # target to build an object file
-main_two_lattice.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/main_two_lattice.cpp.o
-.PHONY : main_two_lattice.cpp.o
+main_two_step.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/main_two_step.cpp.o
+.PHONY : main_two_step.cpp.o
 
-main_two_lattice.i: main_two_lattice.cpp.i
-.PHONY : main_two_lattice.i
+main_two_step.i: main_two_step.cpp.i
+.PHONY : main_two_step.i
 
 # target to preprocess a source file
-main_two_lattice.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/main_two_lattice.cpp.i
-.PHONY : main_two_lattice.cpp.i
+main_two_step.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/main_two_step.cpp.i
+.PHONY : main_two_step.cpp.i
 
-main_two_lattice.s: main_two_lattice.cpp.s
-.PHONY : main_two_lattice.s
+main_two_step.s: main_two_step.cpp.s
+.PHONY : main_two_step.s
 
 # target to generate assembly for a file
-main_two_lattice.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/main_two_lattice.cpp.s
-.PHONY : main_two_lattice.cpp.s
+main_two_step.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/main_two_step.cpp.s
+.PHONY : main_two_step.cpp.s
 
 src/access.o: src/access.cpp.o
 .PHONY : src/access.o
@@ -201,6 +201,30 @@ src/boundaries.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/src/boundaries.cpp.s
 .PHONY : src/boundaries.cpp.s
 
+src/collision.o: src/collision.cpp.o
+.PHONY : src/collision.o
+
+# target to build an object file
+src/collision.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/src/collision.cpp.o
+.PHONY : src/collision.cpp.o
+
+src/collision.i: src/collision.cpp.i
+.PHONY : src/collision.i
+
+# target to preprocess a source file
+src/collision.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/src/collision.cpp.i
+.PHONY : src/collision.cpp.i
+
+src/collision.s: src/collision.cpp.s
+.PHONY : src/collision.s
+
+# target to generate assembly for a file
+src/collision.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/src/collision.cpp.s
+.PHONY : src/collision.cpp.s
+
 src/defines.o: src/defines.cpp.o
 .PHONY : src/defines.o
 
@@ -249,54 +273,6 @@ src/macroscopic.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/src/macroscopic.cpp.s
 .PHONY : src/macroscopic.cpp.s
 
-src/new_collision.o: src/new_collision.cpp.o
-.PHONY : src/new_collision.o
-
-# target to build an object file
-src/new_collision.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/src/new_collision.cpp.o
-.PHONY : src/new_collision.cpp.o
-
-src/new_collision.i: src/new_collision.cpp.i
-.PHONY : src/new_collision.i
-
-# target to preprocess a source file
-src/new_collision.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/src/new_collision.cpp.i
-.PHONY : src/new_collision.cpp.i
-
-src/new_collision.s: src/new_collision.cpp.s
-.PHONY : src/new_collision.s
-
-# target to generate assembly for a file
-src/new_collision.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/src/new_collision.cpp.s
-.PHONY : src/new_collision.cpp.s
-
-src/new_two_lattice.o: src/new_two_lattice.cpp.o
-.PHONY : src/new_two_lattice.o
-
-# target to build an object file
-src/new_two_lattice.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/src/new_two_lattice.cpp.o
-.PHONY : src/new_two_lattice.cpp.o
-
-src/new_two_lattice.i: src/new_two_lattice.cpp.i
-.PHONY : src/new_two_lattice.i
-
-# target to preprocess a source file
-src/new_two_lattice.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/src/new_two_lattice.cpp.i
-.PHONY : src/new_two_lattice.cpp.i
-
-src/new_two_lattice.s: src/new_two_lattice.cpp.s
-.PHONY : src/new_two_lattice.s
-
-# target to generate assembly for a file
-src/new_two_lattice.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/src/new_two_lattice.cpp.s
-.PHONY : src/new_two_lattice.cpp.s
-
 src/simulation.o: src/simulation.cpp.o
 .PHONY : src/simulation.o
 
@@ -320,6 +296,30 @@ src/simulation.s: src/simulation.cpp.s
 src/simulation.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/src/simulation.cpp.s
 .PHONY : src/simulation.cpp.s
+
+src/two_lattice_sequential.o: src/two_lattice_sequential.cpp.o
+.PHONY : src/two_lattice_sequential.o
+
+# target to build an object file
+src/two_lattice_sequential.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/src/two_lattice_sequential.cpp.o
+.PHONY : src/two_lattice_sequential.cpp.o
+
+src/two_lattice_sequential.i: src/two_lattice_sequential.cpp.i
+.PHONY : src/two_lattice_sequential.i
+
+# target to preprocess a source file
+src/two_lattice_sequential.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/src/two_lattice_sequential.cpp.i
+.PHONY : src/two_lattice_sequential.cpp.i
+
+src/two_lattice_sequential.s: src/two_lattice_sequential.cpp.s
+.PHONY : src/two_lattice_sequential.s
+
+# target to generate assembly for a file
+src/two_lattice_sequential.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/src/two_lattice_sequential.cpp.s
+.PHONY : src/two_lattice_sequential.cpp.s
 
 src/two_step_sequential.o: src/two_step_sequential.cpp.o
 .PHONY : src/two_step_sequential.o
@@ -354,30 +354,30 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... sequential_lbm"
-	@echo "... main_two_lattice.o"
-	@echo "... main_two_lattice.i"
-	@echo "... main_two_lattice.s"
+	@echo "... main_two_step.o"
+	@echo "... main_two_step.i"
+	@echo "... main_two_step.s"
 	@echo "... src/access.o"
 	@echo "... src/access.i"
 	@echo "... src/access.s"
 	@echo "... src/boundaries.o"
 	@echo "... src/boundaries.i"
 	@echo "... src/boundaries.s"
+	@echo "... src/collision.o"
+	@echo "... src/collision.i"
+	@echo "... src/collision.s"
 	@echo "... src/defines.o"
 	@echo "... src/defines.i"
 	@echo "... src/defines.s"
 	@echo "... src/macroscopic.o"
 	@echo "... src/macroscopic.i"
 	@echo "... src/macroscopic.s"
-	@echo "... src/new_collision.o"
-	@echo "... src/new_collision.i"
-	@echo "... src/new_collision.s"
-	@echo "... src/new_two_lattice.o"
-	@echo "... src/new_two_lattice.i"
-	@echo "... src/new_two_lattice.s"
 	@echo "... src/simulation.o"
 	@echo "... src/simulation.i"
 	@echo "... src/simulation.s"
+	@echo "... src/two_lattice_sequential.o"
+	@echo "... src/two_lattice_sequential.i"
+	@echo "... src/two_lattice_sequential.s"
 	@echo "... src/two_step_sequential.o"
 	@echo "... src/two_step_sequential.i"
 	@echo "... src/two_step_sequential.s"

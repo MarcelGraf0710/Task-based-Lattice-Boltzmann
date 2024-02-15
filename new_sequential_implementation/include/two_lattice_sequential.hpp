@@ -1,12 +1,12 @@
-#ifndef TWO_LATTICE_SEQUENTIAL_HPP
-#define TWO_LATTICE_SEQUENTIAL_HPP
+#ifndef TWO_LATTICE_SEQUENITAL_HPP
+#define TWO_LATTICE_SEQUENITAL_HPP
 
 #include <vector>
 #include <set>
 #include "defines.hpp"
 #include "access.hpp"
 #include <iostream>
-#include "new_collision.hpp"
+#include "collision.hpp"
 #include "utils.hpp"
 #include "boundaries.hpp"
 

@@ -1,8 +1,7 @@
 #include "include/access.hpp"
 #include "include/simulation.hpp"
 #include "include/utils.hpp"
-#include "include/new_two_lattice.hpp"
-#include "include/two_step_sequential.hpp"
+#include "include/two_lattice_sequential.hpp"
 
 int main()
 {

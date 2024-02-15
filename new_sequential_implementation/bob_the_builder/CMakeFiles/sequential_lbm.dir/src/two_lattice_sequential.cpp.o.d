@@ -1,7 +1,7 @@
-CMakeFiles/sequential_lbm.dir/src/new_two_lattice.cpp.o: \
- /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/new_sequential_implementation/src/new_two_lattice.cpp \
+CMakeFiles/sequential_lbm.dir/src/two_lattice_sequential.cpp.o: \
+ /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/new_sequential_implementation/src/two_lattice_sequential.cpp \
  /usr/include/stdc-predef.h \
- /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/new_sequential_implementation/src/../include/new_two_lattice.hpp \
+ /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/new_sequential_implementation/src/../include/two_lattice_sequential.hpp \
  /usr/include/c++/11/vector /usr/include/c++/11/bits/stl_algobase.h \
  /usr/include/x86_64-linux-gnu/c++/11/bits/c++config.h \
  /usr/include/x86_64-linux-gnu/c++/11/bits/os_defines.h \
@@ -219,7 +219,7 @@ CMakeFiles/sequential_lbm.dir/src/new_two_lattice.cpp.o: \
  /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/new_sequential_implementation/src/../include/access.hpp \
  /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/new_sequential_implementation/src/../include/../include/defines.hpp \
  /usr/include/c++/11/iostream \
- /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/new_sequential_implementation/src/../include/new_collision.hpp \
+ /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/new_sequential_implementation/src/../include/collision.hpp \
  /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/new_sequential_implementation/src/../include/utils.hpp \
  /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/new_sequential_implementation/src/../include/boundaries.hpp \
  /usr/include/c++/11/iomanip /usr/include/c++/11/locale \
@@ -234,6 +234,6 @@ CMakeFiles/sequential_lbm.dir/src/new_two_lattice.cpp.o: \
  /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/new_sequential_implementation/src/../include/access.hpp \
  /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/new_sequential_implementation/src/../include/defines.hpp \
  /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/new_sequential_implementation/src/../include/boundaries.hpp \
- /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/new_sequential_implementation/src/../include/new_collision.hpp \
+ /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/new_sequential_implementation/src/../include/collision.hpp \
  /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/new_sequential_implementation/src/../include/macroscopic.hpp \
  /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/new_sequential_implementation/src/../include/utils.hpp

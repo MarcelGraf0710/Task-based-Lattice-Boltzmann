@@ -208,7 +208,7 @@ namespace to_console
 namespace vec_utils
 {
     /**
-     * @brief Swaps the entries with the specified entries of the specified vector.
+     * @brief Swaps the entries of the specified vector.
      */
     inline void swap(std::vector<double> &vector, unsigned int a, unsigned int b)
     {

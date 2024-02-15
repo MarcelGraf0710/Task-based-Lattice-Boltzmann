@@ -181,28 +181,24 @@ std::set<unsigned int> bounce_back::determine_bounce_back_directions
  */
 void bounce_back::perform_boundary_update
 (
-    const border_adjacency &ba,
+    const border_swap_information &bsi,
     std::vector<double> &distribution_values, 
     const access_function access_function
 )
 {
+    std::vector<double> current_dist_vals;
+    std::vector<std::tuple<unsigned int, unsigned int>> swap_partners;
+    std::set<unsigned int> remaining_dirs{streaming_directions.begin(), streaming_directions.end()};
     int current_border_node = 0;
-    std::vector<std::tuple<unsigned int, unsigned int>> neighbors;
-    unsigned int current_dir = 0;
-
-    for(const auto& current_border_node_information : ba)
+    for(const auto& current : bsi)
     {
-        current_border_node = std::get<0>(current_border_node_information[0]);
-        neighbors = 
+        current_border_node = current[0];
+        remaining_dirs = bounce_back::determine_bounce_back_directions(current);
+
+        for(const auto direction : remaining_dirs)
         {
-            current_border_node_information.begin() + 1, 
-            current_border_node_information.end()
-        };
-        for(const auto& neighbor : neighbors)
-        {
-            current_dir = invert_direction(std::get<1>(neighbor));
-            distribution_values[access_function(current_border_node, current_dir)] = 
-            distribution_values[access_function(std::get<0>(neighbor), current_dir)];
+            distribution_values[access_function(current_border_node, direction)] = 
+            distribution_values[access_function(access::get_neighbor(current_border_node, invert_direction(direction)), invert_direction(direction))];
         }
     }
 }
@@ -501,6 +497,43 @@ void boundary_conditions::initialize_inout
             current_border_node,
             access_function
         );
+    }
+}
+
+/**
+ * @brief Realizes inflow and outflow by an inward stream of each border node.
+ *        This method is intended for use with two-step, swap and shift algorithms.
+ * 
+ * @param distribution_values a vector containing the distribution values of all nodes
+ * @param access_function the access function used to access the distribution values
+ */
+void boundary_conditions::ghost_stream_inout
+(
+    std::vector<double> &distribution_values, 
+    const access_function access_function
+)
+{
+    std::set<unsigned int> inflow_instream_dirs{2,5,8};
+    std::set<unsigned int> outflow_instream_dirs{0,3,6};
+    int current_border_node = 0;
+
+    for(auto y = 1; y < VERTICAL_NODES - 1; ++y)
+    {
+        // Update inlets
+        current_border_node = access::get_node_index(1,y);
+        for(const auto direction : inflow_instream_dirs)
+        {
+            distribution_values[access_function(current_border_node, direction)] = 
+                distribution_values[access_function(access::get_neighbor(current_border_node, invert_direction(direction)), direction)];
+        }
+
+        // Update outlets
+        current_border_node = access::get_node_index(HORIZONTAL_NODES - 2,y);
+        for(const auto direction : outflow_instream_dirs)
+        {
+            distribution_values[access_function(current_border_node, direction)] = 
+                distribution_values[access_function(access::get_neighbor(current_border_node, invert_direction(direction)), direction)];
+        }
     }
 }
 

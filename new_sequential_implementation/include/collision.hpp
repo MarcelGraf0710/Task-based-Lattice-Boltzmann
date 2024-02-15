@@ -1,5 +1,5 @@
-#ifndef NEW_COLLISION_HPP
-#define NEW_COLLISION_HPP
+#ifndef COLLISION_HPP
+#define COLLISION_HPP
 #include "defines.hpp"
 
 /**

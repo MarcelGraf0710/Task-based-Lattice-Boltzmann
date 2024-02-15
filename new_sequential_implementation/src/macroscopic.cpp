@@ -56,7 +56,7 @@ std::vector<velocity> macroscopic::calculate_all_velocities
  * @param all_distributions A vector containing all distribution values. 
  * @param access_function This function is used to access the distribution values.
  */
-std::vector<double> calculate_all_densities
+std::vector<double> macroscopic::calculate_all_densities
 (
     const std::vector<unsigned int> &fluid_nodes,
     const std::vector<double> &all_distributions, 

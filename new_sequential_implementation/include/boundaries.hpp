@@ -108,7 +108,7 @@ namespace bounce_back
      */
     void perform_boundary_update
     (
-        const border_adjacency &ba,
+        const border_swap_information &bsi,
         std::vector<double> &distribution_values, 
         const access_function access_function
     );
@@ -206,6 +206,19 @@ namespace boundary_conditions
      * @param access_function the access function used to access the distribution values
      */
     void initialize_inout
+    (
+        std::vector<double> &distribution_values, 
+        const access_function access_function
+    );
+
+    /**
+     * @brief Realizes inflow and outflow by an inward stream of each border node.
+     *        This method is intended for use with two-step, swap and shift algorithms.
+     * 
+     * @param distribution_values a vector containing the distribution values of all nodes
+     * @param access_function the access function used to access the distribution values
+     */
+    void ghost_stream_inout
     (
         std::vector<double> &distribution_values, 
         const access_function access_function

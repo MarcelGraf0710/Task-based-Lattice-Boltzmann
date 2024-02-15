@@ -1,8 +1,8 @@
-#include "../include/new_two_lattice.hpp"
+#include "../include/two_lattice_sequential.hpp"
 #include "../include/access.hpp"
 #include "../include/defines.hpp"
 #include "../include/boundaries.hpp"
-#include "../include/new_collision.hpp"
+#include "../include/collision.hpp"
 #include "../include/macroscopic.hpp"
 #include "../include/utils.hpp"
 #include <set>
