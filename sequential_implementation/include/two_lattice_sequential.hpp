@@ -164,7 +164,7 @@ namespace two_lattice_sequential
         const std::vector<double> &densities
     )
     {
-        std::vector<double >vals = collision::collide_bgk(distribution_values, velocities[fluid_node], densities[fluid_node]);
+        std::vector<double> vals = collision::collide_bgk(distribution_values, velocities[fluid_node], densities[fluid_node]);
         access::set_distribution_values_of(vals, destination, fluid_node, access_function);
     }
 }

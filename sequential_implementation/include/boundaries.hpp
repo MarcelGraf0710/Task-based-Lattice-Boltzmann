@@ -1,6 +1,7 @@
 #ifndef BOUNDARIES_HPP
 #define BOUNDARIES_HPP
 #include "defines.hpp"
+#include "access.hpp"
 #include <set>
 
 /**
@@ -223,6 +224,31 @@ namespace boundary_conditions
         std::vector<double> &distribution_values, 
         const access_function access_function
     );
+
+    /**
+     * @brief Performs inflow or outflow for the specified node in the specified directions
+     * 
+     * @param distribution_values a vector containing all distribution values
+     * @param node_index the index of the node for which inflow or outflow is to be performed
+     * @param dirs {2,5,8} if node_index is an inlet 
+     *             {0,3,6} if node_index is an outlet
+     *             {} if node_index is neither an inlet nor an outlet
+     * @param access_function 
+     */
+    inline void single_node_inout
+    (
+    std::vector<double> &distribution_values,
+    unsigned int node_index,
+    const std::set<unsigned int> &dirs,
+    const access_function access_function
+    )
+    {
+        for(const auto direction : dirs)
+        {
+            distribution_values[access_function(node_index, direction)] = 
+                distribution_values[access_function(access::get_neighbor(node_index, invert_direction(direction)), direction)];
+        }
+    }
 }
 
 /**

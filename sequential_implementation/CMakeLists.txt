@@ -23,9 +23,9 @@ set(SOURCE_FILES src/access.cpp
                  src/defines.cpp
                  src/macroscopic.cpp
                  src/simulation.cpp
+                 src/swap_sequential.cpp
                  src/two_lattice_sequential.cpp
                  src/two_step_sequential.cpp
-                 
                  )
                  
 #add_executable(sequential_lbm main.cpp ${SOURCE_FILES} ${HEADER_FILES} )

@@ -39,10 +39,10 @@ std::vector<double> collision::collide_bgk
     // std::cout << "Final result is ";
     // to_console::print_vector(result, 10);
     // std::cout << "The density is ";
-    for(auto current : result)
-    {
-       sum += current;
-    }
+    // for(auto current : result)
+    // {
+    //    sum += current;
+    // }
     // std::cout << sum << std::endl;
     // std::cout << std::endl;
     return result;

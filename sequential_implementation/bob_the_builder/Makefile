@@ -57,10 +57,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/new_sequential_implementation
+CMAKE_SOURCE_DIR = /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/sequential_implementation
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/new_sequential_implementation/bob_the_builder
+CMAKE_BINARY_DIR = /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/sequential_implementation/bob_the_builder
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -87,9 +87,9 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/new_sequential_implementation/bob_the_builder/CMakeFiles /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/new_sequential_implementation/bob_the_builder//CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/sequential_implementation/bob_the_builder/CMakeFiles /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/sequential_implementation/bob_the_builder//CMakeFiles/progress.marks
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/new_sequential_implementation/bob_the_builder/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/sequential_implementation/bob_the_builder/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
@@ -297,6 +297,30 @@ src/simulation.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/src/simulation.cpp.s
 .PHONY : src/simulation.cpp.s
 
+src/swap_sequential.o: src/swap_sequential.cpp.o
+.PHONY : src/swap_sequential.o
+
+# target to build an object file
+src/swap_sequential.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/src/swap_sequential.cpp.o
+.PHONY : src/swap_sequential.cpp.o
+
+src/swap_sequential.i: src/swap_sequential.cpp.i
+.PHONY : src/swap_sequential.i
+
+# target to preprocess a source file
+src/swap_sequential.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/src/swap_sequential.cpp.i
+.PHONY : src/swap_sequential.cpp.i
+
+src/swap_sequential.s: src/swap_sequential.cpp.s
+.PHONY : src/swap_sequential.s
+
+# target to generate assembly for a file
+src/swap_sequential.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/src/swap_sequential.cpp.s
+.PHONY : src/swap_sequential.cpp.s
+
 src/two_lattice_sequential.o: src/two_lattice_sequential.cpp.o
 .PHONY : src/two_lattice_sequential.o
 
@@ -375,6 +399,9 @@ help:
 	@echo "... src/simulation.o"
 	@echo "... src/simulation.i"
 	@echo "... src/simulation.s"
+	@echo "... src/swap_sequential.o"
+	@echo "... src/swap_sequential.i"
+	@echo "... src/swap_sequential.s"
 	@echo "... src/two_lattice_sequential.o"
 	@echo "... src/two_lattice_sequential.i"
 	@echo "... src/two_lattice_sequential.s"

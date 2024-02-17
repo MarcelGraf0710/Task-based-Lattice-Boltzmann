@@ -1,7 +1,7 @@
 CMakeFiles/sequential_lbm.dir/src/two_lattice_sequential.cpp.o: \
- /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/new_sequential_implementation/src/two_lattice_sequential.cpp \
+ /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/sequential_implementation/src/two_lattice_sequential.cpp \
  /usr/include/stdc-predef.h \
- /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/new_sequential_implementation/src/../include/two_lattice_sequential.hpp \
+ /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/sequential_implementation/src/../include/two_lattice_sequential.hpp \
  /usr/include/c++/11/vector /usr/include/c++/11/bits/stl_algobase.h \
  /usr/include/x86_64-linux-gnu/c++/11/bits/c++config.h \
  /usr/include/x86_64-linux-gnu/c++/11/bits/os_defines.h \
@@ -52,7 +52,7 @@ CMakeFiles/sequential_lbm.dir/src/two_lattice_sequential.cpp.o: \
  /usr/include/c++/11/bits/stl_set.h \
  /usr/include/c++/11/bits/stl_multiset.h \
  /usr/include/c++/11/bits/erase_if.h \
- /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/new_sequential_implementation/src/../include/defines.hpp \
+ /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/sequential_implementation/src/../include/defines.hpp \
  /usr/include/c++/11/list /usr/include/c++/11/bits/stl_list.h \
  /usr/include/c++/11/bits/allocated_ptr.h \
  /usr/include/c++/11/bits/list.tcc /usr/include/c++/11/complex \
@@ -216,12 +216,12 @@ CMakeFiles/sequential_lbm.dir/src/two_lattice_sequential.cpp.o: \
  /usr/include/c++/11/bits/indirect_array.h /usr/include/c++/11/numeric \
  /usr/include/c++/11/bits/stl_numeric.h /usr/include/c++/11/bit \
  /usr/include/c++/11/pstl/glue_numeric_defs.h \
- /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/new_sequential_implementation/src/../include/access.hpp \
- /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/new_sequential_implementation/src/../include/../include/defines.hpp \
+ /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/sequential_implementation/src/../include/access.hpp \
+ /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/sequential_implementation/src/../include/../include/defines.hpp \
  /usr/include/c++/11/iostream \
- /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/new_sequential_implementation/src/../include/collision.hpp \
- /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/new_sequential_implementation/src/../include/utils.hpp \
- /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/new_sequential_implementation/src/../include/boundaries.hpp \
+ /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/sequential_implementation/src/../include/collision.hpp \
+ /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/sequential_implementation/src/../include/utils.hpp \
+ /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/sequential_implementation/src/../include/boundaries.hpp \
  /usr/include/c++/11/iomanip /usr/include/c++/11/locale \
  /usr/include/c++/11/bits/locale_facets_nonio.h /usr/include/c++/11/ctime \
  /usr/include/x86_64-linux-gnu/c++/11/bits/time_members.h \
@@ -231,9 +231,9 @@ CMakeFiles/sequential_lbm.dir/src/two_lattice_sequential.cpp.o: \
  /usr/include/c++/11/bits/locale_conv.h \
  /usr/include/c++/11/bits/unique_ptr.h \
  /usr/include/c++/11/bits/quoted_string.h \
- /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/new_sequential_implementation/src/../include/access.hpp \
- /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/new_sequential_implementation/src/../include/defines.hpp \
- /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/new_sequential_implementation/src/../include/boundaries.hpp \
- /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/new_sequential_implementation/src/../include/collision.hpp \
- /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/new_sequential_implementation/src/../include/macroscopic.hpp \
- /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/new_sequential_implementation/src/../include/utils.hpp
+ /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/sequential_implementation/src/../include/access.hpp \
+ /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/sequential_implementation/src/../include/defines.hpp \
+ /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/sequential_implementation/src/../include/boundaries.hpp \
+ /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/sequential_implementation/src/../include/collision.hpp \
+ /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/sequential_implementation/src/../include/macroscopic.hpp \
+ /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/sequential_implementation/src/../include/utils.hpp
