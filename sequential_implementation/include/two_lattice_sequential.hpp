@@ -142,7 +142,6 @@ namespace two_lattice_sequential
                         access::get_neighbor(fluid_node, invert_direction(direction)), 
                         direction)];
         }
-
     }
 
     /**

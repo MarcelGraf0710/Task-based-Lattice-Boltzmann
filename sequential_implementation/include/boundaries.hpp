@@ -39,39 +39,33 @@ bool is_edge_node(unsigned int node_index);
 bool is_ghost_node(unsigned int node_index, const std::vector<bool> &phase_information);
 
 /**
- * @brief Returns a vector containing all fluid non-border nodes within the simulation domain.
+ * @brief Determines whether a node with the specified index is a non-inlet and non-outlet ghost node.
+ *        This holds true if all of the following are fulfilled:
+ *        - The node is not located at the absolute left or right of the lattice
+ *        - The node is located at the absolute top or bottom of the lattice OR it is solid
  * 
- * @param fluid_nodes a vector containing all fluid nodes within the simulation domain
- * @param ba see documentation of border_adjacency
+ * @param node_index the index of the node in question
+ * @param phase_information a vector storing the phase information of all lattice nodes
+ * @return true if the node is neither an inlet node nor an outlet node, and false otherwise
  */
-std::vector<unsigned int> get_non_border_nodes
+inline bool is_non_inout_ghost_node
 (
-    const std::vector<unsigned int> &fluid_nodes,
-    const border_adjacency &ba
-);
+    unsigned int node_index, 
+    const std::vector<bool> &phase_information
+)
+{
+    std::tuple<unsigned int, unsigned int> coordinates = access::get_node_coordinates(node_index);
+    unsigned int x = std::get<0>(coordinates);
+    unsigned int y = std::get<1>(coordinates);
+    bool is_outer_non_inout_node = ((x != 0) && (x != (HORIZONTAL_NODES - 1))) && ((y == 0) || (y == (VERTICAL_NODES - 1)) || phase_information[node_index]);
+    return is_outer_non_inout_node;
+}
 
 /**
  * @brief This namespace contains all function representations of boundary conditions used in the lattice-Boltzmann model.
  */
 namespace bounce_back
 {
-    
-    /**
-     * @brief Retrieves the border adjacencies for all fluid nodes within the simulation domain based on 
-     *        the phase information of all nodes. Notice that all fluid nodes on the edges of the simulation 
-     *        domain will automatically become border nodes.
-     * 
-     * @param fluid_nodes a vector containing the indices of all fluid nodes within the simulation domain
-     * @param phase_information a vector containing the phase information of ALL nodes 
-     * @return the border adjancency relations of each node as it is required by bounce-back boundary treatment
-     *   
-     */
-    border_adjacency retrieve_border_adjacencies
-    (
-        const std::vector<unsigned int> &fluid_nodes, 
-        const std::vector<bool> &phase_information
-    );
-
     /**
      * @brief Retrieves the border swap information for all fluid nodes within the simulation domain based on the 
      *        phase information of all nodes. Notice that all fluid nodes on the edges of the simulation domain will 

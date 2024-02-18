@@ -142,21 +142,6 @@ namespace to_console
     }
 
     /**
-     * @brief Prints the specified border adjacency to the console.
-     */
-    inline void print_border_adjacencies(const border_adjacency &ba)
-    {
-        for(const auto node : ba)
-        {
-            for(const auto tuple : node)
-            {
-                std::cout << "(" << std::get<0>(tuple) << ", " << std::get<1>(tuple) << ")" << "\t";
-            }
-            std::cout << std::endl;
-        }
-    }
-
-    /**
      * @brief Prints all distribution values in to the console.
      *        They are displayed in the original order, i.e. the origin is located at the lower left corner of the printed distribution chart.
      * 

@@ -1,5 +1,5 @@
-CMakeFiles/sequential_lbm.dir/main_two_step.cpp.o: \
- /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/sequential_implementation/main_two_step.cpp \
+CMakeFiles/sequential_lbm.dir/main_shift.cpp.o: \
+ /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/sequential_implementation/main_shift.cpp \
  /usr/include/stdc-predef.h /usr/include/c++/11/iostream \
  /usr/include/x86_64-linux-gnu/c++/11/bits/c++config.h \
  /usr/include/x86_64-linux-gnu/c++/11/bits/os_defines.h \
@@ -229,4 +229,6 @@ CMakeFiles/sequential_lbm.dir/main_two_step.cpp.o: \
  /usr/include/c++/11/bits/locale_conv.h \
  /usr/include/c++/11/bits/unique_ptr.h \
  /usr/include/c++/11/bits/quoted_string.h \
- /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/sequential_implementation/include/two_step_sequential.hpp
+ /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/sequential_implementation/include/shift_sequential.hpp \
+ /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/sequential_implementation/include/collision.hpp \
+ /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/sequential_implementation/include/utils.hpp

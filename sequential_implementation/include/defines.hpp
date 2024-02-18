@@ -31,23 +31,6 @@ typedef std::array<double, DIMENSION_COUNT> velocity;
 /**
  * @brief Convenience type definition that represents a vector from which the boundary treatment 
  *        of all nodes can be retrieved. Information is stored in the following way:
- * 
- *        Each entry of the outer vector represents a border node, called BORDER_NODE for explanation.
- *        Every BORDER_NODE is a vector of tuples t_i = (NEIGHBOR_i, DIRECTION_i).
- *        Each t_i represents an adjacency relation of BORDER_NODE to a ghost node (including solid nodes).
- *        The first tuple, t_0, is always a self-pointing entry (BORDER_NODE, 4) from which the index 
- *        of the border node is restored.
- *        Any further tuples t_1, ..., t_x store the information what nodes BORDER_NODE is adjacent to 
- *        and by which velocity vector the respective neighbor can be reached.
- * 
- *        This is used for the halfway bounce-back boundary treatment where BORDER_NODE will copy the 
- *        respective f_(DIRECTION_i) from NEIGHBOR_i.
- */
-typedef std::vector<std::vector<std::tuple<unsigned int, unsigned int>>> border_adjacency;
-
-/**
- * @brief Convenience type definition that represents a vector from which the boundary treatment 
- *        of all nodes can be retrieved. Information is stored in the following way:
  *        Each entry of the outer vector represents a border node, called BORDER_NODE for explanation.
  *        Every BORDER_NODE is a vector with the following information:
  *        - 0th entry: The index of BORDER_NODE

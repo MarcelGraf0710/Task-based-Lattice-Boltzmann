@@ -129,29 +129,29 @@ sequential_lbm/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/build
 .PHONY : sequential_lbm/fast
 
-main_two_step.o: main_two_step.cpp.o
-.PHONY : main_two_step.o
+main_shift.o: main_shift.cpp.o
+.PHONY : main_shift.o
 
 # target to build an object file
-main_two_step.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/main_two_step.cpp.o
-.PHONY : main_two_step.cpp.o
+main_shift.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/main_shift.cpp.o
+.PHONY : main_shift.cpp.o
 
-main_two_step.i: main_two_step.cpp.i
-.PHONY : main_two_step.i
+main_shift.i: main_shift.cpp.i
+.PHONY : main_shift.i
 
 # target to preprocess a source file
-main_two_step.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/main_two_step.cpp.i
-.PHONY : main_two_step.cpp.i
+main_shift.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/main_shift.cpp.i
+.PHONY : main_shift.cpp.i
 
-main_two_step.s: main_two_step.cpp.s
-.PHONY : main_two_step.s
+main_shift.s: main_shift.cpp.s
+.PHONY : main_shift.s
 
 # target to generate assembly for a file
-main_two_step.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/main_two_step.cpp.s
-.PHONY : main_two_step.cpp.s
+main_shift.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/main_shift.cpp.s
+.PHONY : main_shift.cpp.s
 
 src/access.o: src/access.cpp.o
 .PHONY : src/access.o
@@ -273,6 +273,30 @@ src/macroscopic.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/src/macroscopic.cpp.s
 .PHONY : src/macroscopic.cpp.s
 
+src/shift_sequential.o: src/shift_sequential.cpp.o
+.PHONY : src/shift_sequential.o
+
+# target to build an object file
+src/shift_sequential.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/src/shift_sequential.cpp.o
+.PHONY : src/shift_sequential.cpp.o
+
+src/shift_sequential.i: src/shift_sequential.cpp.i
+.PHONY : src/shift_sequential.i
+
+# target to preprocess a source file
+src/shift_sequential.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/src/shift_sequential.cpp.i
+.PHONY : src/shift_sequential.cpp.i
+
+src/shift_sequential.s: src/shift_sequential.cpp.s
+.PHONY : src/shift_sequential.s
+
+# target to generate assembly for a file
+src/shift_sequential.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/src/shift_sequential.cpp.s
+.PHONY : src/shift_sequential.cpp.s
+
 src/simulation.o: src/simulation.cpp.o
 .PHONY : src/simulation.o
 
@@ -378,9 +402,9 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... sequential_lbm"
-	@echo "... main_two_step.o"
-	@echo "... main_two_step.i"
-	@echo "... main_two_step.s"
+	@echo "... main_shift.o"
+	@echo "... main_shift.i"
+	@echo "... main_shift.s"
 	@echo "... src/access.o"
 	@echo "... src/access.i"
 	@echo "... src/access.s"
@@ -396,6 +420,9 @@ help:
 	@echo "... src/macroscopic.o"
 	@echo "... src/macroscopic.i"
 	@echo "... src/macroscopic.s"
+	@echo "... src/shift_sequential.o"
+	@echo "... src/shift_sequential.i"
+	@echo "... src/shift_sequential.s"
 	@echo "... src/simulation.o"
 	@echo "... src/simulation.i"
 	@echo "... src/simulation.s"
