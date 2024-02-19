@@ -14,9 +14,9 @@
  *        This method does not consider inlet and outlet ghost nodes when performing bounce-back
  *        as the inserted values will be overwritten by inflow and outflow values anyways.
  * 
- * @param fluid_nodes 
- * @param phase_information 
- * @return border_swap_information 
+ * @param fluid_nodes a vector containing the indices of all fluid nodes within the simulation domain
+ * @param phase_information a vector containing the phase information for every vector (true means solid)
+ * @return border_swap_information see documentation of border_swap_information
  */
 border_swap_information shift_sequential::retrieve_fast_border_swap_info
 (

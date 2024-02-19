@@ -28,7 +28,7 @@ namespace two_lattice_sequential
     (
         const std::vector<unsigned int> &fluid_nodes,
         const border_swap_information &bsi,
-        const std::vector<double> &source, 
+        std::vector<double> &source, 
         std::vector<double> &destination,    
         const access_function access_function
     );
@@ -49,7 +49,7 @@ namespace two_lattice_sequential
     (
         const std::vector<unsigned int> &fluid_nodes,
         const border_swap_information &bsi,
-        const std::vector<double> &source, 
+        std::vector<double> &source, 
         std::vector<double> &destination,    
         const access_function access_function
     );
@@ -134,7 +134,7 @@ namespace two_lattice_sequential
         unsigned int fluid_node
     )
     {
-        for (const auto direction : streaming_directions)
+        for (const auto direction : {0,1,2,3,4,5,6,7,8})
         {
             destination[access_function(fluid_node, direction)] =
                 source[
@@ -164,6 +164,29 @@ namespace two_lattice_sequential
     )
     {
         std::vector<double> vals = collision::collide_bgk(distribution_values, velocities[fluid_node], densities[fluid_node]);
+        access::set_distribution_values_of(vals, destination, fluid_node, access_function);
+    }
+
+    /**
+     * @brief Performs the collision step for the fluid node with the specified index.
+     * 
+     * @param destination the updated distribution values will be written to this vector
+     * @param fluid_node the index of the fluid node
+     * @param access_function the function used to access the distribution values
+     * @param velocity the velocity at the node in question
+     * @param density the density at the node in question
+     */
+    inline void tl_collision_new
+    (
+        std::vector<double> &destination, 
+        const unsigned int fluid_node, 
+        const std::vector<double> &distribution_values,
+        const access_function &access_function, 
+        const velocity &velocity, 
+        const double &density
+    )
+    {
+        std::vector<double> vals = collision::collide_bgk(distribution_values, velocity, density);
         access::set_distribution_values_of(vals, destination, fluid_node, access_function);
     }
 }

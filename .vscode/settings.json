@@ -78,5 +78,6 @@
         "charconv": "cpp",
         "strstream": "cpp",
         "*.ipp": "cpp"
-    }
+    },
+    "cmake.sourceDirectory": "/home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/sequential_implementation"
 }
