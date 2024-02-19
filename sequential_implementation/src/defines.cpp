@@ -2,15 +2,15 @@
 #include "../include/utils.hpp"
 
 /** Mapping of directions as proposed by Mattila to the corresponding velocity vectors */
-std::map<unsigned int, velocity> velocity_vectors =
+const std::map<unsigned int, velocity> VELOCITY_VECTORS =
 {
     {6, {-1, 1}},  {7, {0, 1}}, {8, {1, 1}},   
     {3, {-1, 0}},  {4, {0, 0}},  {5, {1, 0}},   
     {0, {-1, -1}}, {1, {0, -1}}, {2, {1, -1}}   
 };
 
-/** Mapping of directions as proposed by Mattila to the weights of the corresponding distribution function */
-std::map<unsigned int,double> weights = 
+/** Mapping of directions as proposed by Mattila to the WEIGHTS of the corresponding distribution function */
+const std::map<unsigned int,double> WEIGHTS = 
 {
     {6, 1.0/36}, {7, 1.0/9}, {8, 1.0/36},
     {3, 1.0/9},  {4, 4.0/9}, {5, 1.0/9},
@@ -18,7 +18,10 @@ std::map<unsigned int,double> weights =
 };
 
 /** Vector containing the distribution values that actually change within a streaming step */
-std::vector<unsigned int> streaming_directions = {0, 1, 2, 3, 5, 6, 7, 8};
+const std::vector<unsigned int> STREAMING_DIRECTIONS = {0, 1, 2, 3, 5, 6, 7, 8};
+
+/** Vector containing all directions */
+const std::vector<unsigned int> ALL_DIRECTIONS = {0, 1, 2, 3, 4, 5, 6, 7, 8};
 
 /**
  * @brief Returns the Maxwell-Boltzmann-Distribution for all directions in the order proposed by Mattila et al.
@@ -30,16 +33,16 @@ std::vector<unsigned int> streaming_directions = {0, 1, 2, 3, 5, 6, 7, 8};
 std::vector<double> maxwell_boltzmann_distribution
 (
     const velocity &u, 
-    double rho
+    const double rho
 )
 {
     std::vector<double> result(DIRECTION_COUNT,0);
     for(auto direction = 0; direction < DIRECTION_COUNT; ++direction)
     {
-        result[direction] = weights[direction] *
+        result[direction] = WEIGHTS.at(direction) *
             (
-                rho + 3 * math_utils::dot(velocity_vectors[direction], u) 
-                + 9.0/2 * pow(math_utils::dot(velocity_vectors[direction], u), 2)
+                rho + 3 * math_utils::dot(VELOCITY_VECTORS.at(direction), u) 
+                + 9.0/2 * pow(math_utils::dot(VELOCITY_VECTORS.at(direction), u), 2)
                 - 3.0/2 * math_utils::dot(u, u)
             );
     }

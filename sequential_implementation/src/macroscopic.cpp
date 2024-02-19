@@ -14,7 +14,7 @@ velocity macroscopic::flow_velocity(const std::vector<double> &distribution_func
     velocity velocity_vector{0,0};
     for(int i = 0; i < DIRECTION_COUNT; ++i)
     {
-        velocity_vector = velocity_vectors[i];
+        velocity_vector = VELOCITY_VECTORS.at(i);
         flow_velocity[0] += distribution_functions[i] * velocity_vector[0];
         flow_velocity[1] += distribution_functions[i] * velocity_vector[1];
     }

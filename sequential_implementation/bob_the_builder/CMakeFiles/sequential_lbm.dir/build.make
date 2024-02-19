@@ -69,19 +69,19 @@ include CMakeFiles/sequential_lbm.dir/progress.make
 # Include the compile flags for this target's objects.
 include CMakeFiles/sequential_lbm.dir/flags.make
 
-CMakeFiles/sequential_lbm.dir/main_two_lattice_experimental.cpp.o: CMakeFiles/sequential_lbm.dir/flags.make
-CMakeFiles/sequential_lbm.dir/main_two_lattice_experimental.cpp.o: ../main_two_lattice_experimental.cpp
-CMakeFiles/sequential_lbm.dir/main_two_lattice_experimental.cpp.o: CMakeFiles/sequential_lbm.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/sequential_implementation/bob_the_builder/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/sequential_lbm.dir/main_two_lattice_experimental.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/sequential_lbm.dir/main_two_lattice_experimental.cpp.o -MF CMakeFiles/sequential_lbm.dir/main_two_lattice_experimental.cpp.o.d -o CMakeFiles/sequential_lbm.dir/main_two_lattice_experimental.cpp.o -c /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/sequential_implementation/main_two_lattice_experimental.cpp
+CMakeFiles/sequential_lbm.dir/main_two_lattice.cpp.o: CMakeFiles/sequential_lbm.dir/flags.make
+CMakeFiles/sequential_lbm.dir/main_two_lattice.cpp.o: ../main_two_lattice.cpp
+CMakeFiles/sequential_lbm.dir/main_two_lattice.cpp.o: CMakeFiles/sequential_lbm.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/sequential_implementation/bob_the_builder/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/sequential_lbm.dir/main_two_lattice.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/sequential_lbm.dir/main_two_lattice.cpp.o -MF CMakeFiles/sequential_lbm.dir/main_two_lattice.cpp.o.d -o CMakeFiles/sequential_lbm.dir/main_two_lattice.cpp.o -c /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/sequential_implementation/main_two_lattice.cpp
 
-CMakeFiles/sequential_lbm.dir/main_two_lattice_experimental.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/sequential_lbm.dir/main_two_lattice_experimental.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/sequential_implementation/main_two_lattice_experimental.cpp > CMakeFiles/sequential_lbm.dir/main_two_lattice_experimental.cpp.i
+CMakeFiles/sequential_lbm.dir/main_two_lattice.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/sequential_lbm.dir/main_two_lattice.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/sequential_implementation/main_two_lattice.cpp > CMakeFiles/sequential_lbm.dir/main_two_lattice.cpp.i
 
-CMakeFiles/sequential_lbm.dir/main_two_lattice_experimental.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/sequential_lbm.dir/main_two_lattice_experimental.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/sequential_implementation/main_two_lattice_experimental.cpp -o CMakeFiles/sequential_lbm.dir/main_two_lattice_experimental.cpp.s
+CMakeFiles/sequential_lbm.dir/main_two_lattice.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/sequential_lbm.dir/main_two_lattice.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/sequential_implementation/main_two_lattice.cpp -o CMakeFiles/sequential_lbm.dir/main_two_lattice.cpp.s
 
 CMakeFiles/sequential_lbm.dir/src/access.cpp.o: CMakeFiles/sequential_lbm.dir/flags.make
 CMakeFiles/sequential_lbm.dir/src/access.cpp.o: ../src/access.cpp
@@ -153,24 +153,10 @@ CMakeFiles/sequential_lbm.dir/src/macroscopic.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/sequential_lbm.dir/src/macroscopic.cpp.s"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/sequential_implementation/src/macroscopic.cpp -o CMakeFiles/sequential_lbm.dir/src/macroscopic.cpp.s
 
-CMakeFiles/sequential_lbm.dir/src/shift_sequential.cpp.o: CMakeFiles/sequential_lbm.dir/flags.make
-CMakeFiles/sequential_lbm.dir/src/shift_sequential.cpp.o: ../src/shift_sequential.cpp
-CMakeFiles/sequential_lbm.dir/src/shift_sequential.cpp.o: CMakeFiles/sequential_lbm.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/sequential_implementation/bob_the_builder/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/sequential_lbm.dir/src/shift_sequential.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/sequential_lbm.dir/src/shift_sequential.cpp.o -MF CMakeFiles/sequential_lbm.dir/src/shift_sequential.cpp.o.d -o CMakeFiles/sequential_lbm.dir/src/shift_sequential.cpp.o -c /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/sequential_implementation/src/shift_sequential.cpp
-
-CMakeFiles/sequential_lbm.dir/src/shift_sequential.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/sequential_lbm.dir/src/shift_sequential.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/sequential_implementation/src/shift_sequential.cpp > CMakeFiles/sequential_lbm.dir/src/shift_sequential.cpp.i
-
-CMakeFiles/sequential_lbm.dir/src/shift_sequential.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/sequential_lbm.dir/src/shift_sequential.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/sequential_implementation/src/shift_sequential.cpp -o CMakeFiles/sequential_lbm.dir/src/shift_sequential.cpp.s
-
 CMakeFiles/sequential_lbm.dir/src/simulation.cpp.o: CMakeFiles/sequential_lbm.dir/flags.make
 CMakeFiles/sequential_lbm.dir/src/simulation.cpp.o: ../src/simulation.cpp
 CMakeFiles/sequential_lbm.dir/src/simulation.cpp.o: CMakeFiles/sequential_lbm.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/sequential_implementation/bob_the_builder/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object CMakeFiles/sequential_lbm.dir/src/simulation.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/sequential_implementation/bob_the_builder/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/sequential_lbm.dir/src/simulation.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/sequential_lbm.dir/src/simulation.cpp.o -MF CMakeFiles/sequential_lbm.dir/src/simulation.cpp.o.d -o CMakeFiles/sequential_lbm.dir/src/simulation.cpp.o -c /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/sequential_implementation/src/simulation.cpp
 
 CMakeFiles/sequential_lbm.dir/src/simulation.cpp.i: cmake_force
@@ -181,79 +167,45 @@ CMakeFiles/sequential_lbm.dir/src/simulation.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/sequential_lbm.dir/src/simulation.cpp.s"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/sequential_implementation/src/simulation.cpp -o CMakeFiles/sequential_lbm.dir/src/simulation.cpp.s
 
-CMakeFiles/sequential_lbm.dir/src/swap_sequential.cpp.o: CMakeFiles/sequential_lbm.dir/flags.make
-CMakeFiles/sequential_lbm.dir/src/swap_sequential.cpp.o: ../src/swap_sequential.cpp
-CMakeFiles/sequential_lbm.dir/src/swap_sequential.cpp.o: CMakeFiles/sequential_lbm.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/sequential_implementation/bob_the_builder/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building CXX object CMakeFiles/sequential_lbm.dir/src/swap_sequential.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/sequential_lbm.dir/src/swap_sequential.cpp.o -MF CMakeFiles/sequential_lbm.dir/src/swap_sequential.cpp.o.d -o CMakeFiles/sequential_lbm.dir/src/swap_sequential.cpp.o -c /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/sequential_implementation/src/swap_sequential.cpp
+CMakeFiles/sequential_lbm.dir/src/two_lattice_sequential.cpp.o: CMakeFiles/sequential_lbm.dir/flags.make
+CMakeFiles/sequential_lbm.dir/src/two_lattice_sequential.cpp.o: ../src/two_lattice_sequential.cpp
+CMakeFiles/sequential_lbm.dir/src/two_lattice_sequential.cpp.o: CMakeFiles/sequential_lbm.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/sequential_implementation/bob_the_builder/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object CMakeFiles/sequential_lbm.dir/src/two_lattice_sequential.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/sequential_lbm.dir/src/two_lattice_sequential.cpp.o -MF CMakeFiles/sequential_lbm.dir/src/two_lattice_sequential.cpp.o.d -o CMakeFiles/sequential_lbm.dir/src/two_lattice_sequential.cpp.o -c /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/sequential_implementation/src/two_lattice_sequential.cpp
 
-CMakeFiles/sequential_lbm.dir/src/swap_sequential.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/sequential_lbm.dir/src/swap_sequential.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/sequential_implementation/src/swap_sequential.cpp > CMakeFiles/sequential_lbm.dir/src/swap_sequential.cpp.i
+CMakeFiles/sequential_lbm.dir/src/two_lattice_sequential.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/sequential_lbm.dir/src/two_lattice_sequential.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/sequential_implementation/src/two_lattice_sequential.cpp > CMakeFiles/sequential_lbm.dir/src/two_lattice_sequential.cpp.i
 
-CMakeFiles/sequential_lbm.dir/src/swap_sequential.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/sequential_lbm.dir/src/swap_sequential.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/sequential_implementation/src/swap_sequential.cpp -o CMakeFiles/sequential_lbm.dir/src/swap_sequential.cpp.s
-
-CMakeFiles/sequential_lbm.dir/src/two_lattice_sequential_experimental.cpp.o: CMakeFiles/sequential_lbm.dir/flags.make
-CMakeFiles/sequential_lbm.dir/src/two_lattice_sequential_experimental.cpp.o: ../src/two_lattice_sequential_experimental.cpp
-CMakeFiles/sequential_lbm.dir/src/two_lattice_sequential_experimental.cpp.o: CMakeFiles/sequential_lbm.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/sequential_implementation/bob_the_builder/CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Building CXX object CMakeFiles/sequential_lbm.dir/src/two_lattice_sequential_experimental.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/sequential_lbm.dir/src/two_lattice_sequential_experimental.cpp.o -MF CMakeFiles/sequential_lbm.dir/src/two_lattice_sequential_experimental.cpp.o.d -o CMakeFiles/sequential_lbm.dir/src/two_lattice_sequential_experimental.cpp.o -c /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/sequential_implementation/src/two_lattice_sequential_experimental.cpp
-
-CMakeFiles/sequential_lbm.dir/src/two_lattice_sequential_experimental.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/sequential_lbm.dir/src/two_lattice_sequential_experimental.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/sequential_implementation/src/two_lattice_sequential_experimental.cpp > CMakeFiles/sequential_lbm.dir/src/two_lattice_sequential_experimental.cpp.i
-
-CMakeFiles/sequential_lbm.dir/src/two_lattice_sequential_experimental.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/sequential_lbm.dir/src/two_lattice_sequential_experimental.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/sequential_implementation/src/two_lattice_sequential_experimental.cpp -o CMakeFiles/sequential_lbm.dir/src/two_lattice_sequential_experimental.cpp.s
-
-CMakeFiles/sequential_lbm.dir/src/two_step_sequential.cpp.o: CMakeFiles/sequential_lbm.dir/flags.make
-CMakeFiles/sequential_lbm.dir/src/two_step_sequential.cpp.o: ../src/two_step_sequential.cpp
-CMakeFiles/sequential_lbm.dir/src/two_step_sequential.cpp.o: CMakeFiles/sequential_lbm.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/sequential_implementation/bob_the_builder/CMakeFiles --progress-num=$(CMAKE_PROGRESS_11) "Building CXX object CMakeFiles/sequential_lbm.dir/src/two_step_sequential.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/sequential_lbm.dir/src/two_step_sequential.cpp.o -MF CMakeFiles/sequential_lbm.dir/src/two_step_sequential.cpp.o.d -o CMakeFiles/sequential_lbm.dir/src/two_step_sequential.cpp.o -c /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/sequential_implementation/src/two_step_sequential.cpp
-
-CMakeFiles/sequential_lbm.dir/src/two_step_sequential.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/sequential_lbm.dir/src/two_step_sequential.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/sequential_implementation/src/two_step_sequential.cpp > CMakeFiles/sequential_lbm.dir/src/two_step_sequential.cpp.i
-
-CMakeFiles/sequential_lbm.dir/src/two_step_sequential.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/sequential_lbm.dir/src/two_step_sequential.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/sequential_implementation/src/two_step_sequential.cpp -o CMakeFiles/sequential_lbm.dir/src/two_step_sequential.cpp.s
+CMakeFiles/sequential_lbm.dir/src/two_lattice_sequential.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/sequential_lbm.dir/src/two_lattice_sequential.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/sequential_implementation/src/two_lattice_sequential.cpp -o CMakeFiles/sequential_lbm.dir/src/two_lattice_sequential.cpp.s
 
 # Object files for target sequential_lbm
 sequential_lbm_OBJECTS = \
-"CMakeFiles/sequential_lbm.dir/main_two_lattice_experimental.cpp.o" \
+"CMakeFiles/sequential_lbm.dir/main_two_lattice.cpp.o" \
 "CMakeFiles/sequential_lbm.dir/src/access.cpp.o" \
 "CMakeFiles/sequential_lbm.dir/src/boundaries.cpp.o" \
 "CMakeFiles/sequential_lbm.dir/src/collision.cpp.o" \
 "CMakeFiles/sequential_lbm.dir/src/defines.cpp.o" \
 "CMakeFiles/sequential_lbm.dir/src/macroscopic.cpp.o" \
-"CMakeFiles/sequential_lbm.dir/src/shift_sequential.cpp.o" \
 "CMakeFiles/sequential_lbm.dir/src/simulation.cpp.o" \
-"CMakeFiles/sequential_lbm.dir/src/swap_sequential.cpp.o" \
-"CMakeFiles/sequential_lbm.dir/src/two_lattice_sequential_experimental.cpp.o" \
-"CMakeFiles/sequential_lbm.dir/src/two_step_sequential.cpp.o"
+"CMakeFiles/sequential_lbm.dir/src/two_lattice_sequential.cpp.o"
 
 # External object files for target sequential_lbm
 sequential_lbm_EXTERNAL_OBJECTS =
 
-sequential_lbm: CMakeFiles/sequential_lbm.dir/main_two_lattice_experimental.cpp.o
+sequential_lbm: CMakeFiles/sequential_lbm.dir/main_two_lattice.cpp.o
 sequential_lbm: CMakeFiles/sequential_lbm.dir/src/access.cpp.o
 sequential_lbm: CMakeFiles/sequential_lbm.dir/src/boundaries.cpp.o
 sequential_lbm: CMakeFiles/sequential_lbm.dir/src/collision.cpp.o
 sequential_lbm: CMakeFiles/sequential_lbm.dir/src/defines.cpp.o
 sequential_lbm: CMakeFiles/sequential_lbm.dir/src/macroscopic.cpp.o
-sequential_lbm: CMakeFiles/sequential_lbm.dir/src/shift_sequential.cpp.o
 sequential_lbm: CMakeFiles/sequential_lbm.dir/src/simulation.cpp.o
-sequential_lbm: CMakeFiles/sequential_lbm.dir/src/swap_sequential.cpp.o
-sequential_lbm: CMakeFiles/sequential_lbm.dir/src/two_lattice_sequential_experimental.cpp.o
-sequential_lbm: CMakeFiles/sequential_lbm.dir/src/two_step_sequential.cpp.o
+sequential_lbm: CMakeFiles/sequential_lbm.dir/src/two_lattice_sequential.cpp.o
 sequential_lbm: CMakeFiles/sequential_lbm.dir/build.make
 sequential_lbm: CMakeFiles/sequential_lbm.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/sequential_implementation/bob_the_builder/CMakeFiles --progress-num=$(CMAKE_PROGRESS_12) "Linking CXX executable sequential_lbm"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/marcel/Documents/CPP_projects/Task-based-Lattice-Boltzmann/sequential_implementation/bob_the_builder/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Linking CXX executable sequential_lbm"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/sequential_lbm.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.

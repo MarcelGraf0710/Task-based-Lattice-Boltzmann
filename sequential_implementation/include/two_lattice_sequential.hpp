@@ -1,5 +1,5 @@
-#ifndef TWO_LATTICE_SEQUENITAL_HPP
-#define TWO_LATTICE_SEQUENITAL_HPP
+#ifndef TWO_LATTICE_SEQUENTIAL_HPP
+#define TWO_LATTICE_SEQUENTIAL_HPP
 
 #include <vector>
 #include <set>
@@ -12,7 +12,6 @@
 
 namespace two_lattice_sequential
 {
-
     /**
      * @brief Performs the combined streaming and collision step for all fluid nodes within the simulation domain.
      *        The border conditions are enforced through ghost nodes.
@@ -28,7 +27,7 @@ namespace two_lattice_sequential
     (
         const std::vector<unsigned int> &fluid_nodes,
         const border_swap_information &bsi,
-        const std::vector<double> &source, 
+        std::vector<double> &source, 
         std::vector<double> &destination,    
         const access_function access_function
     );
@@ -49,7 +48,7 @@ namespace two_lattice_sequential
     (
         const std::vector<unsigned int> &fluid_nodes,
         const border_swap_information &bsi,
-        const std::vector<double> &source, 
+        std::vector<double> &source, 
         std::vector<double> &destination,    
         const access_function access_function
     );
@@ -58,22 +57,20 @@ namespace two_lattice_sequential
      * @brief Performs the sequential two-lattice algorithm for the specified number of iterations.
      * 
      * @param fluid_nodes A vector containing the indices of all fluid nodes in the domain
-     * @param boundary_nodes A vector containing the indices of all fluid boundary nodes in the domain
-     * @param values_0 source for even time steps and destination for odd time steps
-     * @param values_1 source for odd time steps and destination for even time steps
+     * @param boundary_nodes see documentation of border_swap_information
+     * @param distribution_values_0 source for even time steps and destination for odd time steps
+     * @param distribution_values_1 source for odd time steps and destination for even time steps
      * @param access_function the access function according to which distribution values are to be accessed
      * @param iterations this many iterations will be performed
-     * @param data the simulation data tuples will be placed in this vector (assumed to be pre-initialized)
      */
     void run
     (  
         const std::vector<unsigned int> &fluid_nodes,       
         const border_swap_information &boundary_nodes,
-        std::vector<double> &values_0, 
-        std::vector<double> &values_1,   
+        std::vector<double> &distribution_values_0, 
+        std::vector<double> &distribution_values_1,   
         const access_function access_function,
-        unsigned int iterations,
-        std::vector<sim_data_tuple> &data
+        const unsigned int iterations
     );
 
     /**
@@ -89,35 +86,6 @@ namespace two_lattice_sequential
     );
 
     /**
-     * @brief Performs the steaming step in the specified directions for the fluid node with 
-     *        the specified index.
-     * 
-     * @param source distribution values will be taken from this vector
-     * @param destination distribution values will be rearranged in this vector
-     * @param access_function function that will be used to access the distribution values
-     * @param fluid_node the index of the node for which the streaming step is performed
-     * @param directions a set specifying in which directions streaming will be executed
-     */
-    inline void tl_stream
-    (
-        const std::vector<double> &source,
-        std::vector<double> &destination, 
-        const access_function &access_function, 
-        unsigned int fluid_node, 
-        const std::set<unsigned int> &directions
-    )
-    {
-        for(const auto direction : directions) 
-        {
-            destination[access_function(fluid_node, direction)] =
-            source[
-                access_function(
-                    access::get_neighbor(fluid_node, invert_direction(direction)), 
-                    direction)];
-        }
-    }
-
-    /**
      * @brief Performs the steaming step in all directions for the fluid node with 
      *        the specified index.
      * 
@@ -131,10 +99,10 @@ namespace two_lattice_sequential
         const std::vector<double> &source,
         std::vector<double> &destination, 
         const access_function &access_function, 
-        unsigned int fluid_node
+        const unsigned int fluid_node
     )
     {
-        for (const auto direction : streaming_directions)
+        for (const auto direction : ALL_DIRECTIONS)
         {
             destination[access_function(fluid_node, direction)] =
                 source[
@@ -150,20 +118,20 @@ namespace two_lattice_sequential
      * @param destination the updated distribution values will be written to this vector
      * @param fluid_node the index of the fluid node
      * @param access_function the function used to access the distribution values
-     * @param velocities a vector containing the velocities of ALL nodes within the lattice
-     * @param densities a vector containing the densities of ALL nodes within the lattice
+     * @param velocity the velocity at the node in question
+     * @param density the density at the node in question
      */
     inline void tl_collision
     (
         std::vector<double> &destination, 
-        unsigned int fluid_node, 
+        const unsigned int fluid_node, 
         const std::vector<double> &distribution_values,
         const access_function &access_function, 
-        const std::vector<velocity> &velocities, 
-        const std::vector<double> &densities
+        const velocity &velocity, 
+        const double &density
     )
     {
-        std::vector<double> vals = collision::collide_bgk(distribution_values, velocities[fluid_node], densities[fluid_node]);
+        std::vector<double> vals = collision::collide_bgk(distribution_values, velocity, density);
         access::set_distribution_values_of(vals, destination, fluid_node, access_function);
     }
 }

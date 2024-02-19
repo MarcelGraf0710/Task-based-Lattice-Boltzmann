@@ -3,53 +3,72 @@
 #include "include/utils.hpp"
 #include "include/two_lattice_sequential.hpp"
 
-int main()
+int main(const int argc, const char** argv)
 {
+    bool enable_debug = false;
+    if(argc > 2)
+    {
+        std::cout << "Illegal argument count. Choose argument 'debug' if you want to run this program in debug mode, or run it without arguments." << std::endl;
+        exit(-1);
+    }
+    else if(argc == 2)
+    {
+        std::string selection(argv[1]);
+        enable_debug = debug_handler(selection);
+    }
+
+    std::cout << std::endl;
     std::cout << "Starting simulation..." << std::endl;
+    std::cout << std::endl;
+    std::cout << std::setprecision(3) << std::fixed;
+
+    /* Color message */
+    to_console::print_ansi_color_message();
+
 
     /* Initializations */
     std::vector<double> distribution_values_0(0, TOTAL_NODE_COUNT * DIRECTION_COUNT);
     std::vector<unsigned int> nodes(0, TOTAL_NODE_COUNT);
     std::vector<unsigned int> fluid_nodes(0, TOTAL_NODE_COUNT);
     std::vector<bool> phase_information(false, TOTAL_NODE_COUNT);
-    std::vector<sim_data_tuple>result(5, std::make_tuple(std::vector<velocity>(TOTAL_NODE_COUNT, {0,0}), std::vector<double>(TOTAL_NODE_COUNT, 0)));
     border_swap_information swap_info;
-    access_function access_function = access::bundle;
-    std::cout << "All vectors declared. " << std::endl;
-    std::cout << std::endl;
+    access_function access_function = access::stream;
+
+    if(enable_debug)
+    {
+        std::cout << "All vectors declared. " << std::endl;
+        std::cout << std::endl;
+    }
+
 
     /* Setting up example domain */
-    setup_example_domain(distribution_values_0, nodes, fluid_nodes, phase_information, swap_info, access_function);
+    setup_example_domain(distribution_values_0, nodes, fluid_nodes, phase_information, swap_info, access_function, enable_debug);
 
-    /* Illustration of the phase information */
-    std::cout << "Illustration of lattice: " << std::endl;
-    to_console::print_phase_vector(phase_information);
-    std::cout << std::endl;
+    if(enable_debug)
+    {
+        /* Illustration of the phase information */
+        std::cout << "Illustration of lattice: " << std::endl;
+        to_console::print_phase_vector(phase_information);
+        std::cout << std::endl;
 
-    /* Color information */
-    std::cout << "This program utilizes ANSI color codes to output colored text. If your command line does not support those codes, your output may be corrupted." << std::endl;
-    std::cout << "In all following prints showing the entire simulation domain, "; 
-    std::cout << "the origin will be marked in \033[31mred\033[0m and the outmost coordinate will be marked in \033[34mblue\033[0m." << std::endl;
-    std::cout << "Milestones will be marked in \033[33myellow\033[0m." << std::endl;
-    std::cout << std::endl;
+        /* Overview */
+        std::cout << "Enumeration of all nodes within the lattice: " << std::endl;
+        to_console::print_vector(nodes);
+        std::cout << std::endl;
 
-    /* Overview */
-    std::cout << "Enumeration of all nodes within the lattice: " << std::endl;
-    to_console::print_vector(nodes);
-    std::cout << std::endl;
+        std::cout << "Enumeration of all fluid nodes within the simulation domain: " << std::endl;
+        to_console::print_vector(fluid_nodes, HORIZONTAL_NODES - 2);
+        std::cout << std::endl;
 
-    std::cout << "Enumeration of all fluid nodes within the simulation domain: " << std::endl;
-    to_console::print_vector(fluid_nodes, HORIZONTAL_NODES - 2);
-    std::cout << std::endl;
+        std::cout << "Swap info:" << std::endl;
+        for(const auto& current : swap_info)
+            to_console::print_vector(current, current.size());
+        std::cout << std::endl;
 
-    std::cout << "Swap info:" << std::endl;
-    for(const auto& current : swap_info)
-        to_console::print_vector(current, current.size());
-    std::cout << std::endl;
-
-    std::cout << "Initial distributions:" << std::endl;
-    to_console::print_distribution_values(distribution_values_0, access_function);
-    std::cout << std::endl;
+        std::cout << "Initial distributions:" << std::endl;
+        to_console::print_distribution_values(distribution_values_0, access_function);
+        std::cout << std::endl;
+    }
 
     std::vector<double> distribution_values_1 = distribution_values_0;
 
@@ -61,8 +80,7 @@ int main()
         distribution_values_0, 
         distribution_values_1,   
         access_function,
-        10,
-        result
+        TIME_STEPS
     );
 
     return 0;

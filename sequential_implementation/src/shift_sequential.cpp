@@ -28,7 +28,7 @@ border_swap_information shift_sequential::retrieve_fast_border_swap_info
     for(const auto node : fluid_nodes)
     {
         std::vector<unsigned int> current_adjacencies{node};
-        for(const auto direction : streaming_directions)
+        for(const auto direction : STREAMING_DIRECTIONS)
         {
             unsigned int current_neighbor = access::get_neighbor(node, direction);
             if(is_non_inout_ghost_node(current_neighbor, phase_information))
@@ -58,7 +58,7 @@ void shift_sequential::emplace_bounce_back_values
     const unsigned int read_offset
 )
 {
-    std::vector<unsigned int> directions = streaming_directions;
+    std::vector<unsigned int> directions = STREAMING_DIRECTIONS;
     unsigned int current_node = 0;
 
     for(const auto& border_node : bsi)
@@ -574,7 +574,7 @@ void shift_sequential::setup_example_domain
     // std::vector<double> values_0 = {0.00,0.01,0.02,0.03,0.04,0.05,0.06,0.07,0.08};
     // std::vector<double> values_1 = {-0.00,0.001,0.002,0.003,0.004,0.005,0.006,0.007,0.008}; 
 
-    std::vector<double> values = maxwell_boltzmann_distribution(velocity_vectors[4], 1);
+    std::vector<double> values = maxwell_boltzmann_distribution(VELOCITY_VECTORS.at(4), 1);
 
     for(auto i = 0; i < TOTAL_NODE_COUNT; ++i)
     {

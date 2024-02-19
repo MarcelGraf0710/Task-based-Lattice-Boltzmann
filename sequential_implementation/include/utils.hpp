@@ -8,6 +8,7 @@
 #include "access.hpp"
 #include "boundaries.hpp"
 #include <iomanip>
+#include <string>
 
 inline unsigned int matrix_access
 (
@@ -184,7 +185,63 @@ namespace to_console
             std::cout << std::endl;
             std::cout << std::endl;
         }
+    }
+
+    /**
+     * @brief Prints the greeting message displayed when running an algorithm.
+     * 
+     * @param algorithm_name A string containing the display name of the algorithm
+     * @param iterations This many iterations are to be executed
+     */
+    inline void print_run_greeting(const std::string &algorithm_name, const unsigned int iterations)
+    {
+        std::cout << "------------------------------------------------------------------------------------------------------------------------" << std::endl;
+        std::cout << "Now running " << algorithm_name << " for " << iterations << " iterations." << std::endl;
+        std::cout << std::endl;
     } 
+
+    /**
+     * @brief Prints the simulation results, i.e. the velocity vectors and density values, for all time steps.
+     * 
+     * @param results a vector containing the simulation data tuples.
+     */
+    inline void print_simulation_results(std::vector<sim_data_tuple> &results)
+    {
+        unsigned int iterations = results.size();
+        std::cout << std::endl;
+        std::cout << "Velocity values: " << std::endl;
+        std::cout << std::endl;
+        for(auto i = 0; i < iterations; ++i)
+        {
+            std::cout << "t = " << i << std::endl;
+            std::cout << "-------------------------------------------------------------------------------- " << std::endl;
+            to_console::print_velocity_vector(std::get<0>(results[i]));
+            std::cout << std::endl;
+        }
+        std::cout << std::endl;
+        std::cout << std::endl;
+
+        std::cout << "Density values: " << std::endl;
+        std::cout << std::endl;
+        
+        for(auto i = 0; i < iterations; ++i)
+        {
+            std::cout << "t = " << i << std::endl;
+            std::cout << "-------------------------------------------------------------------------------- " << std::endl;
+            to_console::print_vector(std::get<1>(results[i]));
+            std::cout << std::endl;
+        }
+        std::cout << std::endl;
+    }
+
+    inline void print_ansi_color_message()
+    {
+        std::cout << "This program utilizes ANSI color codes to output colored text. If your command line does not support those codes, your output may be corrupted." << std::endl;
+        std::cout << "In all following prints showing the entire simulation domain, "; 
+        std::cout << "the origin will be marked in \033[31mred\033[0m and the outmost coordinate will be marked in \033[34mblue\033[0m." << std::endl;
+        std::cout << "Milestones will be marked in \033[33myellow\033[0m." << std::endl;
+        std::cout << std::endl;
+    }
 }
 
 /**
@@ -209,7 +266,7 @@ namespace vec_utils
 namespace math_utils
 {
     /**
-     * @brief Calculates the dot product of the specified arrays
+     * @brief Calculates the dot product of the specified vectors
      */
     template <unsigned long int d>
     double dot(const std::array<double, d> &x, const std::array<double, d> &y)
@@ -247,6 +304,205 @@ namespace math_utils
         }
         return result;
     }
+}
+
+inline bool debug_handler(std::string &input)
+{
+    std::cout << std::endl;
+    if(input == "debug")
+    {
+        return true;
+    }
+    else
+    {
+        std::string selection = input;
+        while(selection != "debug" && selection != "quit")
+        {
+            std::cout << std::endl;
+            std::cout << "You have executed this program with the argument '" << selection << "' which is not supported. "; 
+            std::cout << "The following keywords are supported: " << std::endl;
+            std::cout << "\tType 'debug' to enable debug mode for this program." << std::endl;
+            std::cout << "\tType 'no_debug' to disable debug mode for this program." << std::endl;
+            std::cout << "\tType 'quit' to exit this program." << std::endl;
+            std::cout << "Please choose one of these options. Running the program without any arguments yields a non-debug run." << std::endl;
+            std::cout << std::endl;
+            std::cout << "Your selection: ";
+            std::cin >> selection;
+        }
+        if(selection == "debug")
+        {
+            return true;
+        }
+        else if(selection == "no_debug")
+        {
+            return false;
+        }
+        else
+        {
+            exit(0);
+        }
+    }
+}
+
+inline std::tuple<bool, bool, unsigned int, unsigned int, double, unsigned int> setup_assistant()
+{
+    bool done = false;
+    std::string done_input = "";
+
+    bool enable_debug_mode = false;
+    std::string debug_mode_input = "";
+
+    bool enable_debug_distributions = false;
+    std::string debug_distributions_input = "";
+
+    unsigned int vertical_nodes = 0;
+    unsigned int horizontal_nodes = 0;
+    unsigned int relaxation_time = 0;
+    unsigned int time_steps = 0;
+    bool answered = false;
+
+    std::tuple<bool, bool, unsigned int, unsigned int, double, unsigned int> result(
+        enable_debug_mode, 
+        enable_debug_distributions, 
+        vertical_nodes, 
+        horizontal_nodes, 
+        relaxation_time, 
+        time_steps);
+
+    std::cout << "You have opted for an assisted setup of the simulation. " << std::endl; 
+    std::cout << "This assistent will help you specify the crucial parameters of the simulation. " << std::endl; 
+    std::cout << "You will be able to confirm that all specifications are okay." << std::endl; 
+    std::cout << "If they are not, you will be given the option to re-enter them from the start." << std::endl; 
+    std::cout << "In case you have stated an incompatible value, you will be asked for an answer again." << std::endl; 
+    std::cout << "-------------------------------------------------------------------------------------------" << std::endl; 
+
+    while(!done)
+    {
+        answered = false;
+    
+        while(!answered)
+        {
+            std::cout << "Enable debug mode? ('y' for 'yes' or 'n' for 'no'): ";
+            std::cin >> debug_mode_input; 
+            if(debug_mode_input == "y")
+            {
+                std::get<0>(result) = true;
+                answered = true;
+            }
+            else if(debug_mode_input == "n")
+            {
+                std::get<0>(result) = false;
+                answered = true;
+            }
+        }
+
+        answered = false;
+
+        while(!answered)
+        {
+            std::cout << "Enable debug distributions? ('y' for 'yes' or 'n' for 'no'): ";
+            std::cin >> debug_distributions_input; 
+            if(debug_distributions_input == "y")
+            {
+                std::get<1>(result) = true;
+                answered = true;
+            }
+            else if(debug_distributions_input == "n")
+            {
+                std::get<1>(result) = false;
+                answered = true;
+            }
+        }
+
+        answered = false;
+        
+        while(!answered)
+        {
+            std::cout << "Vertical nodes (enter an integer value greater than 2): ";
+            std::cin >> vertical_nodes; 
+            if(vertical_nodes > 2)
+            {
+                std::get<2>(result) = vertical_nodes;
+                answered = true;
+            }
+        }
+
+        answered = false;
+
+        while(!answered)
+        {
+            std::cout << "Horizontal nodes (enter an integer value greater than 2): ";
+            std::cin >> horizontal_nodes; 
+            if(horizontal_nodes > 2)
+            {
+                std::get<3>(result) = horizontal_nodes;
+                answered = true;
+            }
+        }
+
+        answered = false;
+
+        while(!answered)
+        {
+            std::cout << "Relaxation time (enter a float value greater than 0, will be cut after 3rd decimal place)" << std::endl;
+            std::cout << "[Recommendation: 1.4] > ";
+            std::cin >> relaxation_time; 
+            if(relaxation_time > 0)
+            {
+                std::get<4>(result) = relaxation_time;
+                answered = true;
+            }
+        }
+            
+        answered = false;
+
+        while(!answered)
+        {
+            std::cout << "Number of iterations (enter an integer value greater than 0): " << std::endl;
+            std::cin >> time_steps; 
+            if(time_steps > 0)
+            {
+                std::get<4>(result) = horizontal_nodes;
+                answered = true;
+            }
+            else if(time_steps <= 0)
+            {
+                std::cout << "Congratulations! You have completed the achievement 'What am I doing here?'" << std::endl;
+            }
+        }
+
+        answered = false;
+
+        while(!answered)
+        {
+            std::cout << "Do you want to start the simulation with these parameters?" << std::endl;
+            std::cout << "Type 'y' to start the simulation." << std::endl;
+            std::cout << "Type 'n' to re-enter all parameters." << std::endl;
+            std::cout << "Type 'q' to quit the program." << std::endl;
+            std::cin >> done_input; 
+            if(done_input == "y")
+            {
+                done = true;
+                answered = true;
+            }
+            else if(done_input == "n")
+            {
+                done = false;
+                answered = true;
+                std::cout << "----------------------------------------------------------------------------------------------------" << std::endl;
+            }
+            else if(done_input == "q")
+            {
+                done = true;
+                answered = true;
+                std::cout << "Exiting program..." << std::endl;
+                exit(0);
+            }
+        }
+    }
+    std::cout << std::endl;
+    std::cout << "Preparing simulation..." << std::endl;
+    std::cout << std::endl;
 }
 
 #endif

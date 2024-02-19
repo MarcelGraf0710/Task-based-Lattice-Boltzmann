@@ -71,7 +71,7 @@ border_swap_information bounce_back::retrieve_border_swap_information
     for(const auto node : fluid_nodes)
     {
         std::vector<unsigned int> current_adjacencies{node};
-        for(const auto direction : streaming_directions)
+        for(const auto direction : STREAMING_DIRECTIONS)
         {
             unsigned int current_neighbor = access::get_neighbor(node, direction);
             if(is_ghost_node(current_neighbor, phase_information))
@@ -103,7 +103,7 @@ border_swap_information bounce_back::retrieve_fast_border_swap_info
     for(const auto node : fluid_nodes)
     {
         std::vector<unsigned int> current_adjacencies{node};
-        for(const auto direction : streaming_directions)
+        for(const auto direction : STREAMING_DIRECTIONS)
         {
             unsigned int current_neighbor = access::get_neighbor(node, direction);
             if(is_non_inout_ghost_node(current_neighbor, phase_information))
@@ -134,7 +134,7 @@ void bounce_back::emplace_bounce_back_values
     const unsigned int read_offset
 )
 {
-    std::vector<unsigned int> directions = streaming_directions;
+    std::vector<unsigned int> directions = STREAMING_DIRECTIONS;
     unsigned int current_node = 0;
 
     for(const auto& border_node : bsi)
@@ -188,7 +188,7 @@ void bounce_back::perform_boundary_update
 {
     std::vector<double> current_dist_vals;
     std::vector<std::tuple<unsigned int, unsigned int>> swap_partners;
-    std::set<unsigned int> remaining_dirs{streaming_directions.begin(), streaming_directions.end()};
+    std::set<unsigned int> remaining_dirs{STREAMING_DIRECTIONS.begin(), STREAMING_DIRECTIONS.end()};
     int current_border_node = 0;
     for(const auto& current : bsi)
     {
@@ -223,7 +223,7 @@ void bounce_back::perform_early_boundary_update
 )
 {
     std::vector<double> current_dist_vals;
-    std::set<unsigned int> remaining_dirs{streaming_directions.begin(), streaming_directions.end()};
+    std::set<unsigned int> remaining_dirs{STREAMING_DIRECTIONS.begin(), STREAMING_DIRECTIONS.end()};
     int current_border_node = 0;
     for(const auto& current : bsi)
     {
@@ -257,7 +257,7 @@ void boundary_conditions::perform_inout_boundary_update
 )
 {
     std::vector<double> current_dist_vals(DIRECTION_COUNT, 0);
-    std::set<unsigned int> remaining_dirs{streaming_directions.begin(), streaming_directions.end()};
+    std::set<unsigned int> remaining_dirs{STREAMING_DIRECTIONS.begin(), STREAMING_DIRECTIONS.end()};
     int current_border_node = 0;
     velocity v = INLET_VELOCITY;
 
@@ -357,14 +357,20 @@ void boundary_conditions::update_velocity_input_velocity_output
  * @brief Updates the ghost nodes that represent inlet and outlet edges.
  *        When updating, a velocity border condition will be considered for the input
  *        and a density border condition for the output.
+ *        The inlet velocity is constant throughout all inlet nodes whereas the outlet nodes
+ *        all have the specified density.
  *        The corresponding values are constants defined in "../include/"defines.hpp".
  * 
  * @param distribution_values a vector containing the distribution values of all nodes
+ * @param velocities a vector containing the velocities of all nodes
+ * @param densities a vector containing the densities of all nodes
  * @param access_function the access function used to access the distribution values
  */
 void boundary_conditions::update_velocity_input_density_output
 (
-    std::vector<double> &distribution_values, 
+    std::vector<double> &distribution_values,
+    std::vector<velocity> &velocities,
+    std::vector<double> &densities, 
     const access_function access_function
 )
 {
@@ -387,6 +393,8 @@ void boundary_conditions::update_velocity_input_density_output
             current_border_node,
             access_function
         );
+        velocities[current_border_node] = v;
+        densities[current_border_node] = density;
 
         // Update outlets
         current_border_node = access::get_node_index(HORIZONTAL_NODES - 1,y);
@@ -400,6 +408,8 @@ void boundary_conditions::update_velocity_input_density_output
             current_border_node,
             access_function
         );
+        velocities[current_border_node] = v;
+        densities[current_border_node] = density;
     }
 }
 

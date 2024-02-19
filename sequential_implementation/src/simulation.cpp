@@ -19,6 +19,7 @@
  * @param fluid_nodes a vector containing the indices of all fluid nodes.
  * @param phase_information a vector containing the phase information of all nodes where true means solid.
  * @param access_function the domain will be prepared for access with this access function.
+ * @param enable_debug true if debug mode is to be enabled, and false otherwise
  */
 void setup_example_domain
 (
@@ -27,32 +28,41 @@ void setup_example_domain
     std::vector<unsigned int> &fluid_nodes,
     std::vector<bool> &phase_information,
     border_swap_information &swap_info,
-    access_function access_function
+    access_function access_function,
+    const bool enable_debug
 )
 {
-    std::cout << "Setting up example domain." << std::endl;
+    std::vector<double> initializer(TOTAL_NODE_COUNT * DIRECTION_COUNT, 0);
+    distribution_values = initializer; 
 
-    /* Set up distribution values */
-
-    // std::vector<double> values_0 = {0.00,0.01,0.02,0.03,0.04,0.05,0.06,0.07,0.08};
-    // std::vector<double> values_1 = {-0.00,0.001,0.002,0.003,0.004,0.005,0.006,0.007,0.008};
-
-    std::vector<double> test(TOTAL_NODE_COUNT * DIRECTION_COUNT, 0);
-    distribution_values = test; 
-
-    std::vector<double> values = maxwell_boltzmann_distribution(velocity_vectors[4], 1);
-
-    for(auto i = 0; i < TOTAL_NODE_COUNT; ++i)
+    if(enable_debug)
     {
-        // if(i % 2) access::set_distribution_values_of(values_0, distribution_values, i, access_function);
-        // else access::set_distribution_values_of(values_1, distribution_values, i, access_function);
-
-        access::set_distribution_values_of(values, distribution_values, i, access_function);
+        /* Set up distribution values */
+        std::cout << "Setting up example domain." << std::endl;
+        std::cout << std::endl;
+        std::vector<double> values_0 = {0.00,0.01,0.02,0.03,0.04,0.05,0.06,0.07,0.08};
+        std::vector<double> values_1 = {-0.00,0.001,0.002,0.003,0.004,0.005,0.006,0.007,0.008};
+        for(auto i = 0; i < TOTAL_NODE_COUNT; ++i)
+        {
+        if(i % 2) access::set_distribution_values_of(values_0, distribution_values, i, access_function);
+        else access::set_distribution_values_of(values_1, distribution_values, i, access_function);
+        }
     }
-    
+    else
+    {
+        std::vector<double> values = maxwell_boltzmann_distribution(VELOCITY_VECTORS.at(4), 1);
+        for(auto i = 0; i < TOTAL_NODE_COUNT; ++i)
+        {
+            access::set_distribution_values_of(values, distribution_values, i, access_function);
+        }   
+    }    
     boundary_conditions::initialize_inout(distribution_values, access_function);
 
-    std::cout << "All distribution values were set." << std::endl;
+    if(enable_debug)
+    {
+        std::cout << "All distribution values were set, setting up the other required data..." << std::endl;
+        std::cout << std::endl;
+    }
 
     /* Set all nodes for direct access */
     for(auto i = 0; i < TOTAL_NODE_COUNT; ++i)
