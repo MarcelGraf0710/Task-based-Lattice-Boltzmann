@@ -48,7 +48,7 @@ namespace access
      */
     inline unsigned int stream(unsigned int node, unsigned int direction)
     {
-        return DIRECTION_COUNT * direction + node;
+        return TOTAL_NODE_COUNT * direction + node;
     }
 
     /**
@@ -60,7 +60,7 @@ namespace access
      */
     inline unsigned int bundle(unsigned int node, unsigned int direction)
     {
-        return (direction / 3) * TOTAL_NODE_COUNT + (direction % 3); 
+        return 3 * (direction / 3) * TOTAL_NODE_COUNT + (direction % 3) + 3 * node; 
     }
 
     /**

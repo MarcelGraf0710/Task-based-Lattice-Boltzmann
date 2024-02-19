@@ -1,7 +1,7 @@
 #include "include/access.hpp"
 #include "include/simulation.hpp"
 #include "include/utils.hpp"
-#include "include/two_lattice_sequential.hpp"
+#include "include/two_lattice_sequential_experimental.hpp"
 
 int main()
 {
@@ -14,7 +14,7 @@ int main()
     std::vector<bool> phase_information(false, TOTAL_NODE_COUNT);
     std::vector<sim_data_tuple>result(5, std::make_tuple(std::vector<velocity>(TOTAL_NODE_COUNT, {0,0}), std::vector<double>(TOTAL_NODE_COUNT, 0)));
     border_swap_information swap_info;
-    access_function access_function = access::bundle;
+    access_function access_function = access::stream;
     std::cout << "All vectors declared. " << std::endl;
     std::cout << std::endl;
 
@@ -61,7 +61,7 @@ int main()
         distribution_values_0, 
         distribution_values_1,   
         access_function,
-        100,
+        300,
         result
     );
 

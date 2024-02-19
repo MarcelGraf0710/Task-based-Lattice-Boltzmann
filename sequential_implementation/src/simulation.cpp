@@ -35,16 +35,19 @@ void setup_example_domain
     /* Set up distribution values */
 
     // std::vector<double> values_0 = {0.00,0.01,0.02,0.03,0.04,0.05,0.06,0.07,0.08};
-    // std::vector<double> values_1 = {-0.00,0.001,0.002,0.003,0.004,0.005,0.006,0.007,0.008}; 
+    // std::vector<double> values_1 = {-0.00,0.001,0.002,0.003,0.004,0.005,0.006,0.007,0.008};
+
+    std::vector<double> test(TOTAL_NODE_COUNT * DIRECTION_COUNT, 0);
+    distribution_values = test; 
 
     std::vector<double> values = maxwell_boltzmann_distribution(velocity_vectors[4], 1);
 
     for(auto i = 0; i < TOTAL_NODE_COUNT; ++i)
     {
-        // if(i % 2) distribution_values.insert(distribution_values.end(), values_0.begin(), values_0.end());
-        // else distribution_values.insert(distribution_values.end(), values_1.begin(), values_1.end());
+        // if(i % 2) access::set_distribution_values_of(values_0, distribution_values, i, access_function);
+        // else access::set_distribution_values_of(values_1, distribution_values, i, access_function);
 
-        distribution_values.insert(distribution_values.end(), values.begin(), values.end());
+        access::set_distribution_values_of(values, distribution_values, i, access_function);
     }
     
     boundary_conditions::initialize_inout(distribution_values, access_function);
