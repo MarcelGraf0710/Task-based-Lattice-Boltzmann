@@ -307,11 +307,15 @@ void boundary_conditions::perform_inout_boundary_update
  *        The corresponding values are constants defined in "../include/"defines.hpp".
  * 
  * @param distribution_values a vector containing the distribution values of all nodes
+ * @param velocities a vector containing the velocities of all nodes
+ * @param densities a vector containing the densities of all nodes
  * @param access_function the access function used to access the distribution values
  */
 void boundary_conditions::update_velocity_input_velocity_output
 (
-    std::vector<double> &distribution_values, 
+    std::vector<double> &distribution_values,
+    std::vector<velocity> &velocities,
+    std::vector<double> &densities, 
     const access_function access_function
 )
 {
@@ -337,6 +341,8 @@ void boundary_conditions::update_velocity_input_velocity_output
             current_border_node,
             access_function
         );
+        velocities[current_border_node] = inlet[y-1];
+        densities[current_border_node] = density;
 
         // Update outlets
         current_border_node = access::get_node_index(HORIZONTAL_NODES - 1,y);
@@ -350,6 +356,8 @@ void boundary_conditions::update_velocity_input_velocity_output
             current_border_node,
             access_function
         );
+        velocities[current_border_node] = outlet[y-1];
+        densities[current_border_node] = density;
     }
 }
 
@@ -419,11 +427,15 @@ void boundary_conditions::update_velocity_input_density_output
  *        The corresponding values are constants defined in "../include/"defines.hpp".
  * 
  * @param distribution_values a vector containing the distribution values of all nodes
+ * @param velocities a vector containing the velocities of all nodes
+ * @param densities a vector containing the densities of all nodes
  * @param access_function the access function used to access the distribution values
  */
 void boundary_conditions::update_density_input_density_output
 (
     std::vector<double> &distribution_values, 
+    std::vector<velocity> &velocities,
+    std::vector<double> &densities, 
     const access_function access_function
 )
 {
@@ -446,6 +458,8 @@ void boundary_conditions::update_density_input_density_output
             current_border_node,
             access_function
         );
+        velocities[current_border_node] = v;
+        densities[current_border_node] = density;
 
         // Update outlets
         current_border_node = access::get_node_index(HORIZONTAL_NODES - 1,y);
@@ -459,6 +473,8 @@ void boundary_conditions::update_density_input_density_output
             current_border_node,
             access_function
         );
+        velocities[current_border_node] = v;
+        densities[current_border_node] = density;
     }
 }
 

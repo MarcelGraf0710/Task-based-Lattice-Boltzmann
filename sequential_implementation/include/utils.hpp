@@ -346,6 +346,7 @@ inline bool debug_handler(std::string &input)
 
 inline std::tuple<bool, bool, unsigned int, unsigned int, double, unsigned int> setup_assistant()
 {
+    // Additions for the future: Access function, boundary conditions
     bool done = false;
     std::string done_input = "";
 
