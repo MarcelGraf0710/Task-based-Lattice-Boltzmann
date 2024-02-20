@@ -20,7 +20,7 @@
 #define TOTAL_NODE_COUNT VERTICAL_NODES * HORIZONTAL_NODES
 #define BOLTZMANN_CONSTANT 1.380649e-23
 #define RELAXATION_TIME 1.4
-#define TIME_STEPS 50
+#define TIME_STEPS 30
 
 /* Convenience and readability type definitions */
 

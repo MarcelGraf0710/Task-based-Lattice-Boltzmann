@@ -9,18 +9,28 @@ namespace two_step_sequential
 {
     /**
      * @brief Performs the streaming step for all fluid nodes within the simulation domain.
+     *        Notice that each node is streaming outward.
      * 
+     * @param fluid_nodes A vector containing the indices of all fluid nodes in the domain
+     * @param distribution_values a vector containing all distribution distribution_values
+     * @param access_function the access to node values will be performed according to this access function.
      */
     void perform_fast_stream
     (
         const std::vector<unsigned int> &fluid_nodes, 
-        std::vector<double> &values, 
+        std::vector<double> &distribution_values, 
         const access_function access_function
     );
 
     /**
      * @brief Performs the streaming and collision step for all fluid nodes within the simulation domain.
      *        The border conditions are enforced through ghost nodes.
+     * 
+     * @param fluid_nodes A vector containing the indices of all fluid nodes in the domain
+     * @param bsi see documentation of border_swap_information
+     * @param distribution_values a vector containing all distribution values
+     * @param access_function the access to node values will be performed according to this access function.
+     * @return sim_data_tuple see documentation of sim_data_tuple
      */
     sim_data_tuple perform_ts_stream_and_collide
     (
@@ -33,7 +43,13 @@ namespace two_step_sequential
     /**
      * @brief Performs the streaming and collision step for all fluid nodes within the simulation domain.
      *        The border conditions are enforced through ghost nodes.
-     *        This variant of the streaming and collision step will print several debug comments to the console.
+     *        This variant will print several debug comments to the console.
+     * 
+     * @param fluid_nodes A vector containing the indices of all fluid nodes in the domain
+     * @param bsi see documentation of border_swap_information
+     * @param distribution_values a vector containing all distribution values
+     * @param access_function the access to node values will be performed according to this access function.
+     * @return sim_data_tuple see documentation of sim_data_tuple
      */
     sim_data_tuple perform_ts_stream_and_collide_debug
     (
@@ -47,29 +63,18 @@ namespace two_step_sequential
      * @brief Performs the sequential two-step algorithm for the specified number of iterations.
      * 
      * @param fluid_nodes A vector containing the indices of all fluid nodes in the domain
-     * @param values the vector containing the distribution values of all nodes
+     * @param distribution_values the vector containing the distribution values of all nodes
+     * @param bsi see documentation of border_swap_information
      * @param access_function the access function according to which the values are to be accessed
      * @param iterations this many iterations will be performed
      */
     void run
     (  
         std::vector<unsigned int> &fluid_nodes,       
-        std::vector<double> &values, 
+        std::vector<double> &distribution_values, 
         border_swap_information &bsi,
         access_function access_function,
         unsigned int iterations
-    );
-
-    /**
-     * @brief Determines the remaining streaming option for a node based on the specified border 
-     *        information vector.
-     * 
-     * @param current_border_info an entry of a border_swap_information object
-     * @return a set containing all remaining streaming directions
-     */
-    std::set<unsigned int> determine_streaming_directions
-    (
-        const std::vector<unsigned int> &current_border_info
     );
 }
 
