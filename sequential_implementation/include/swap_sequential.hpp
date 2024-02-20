@@ -1,3 +1,6 @@
+#ifndef TWO_SWAP_SEQUENTIAL_HPP
+#define TWO_SWAP_SEQUENTIAL_HPP
+
 #include <map>
 #include <set>
 #include <vector>
@@ -10,39 +13,16 @@
  *        - the key for the swap directions 
  *        - the key for the inout directions
  */
-typedef std::vector<std::tuple<unsigned int, char, char>> swap_information;
+typedef std::vector<std::tuple<unsigned int, std::set<unsigned int>>> swap_information;
 
 namespace swap_sequential
 {
-    /**
-     * @brief Maps the border node types to the swap partner directions.
-     *        0 - {}        (upper right corner node)
-     *        1 - {5}       (upper edge node or left upper corner node)
-     *        2 - {6,7}     (right edge node or right lower corner node)
-     *        3 - {5,7,8}   (left edge node or left lower corner node)
-     *        4 - {5,6,7,8} (non-border node or lower edge node)
-     */
-    extern std::map<char, std::set<unsigned int>> swap_directions;
+    extern const std::vector<unsigned int> ACTIVE_STREAMING_DIRECTIONS;
 
-    /**
-     * @brief This map stores the inlet and outlet directions for each node.
-     *        0 - {}        (empty set, neither inlet nor outlet)
-     *        1 - {2,5,8}   (inlet node)
-     *        2 - {0,3,6}   (outlet node)
-     */
-    extern std::map<char, std::set<unsigned int>> inout_directions;
-
-    /**
-     * @brief Sets up the swap information data structure
-     * 
-     * @param bsi see documentation of border_swap_information
-     * @param fluid_nodes a vector containing the indices of all fluid nodes
-     * @return see documentation of swap_information 
-     */
-    swap_information setup_swap_information
+    border_swap_information retrieve_swap_info
     (
-        const border_swap_information &bsi, 
-        const std::vector<unsigned int> &fluid_nodes
+        const std::vector<unsigned int> &fluid_nodes, 
+        const std::vector<bool> &phase_information
     );
 
     /**
@@ -56,7 +36,7 @@ namespace swap_sequential
     inline void restore_order
     (
         std::vector<double> &distribution_values,
-        unsigned int node_index,
+        const unsigned int node_index,
         const access_function access_function
     )
     {
@@ -76,14 +56,14 @@ namespace swap_sequential
      * @param distribution_values a vector containing the distribution values of all nodes
      * @param node_index the index of the node for which the streaming step is to be performed
      * @param access_function the function used to access the distribution values
-     * @param swap_directions a set containing all directions in which swap will take place
+     * @param swap_directions a vector containing all directions in which swap will take place
      */
     inline void perform_swap_step
     (
         std::vector<double> &distribution_values,
-        unsigned int node_index,
+        const unsigned int node_index,
         const access_function access_function,
-        const std::set<unsigned int> &swap_directions
+        const std::vector<unsigned int> &swap_directions
     )
     {
         for(const auto dir : swap_directions)
@@ -97,6 +77,29 @@ namespace swap_sequential
     }
 
     /**
+     * @brief Performs the swap step in a single direction for the specified node.
+     * 
+     * @param distribution_values a vector containing the distribution values of all nodes
+     * @param node_index the index of the node for which the streaming step is to be performed
+     * @param access_function the function used to access the distribution values
+     * @param direction the direction in which swap will take place
+     */
+    inline void perform_swap_step
+    (
+        std::vector<double> &distribution_values,
+        const unsigned int node_index,
+        const access_function access_function,
+        const unsigned int direction
+    )
+    {
+        vec_utils::swap(
+            distribution_values, 
+            access_function(node_index, direction), 
+            access_function(access::get_neighbor(node_index, direction), invert_direction(direction))
+        );
+    }
+
+    /**
      * @brief Performs the sequential swap algorithm for the specified number of iterations.
      * 
      * @param fluid_nodes A vector containing the indices of all fluid nodes in the domain
@@ -106,11 +109,11 @@ namespace swap_sequential
      */
     void run
     (  
-        std::vector<unsigned int> &fluid_nodes,       
+        const std::vector<unsigned int> &fluid_nodes,
+        const std::vector<bool> &phase_information,       
         std::vector<double> &values, 
-        border_swap_information &bsi,
-        access_function access_function,
-        unsigned int iterations
+        const access_function access_function,
+        const unsigned int iterations
     );
 
     /**
@@ -120,7 +123,8 @@ namespace swap_sequential
      */
     sim_data_tuple perform_swap_stream_and_collide_debug
     (
-        const swap_information &swap_information,
+        const border_swap_information &bsi,
+        const std::vector<unsigned int> &fluid_nodes,
         std::vector<double> &distribution_values,    
         const access_function access_function
     );
@@ -132,8 +136,11 @@ namespace swap_sequential
      */
     sim_data_tuple perform_swap_stream_and_collide
     (
-        const swap_information &swap_information,
+        const border_swap_information &bsi,
+        const std::vector<unsigned int> &fluid_nodes,
         std::vector<double> &distribution_values,    
         const access_function access_function
     );
 }
+
+#endif

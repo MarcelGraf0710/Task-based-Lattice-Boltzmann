@@ -13,6 +13,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/sequential_lbm.dir/src/macroscopic.cpp.o.d"
   "CMakeFiles/sequential_lbm.dir/src/simulation.cpp.o"
   "CMakeFiles/sequential_lbm.dir/src/simulation.cpp.o.d"
+  "CMakeFiles/sequential_lbm.dir/src/swap_sequential_experimental.cpp.o"
+  "CMakeFiles/sequential_lbm.dir/src/swap_sequential_experimental.cpp.o.d"
   "CMakeFiles/sequential_lbm.dir/src/two_lattice_sequential.cpp.o"
   "CMakeFiles/sequential_lbm.dir/src/two_lattice_sequential.cpp.o.d"
   "CMakeFiles/sequential_lbm.dir/src/two_step_sequential.cpp.o"

@@ -5,89 +5,66 @@
 #include "../include/collision.hpp"
 #include <iostream>
 
-/**
- * @brief Maps the border node types to the swap partner directions.
- *        0 - {}        (upper right corner node)
- *        1 - {5}       (upper edge node or left upper corner node)
- *        2 - {6,7}     (right edge node or right lower corner node)
- *        3 - {5,7,8}   (left edge node or left lower corner node)
- *        4 - {5,6,7,8} (non-border node or lower edge node)
- */
-std::map<char, std::set<unsigned int>> swap_sequential::swap_directions
-{
-    {0, {}},
-    {1, {5}},
-    {2, {6, 7}},
-    {3, {5, 7, 8}},
-    {4, {5, 6, 7, 8}}
-};
+const std::vector<unsigned int> swap_sequential::ACTIVE_STREAMING_DIRECTIONS = {5,6,7,8};
 
 /**
- * @brief This map stores the inlet and outlet directions for each node.
- *        0 - {}        (empty set, neither inlet nor outlet)
- *        1 - {2,5,8}   (inlet node)
- *        2 - {0,3,6}   (outlet node)
- */
-std::map<char, std::set<unsigned int>> swap_sequential::inout_directions
-{
-    {0, {}},
-    {1, {2, 5, 8}},
-    {2, {0, 3, 6}}
-};
-
-/**
- * @brief Sets up the swap information data structure
+ * @brief Retrieves an improved version of the border swap information data structure.
+ *        This method does not consider inlet and outlet ghost nodes when performing bounce-back
+ *        as the inserted values will be overwritten by inflow and outflow values anyways.
  * 
- * @param bsi see documentation of border_swap_information
- * @param fluid_nodes a vector containing the indices of all fluid nodes
- * @return see documentation of swap_information 
+ * @param fluid_nodes a vector containing the indices of all fluid nodes within the simulation domain
+ * @param phase_information a vector containing the phase information for every vector (true means solid)
+ * @return border_swap_information see documentation of border_swap_information
  */
-swap_information swap_sequential::setup_swap_information
+border_swap_information swap_sequential::retrieve_swap_info
 (
-    const border_swap_information &bsi, 
-    const std::vector<unsigned int> &fluid_nodes
+    const std::vector<unsigned int> &fluid_nodes, 
+    const std::vector<bool> &phase_information
 )
 {
-    unsigned int x = 0;
-    unsigned int y = 0;
-    unsigned int node = 0;
-    std::tuple<unsigned int, unsigned int> coords = {0,0};
-    unsigned int bsi_index = 0;
-    swap_information result;
-    result.reserve(fluid_nodes.size());
-
-    for(auto i = 0; i < fluid_nodes.size(); ++i)
+    border_swap_information result;
+    std::vector<unsigned int> current_adjacencies;
+    std::vector<unsigned int> swap_adjacencies;
+    std::tuple<unsigned int, unsigned int> coords;
+    for(const auto node : fluid_nodes)
     {
-        node = fluid_nodes[i];
-        if(node == bsi[bsi_index][0]) // node is at border
+        current_adjacencies = {};
+        swap_adjacencies = {};
+        // Determine all nodes with non-inout ghost neighbors
+        for(const auto direction : STREAMING_DIRECTIONS)
         {
-            bsi_index++;
-            coords = access::get_node_coordinates(node);
-            x = std::get<0>(coords);
-            y = std::get<1>(coords);
+            unsigned int current_neighbor = access::get_neighbor(node, direction);
+            if(is_non_inout_ghost_node(current_neighbor, phase_information))
+            {
+                current_adjacencies.push_back(direction);
+            }
+        }
+        // Determine intersection with active streaming direction mask
+        std::set_intersection(
+            current_adjacencies.begin(), 
+            current_adjacencies.end(), 
+            ACTIVE_STREAMING_DIRECTIONS.begin(), 
+            ACTIVE_STREAMING_DIRECTIONS.end(), 
+            std::back_inserter(swap_adjacencies)
+            );
 
-            if(x == 1) // inlet node
-            {
-                if(y == 1) result.push_back({node,3,1}); // Left lower node
-                else if (y == (VERTICAL_NODES - 2)) result.push_back({node,1,1}); // Left upper node
-                else result.push_back({node,3,1}); // Left edge node
-            }
-            else if(x == (HORIZONTAL_NODES - 2)) // outlet node
-            {
-                if(y == 1) result.push_back({node,2,2}); // Right lower node
-                else if (y == (VERTICAL_NODES - 2)) result.push_back({node,0,2}); // Right edge node
-                else result.push_back({node,2,2}); // Right upper node
-            }
-            else // neither inlet nor outlet
-            {
-                if(y == 1) result.push_back({node,4,0}); // Upper edge node
-                else result.push_back({node,1,0}); // lower edge node
-            }
-        }
-        else
+        // Determine node coordinates
+        coords = access::get_node_coordinates(node);
+        
+        if(std::get<0>(coords) == 1) // Inlet node
         {
-            result.push_back({node,4,0});
+            swap_adjacencies.push_back(0);
+            swap_adjacencies.push_back(3);
         }
+        else if(std::get<0>(coords) == (HORIZONTAL_NODES - 2)) // Outlet node
+        {
+            swap_adjacencies.push_back(2);
+        }
+        current_adjacencies = {node};
+        std::sort(swap_adjacencies.begin(), swap_adjacencies.end());
+        current_adjacencies.insert(current_adjacencies.end(), swap_adjacencies.begin(), swap_adjacencies.end());
+        
+        if(current_adjacencies.size() > 1) result.push_back(current_adjacencies);
     }
     return result;
 }
@@ -99,7 +76,8 @@ swap_information swap_sequential::setup_swap_information
  */
 sim_data_tuple swap_sequential::perform_swap_stream_and_collide_debug
 (
-    const swap_information &swap_information,
+    const border_swap_information &bsi,
+    const std::vector<unsigned int> &fluid_nodes,
     std::vector<double> &distribution_values,    
     const access_function access_function
 )
@@ -115,99 +93,56 @@ sim_data_tuple swap_sequential::perform_swap_stream_and_collide_debug
     double current_density = -1;
 
     unsigned int node_index = 0;
-    std::set<unsigned int> swap_dirs = {0,0,0};
-    std::set<unsigned int> inout = {0,0,0};
+    std::vector<unsigned int> swap_dirs;
     std::vector<double> current_distributions(DIRECTION_COUNT, 0);
 
-    // Swapping step
-    for(const auto& node : swap_information)
+    // Border node initialization
+    for(const auto node : bsi)
     {
-        node_index = std::get<0>(node);
-        swap_dirs = swap_directions[std::get<1>(node)];
-        inout = inout_directions[std::get<2>(node)];
+        for(auto it = node.begin() + 1; it < node.end(); ++it)
+        {
+            swap_sequential::perform_swap_step(distribution_values, node[0], access_function, *it);
+        }
+    }
+    std::cout << "Distribution values after border node initialization: " << std::endl;
+    to_console::print_distribution_values(distribution_values, access_function);
 
-        swap_sequential::perform_swap_step(distribution_values, node_index, access_function, swap_dirs);
+    // Swapping step
+    for(const auto node : fluid_nodes)
+    {
+        swap_sequential::perform_swap_step(distribution_values, node, access_function, ACTIVE_STREAMING_DIRECTIONS);
     }
     std::cout << "Distribution values after swap for every node: " << std::endl;
     to_console::print_distribution_values(distribution_values, access_function);
 
     // Restore precious order in here
-    for(const auto& node : swap_information)
+    for(const auto node : fluid_nodes)
     {
-        node_index = std::get<0>(node);
-        swap_dirs = swap_directions[std::get<1>(node)];
-        inout = inout_directions[std::get<2>(node)];
-
-        swap_sequential::restore_order(distribution_values, node_index, access_function);
+        swap_sequential::restore_order(distribution_values, node, access_function);
     }
     std::cout << "Distribution values after ORDER has been restored for every node: " << std::endl;
     to_console::print_distribution_values(distribution_values, access_function);
 
-    // Perform inflow and outflow, if necessary
-    for(const auto& node : swap_information)
-    {
-        node_index = std::get<0>(node);
-        swap_dirs = swap_directions[std::get<1>(node)];
-        inout = inout_directions[std::get<2>(node)];
-
-        boundary_conditions::single_node_inout(distribution_values, node_index, inout, access_function);
-    }
-    std::cout << "Distribution values after inflow and outflow update: " << std::endl;
-    to_console::print_distribution_values(distribution_values, access_function);
 
     // Collision
-    for(const auto& node : swap_information)
+    for(const auto& node : fluid_nodes)
     {
-        node_index = std::get<0>(node);
-        swap_dirs = swap_directions[std::get<1>(node)];
-        inout = inout_directions[std::get<2>(node)];
-        std::cout << "Currently dealing with node " << node_index << std::endl;
-
-        current_distributions = access::get_distribution_values_of(distribution_values, node_index, access_function);
-        std::cout << "Distribution values of this node are " << std::endl;
-        to_console::print_vector(current_distributions, current_distributions.size());
-
+        current_distributions = access::get_distribution_values_of(distribution_values, node, access_function);
         current_velocity = macroscopic::flow_velocity(current_distributions);
-        std::cout.precision(15);
-        std::cout << "Flow velocity is (" << current_velocity[0] << ", " << current_velocity[1] << ")" << std::endl; 
-
         current_density = macroscopic::density(current_distributions);
-
-        std::cout << "Current density is " << current_density << std::endl;
-        std::cout.precision(3);
-        velocities[node_index] = current_velocity;
-        densities[node_index] = current_density;
-
+        velocities[node] = current_velocity;
+        densities[node] = current_density;
         current_distributions = collision::collide_bgk(current_distributions, current_velocity, current_density);
-        access::set_distribution_values_of(current_distributions, distribution_values, node_index, access_function);
-
-        std::cout << "Distribution values after collision: " << std::endl;
-
-        to_console::print_vector(current_distributions, current_distributions.size());
-        std::cout << std::endl;
+        access::set_distribution_values_of(current_distributions, distribution_values, node, access_function);
     }
     std::cout << "Distribution values after collision: " << std::endl;
     to_console::print_distribution_values(distribution_values, access_function);
 
     /* Update ghost nodes */
-    boundary_conditions::update_velocity_input_density_output(distribution_values, access_function);
+    boundary_conditions::update_velocity_input_density_output(distribution_values, velocities, densities, access_function);
     std::cout << "Distribution values after ghost node update: " << std::endl;
     to_console::print_distribution_values(distribution_values, access_function);
     std::cout << std::endl;
-
-    unsigned int update_node = 0;
-    for(auto x = 0; x < HORIZONTAL_NODES; x = x + HORIZONTAL_NODES - 1)
-    {
-        for(auto y = 1; y < VERTICAL_NODES - 1; ++y)
-        {
-            update_node = access::get_node_index(x,y);
-            current_distributions = 
-                access::get_distribution_values_of(distribution_values, update_node, access_function);
-                
-            velocities[update_node] = macroscopic::flow_velocity(current_distributions);
-            densities[update_node] = macroscopic::density(current_distributions);
-        }
-    }
 
     sim_data_tuple result{velocities, densities};
 
@@ -217,10 +152,12 @@ sim_data_tuple swap_sequential::perform_swap_stream_and_collide_debug
 /**
  * @brief Performs the combined streaming and collision step for all fluid nodes within the simulation domain.
  *        The border conditions are enforced through ghost nodes.
+ *        This variant of the combined streaming and collision step will print several debug comments to the console.
  */
 sim_data_tuple swap_sequential::perform_swap_stream_and_collide
 (
-    const swap_information &swap_information,
+    const border_swap_information &bsi,
+    const std::vector<unsigned int> &fluid_nodes,
     std::vector<double> &distribution_values,    
     const access_function access_function
 )
@@ -231,53 +168,37 @@ sim_data_tuple swap_sequential::perform_swap_stream_and_collide
     std::vector<double> densities(TOTAL_NODE_COUNT, -1);
     double current_density = -1;
 
-    unsigned int node_index = 0;
-    std::set<unsigned int> swap_dirs = {0,0,0};
-    std::set<unsigned int> inout = {0,0,0};
     std::vector<double> current_distributions(DIRECTION_COUNT, 0);
 
-    
-    for(const auto& node : swap_information)
+    // Border node initialization
+    for(const auto node : bsi)
     {
-        node_index = std::get<0>(node);
-        swap_dirs = swap_directions[std::get<1>(node)];
-        inout = inout_directions[std::get<2>(node)];
+        for(auto it = node.begin() + 1; it < node.end(); ++it)
+        {
+            swap_sequential::perform_swap_step(distribution_values, node[0], access_function, *it);
+        }
+    }
 
+    for(const auto node : fluid_nodes)
+    {
         // Swapping step
-        swap_sequential::perform_swap_step(distribution_values, node_index, access_function, swap_dirs);
+        swap_sequential::perform_swap_step(distribution_values, node, access_function, ACTIVE_STREAMING_DIRECTIONS);
 
         // Restore precious order in here
-        swap_sequential::restore_order(distribution_values, node_index, access_function);
-
-        // Perform inflow and outflow, if necessary
-        boundary_conditions::single_node_inout(distribution_values, node_index, inout, access_function);
+        swap_sequential::restore_order(distribution_values, node, access_function);
 
         // Collision
-        current_distributions = access::get_distribution_values_of(distribution_values, node_index, access_function);
+        current_distributions = access::get_distribution_values_of(distribution_values, node, access_function);
         current_velocity = macroscopic::flow_velocity(current_distributions);
         current_density = macroscopic::density(current_distributions);
-        velocities[node_index] = current_velocity;
-        densities[node_index] = current_density;
+        velocities[node] = current_velocity;
+        densities[node] = current_density;
         current_distributions = collision::collide_bgk(current_distributions, current_velocity, current_density);
-        access::set_distribution_values_of(current_distributions, distribution_values, node_index, access_function);
+        access::set_distribution_values_of(current_distributions, distribution_values, node, access_function);
     }
 
     /* Update ghost nodes */
-    boundary_conditions::update_velocity_input_density_output(distribution_values, access_function);
-
-    unsigned int update_node = 0;
-    for(auto x = 0; x < HORIZONTAL_NODES; x = x + HORIZONTAL_NODES - 1)
-    {
-        for(auto y = 1; y < VERTICAL_NODES - 1; ++y)
-        {
-            update_node = access::get_node_index(x,y);
-            current_distributions = 
-                access::get_distribution_values_of(distribution_values, update_node, access_function);
-                
-            velocities[update_node] = macroscopic::flow_velocity(current_distributions);
-            densities[update_node] = macroscopic::density(current_distributions);
-        }
-    }
+    boundary_conditions::update_velocity_input_density_output(distribution_values, velocities, densities, access_function);
 
     sim_data_tuple result{velocities, densities};
 
@@ -294,60 +215,29 @@ sim_data_tuple swap_sequential::perform_swap_stream_and_collide
  */
 void swap_sequential::run
 (  
-    std::vector<unsigned int> &fluid_nodes,       
+    const std::vector<unsigned int> &fluid_nodes,
+    const std::vector<bool> &phase_information,       
     std::vector<double> &values, 
-    border_swap_information &bsi,
-    access_function access_function,
-    unsigned int iterations
+    const access_function access_function,
+    const unsigned int iterations
 )
 {
-    std::cout << "------------------------------------------------------------------------------------------------------------------------" << std::endl;
-    std::cout << "Now running sequential swap algorithm for " << iterations << " iterations." << std::endl;
-    std::cout << std::endl;
+    to_console::print_run_greeting("sequential swap algorithm", iterations);    
 
     std::vector<sim_data_tuple>result(
         iterations, 
         std::make_tuple(std::vector<velocity>(TOTAL_NODE_COUNT, {0,0}), std::vector<double>(TOTAL_NODE_COUNT, 0)));
 
-    swap_information si = swap_sequential::setup_swap_information(bsi, fluid_nodes);
+    std::cout << "Retrieving swap info" << std::endl;
+    border_swap_information bsi = swap_sequential::retrieve_swap_info(fluid_nodes, phase_information);
 
     for(auto time = 0; time < iterations; ++time)
     {
         std::cout << "\033[33mIteration " << time << ":\033[0m" << std::endl;
-        result[time] = swap_sequential::perform_swap_stream_and_collide
-        (
-            si,
-            values, 
-            access_function
-        );
-        std::cout << "Finished iteration " << time << std::endl;
+        result[time] = swap_sequential::perform_swap_stream_and_collide(bsi, fluid_nodes, values, access_function);
+        std::cout << "\tFinished iteration " << time << std::endl;
     }
 
-    std::cout << std::endl;
-    std::cout << std::endl;
-
-    std::cout << "Velocity values: " << std::endl;
-    std::cout << std::endl;
-    for(auto i = 0; i < iterations; ++i)
-    {
-        std::cout << "t = " << i << std::endl;
-        std::cout << "-------------------------------------------------------------------------------- " << std::endl;
-        to_console::print_velocity_vector(std::get<0>(result[i]));
-        std::cout << std::endl;
-    }
-    std::cout << std::endl;
-    std::cout << std::endl;
-
-    std::cout << "Density values: " << std::endl;
-    std::cout << std::endl;
-    
-    for(auto i = 0; i < iterations; ++i)
-    {
-        std::cout << "t = " << i << std::endl;
-        std::cout << "-------------------------------------------------------------------------------- " << std::endl;
-        to_console::print_vector(std::get<1>(result[i]));
-        std::cout << std::endl;
-    }
+    to_console::print_simulation_results(result);
     std::cout << "All done, exiting simulation. " << std::endl;
-   
 }

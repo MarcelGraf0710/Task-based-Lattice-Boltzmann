@@ -192,8 +192,13 @@ void bounce_back::perform_boundary_update
     int current_border_node = 0;
     for(const auto& current : bsi)
     {
+        std::cout << "Received bsi " << std::endl;
+        to_console::print_vector(current, current.size());
         current_border_node = current[0];
         remaining_dirs = bounce_back::determine_bounce_back_directions(current);
+        std::cout << "Remaining dirs: " << std::endl;
+        to_console::print_set(remaining_dirs);
+        std::cout << std::endl;
 
         for(const auto direction : remaining_dirs)
         {

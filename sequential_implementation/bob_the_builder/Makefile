@@ -297,6 +297,30 @@ src/simulation.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/src/simulation.cpp.s
 .PHONY : src/simulation.cpp.s
 
+src/swap_sequential_experimental.o: src/swap_sequential_experimental.cpp.o
+.PHONY : src/swap_sequential_experimental.o
+
+# target to build an object file
+src/swap_sequential_experimental.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/src/swap_sequential_experimental.cpp.o
+.PHONY : src/swap_sequential_experimental.cpp.o
+
+src/swap_sequential_experimental.i: src/swap_sequential_experimental.cpp.i
+.PHONY : src/swap_sequential_experimental.i
+
+# target to preprocess a source file
+src/swap_sequential_experimental.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/src/swap_sequential_experimental.cpp.i
+.PHONY : src/swap_sequential_experimental.cpp.i
+
+src/swap_sequential_experimental.s: src/swap_sequential_experimental.cpp.s
+.PHONY : src/swap_sequential_experimental.s
+
+# target to generate assembly for a file
+src/swap_sequential_experimental.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/src/swap_sequential_experimental.cpp.s
+.PHONY : src/swap_sequential_experimental.cpp.s
+
 src/two_lattice_sequential.o: src/two_lattice_sequential.cpp.o
 .PHONY : src/two_lattice_sequential.o
 
@@ -375,6 +399,9 @@ help:
 	@echo "... src/simulation.o"
 	@echo "... src/simulation.i"
 	@echo "... src/simulation.s"
+	@echo "... src/swap_sequential_experimental.o"
+	@echo "... src/swap_sequential_experimental.i"
+	@echo "... src/swap_sequential_experimental.s"
 	@echo "... src/two_lattice_sequential.o"
 	@echo "... src/two_lattice_sequential.i"
 	@echo "... src/two_lattice_sequential.s"
