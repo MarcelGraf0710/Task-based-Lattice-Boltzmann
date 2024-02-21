@@ -99,10 +99,11 @@ border_swap_information bounce_back::retrieve_fast_border_swap_info
     const std::vector<bool> &phase_information
 )
 {
+    std::vector<unsigned int> current_adjacencies;
     border_swap_information result;
     for(const auto node : fluid_nodes)
     {
-        std::vector<unsigned int> current_adjacencies{node};
+        current_adjacencies = {node};
         for(const auto direction : STREAMING_DIRECTIONS)
         {
             unsigned int current_neighbor = access::get_neighbor(node, direction);
@@ -134,18 +135,13 @@ void bounce_back::emplace_bounce_back_values
     const unsigned int read_offset
 )
 {
-    std::vector<unsigned int> directions = STREAMING_DIRECTIONS;
-    unsigned int current_node = 0;
-
-    for(const auto& border_node : bsi)
+    for(auto bsi_iterator = bsi.begin(); bsi_iterator < bsi.end(); ++bsi_iterator)
     {
-        current_node = border_node[0];
-        directions = {border_node.begin()+1, border_node.end()};
-        for(const auto direction : directions) 
+        for(auto direction_iterator = (*bsi_iterator).begin()+1; direction_iterator < (*bsi_iterator).end(); ++direction_iterator) 
         {
             distribution_values[
-                access_function(access::get_neighbor(current_node + read_offset, direction), invert_direction(direction))] = 
-                  distribution_values[access_function(current_node + read_offset, direction)];
+                access_function(access::get_neighbor((*bsi_iterator)[0] + read_offset, *direction_iterator), invert_direction(*direction_iterator))] = 
+                  distribution_values[access_function((*bsi_iterator)[0] + read_offset, *direction_iterator)];
         }
     }
 }

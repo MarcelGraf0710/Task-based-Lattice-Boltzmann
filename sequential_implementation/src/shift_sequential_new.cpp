@@ -10,71 +10,6 @@
 #include <stdexcept>
 
 /**
- * @brief Retrieves an improved version of the border swap information data structure.
- *        This method does not consider inlet and outlet ghost nodes when performing bounce-back
- *        as the inserted values will be overwritten by inflow and outflow values anyways.
- * 
- * @param fluid_nodes a vector containing the indices of all fluid nodes within the simulation domain
- * @param phase_information a vector containing the phase information for every vector (true means solid)
- * @return border_swap_information see documentation of border_swap_information
- */
-border_swap_information shift_sequential::retrieve_fast_border_swap_info
-(
-    const std::vector<unsigned int> &fluid_nodes, 
-    const std::vector<bool> &phase_information
-)
-{
-    border_swap_information result;
-    for(const auto node : fluid_nodes)
-    {
-        std::vector<unsigned int> current_adjacencies{node};
-        for(const auto direction : STREAMING_DIRECTIONS)
-        {
-            unsigned int current_neighbor = access::get_neighbor(node, direction);
-            if(is_non_inout_ghost_node(current_neighbor, phase_information))
-            {
-                current_adjacencies.push_back(direction);
-            }
-        }
-        if(current_adjacencies.size() > 1) result.push_back(current_adjacencies);
-    }
-    return result;
-}
-
-/**
- * @brief Performs an outstream step for all border nodes in the directions where they border non-inout ghost nodes.
- *        The distribution values will be stored in the ghost nodes in inverted order such that
- *        after this method is executed, the border nodes can be treated like regular nodes when performing an instream.
- * 
- * @param bsi 
- * @param distribution_values 
- * @param access_function 
- */
-void shift_sequential::emplace_bounce_back_values
-(
-    const border_swap_information &bsi,
-    std::vector<double> &distribution_values,
-    const access_function access_function,
-    const unsigned int read_offset
-)
-{
-    std::vector<unsigned int> directions = STREAMING_DIRECTIONS;
-    unsigned int current_node = 0;
-
-    for(const auto& border_node : bsi)
-    {
-        current_node = border_node[0];
-        directions = {border_node.begin()+1, border_node.end()};
-        for(const auto direction : directions) 
-        {
-            distribution_values[
-                access_function(access::get_neighbor(current_node + read_offset, direction), invert_direction(direction))] = 
-                  distribution_values[access_function(current_node + read_offset, direction)];
-        }
-    }
-}
-
-/**
  * @brief Performs a combined collision and streaming step for the specified fluid node.
  * 
  * @param values the vector containing the distribution values of all nodes
@@ -94,7 +29,6 @@ sim_data_tuple shift_sequential::perform_shift_stream_and_collide
     const unsigned int iteration
 )
 {
-    unsigned int current_node = 0;
     unsigned int read_offset = 0;
     unsigned int write_offset = 0;
     std::vector<double> current_distributions(DIRECTION_COUNT, 0);
@@ -103,31 +37,25 @@ sim_data_tuple shift_sequential::perform_shift_stream_and_collide
     std::vector<double> densities(TOTAL_NODE_COUNT, -1);
     std::vector<double> debug_distributions(TOTAL_NODE_COUNT, 0);
 
-    if((iteration % 2) == 0) // Even time step, dis correct
+    if((iteration % 2) == 0)
     {
         read_offset = 0;
         write_offset = SHIFT_OFFSET;
 
         // Emplace bounce-back values
-        for(const auto& border_node : bsi)
-        {
-            shift_sequential::emplace_bounce_back_values(bsi, distribution_values, access_function, read_offset);
-        }
-
+        bounce_back::emplace_bounce_back_values(bsi, distribution_values, access_function, read_offset);
         
-        for(int i = fluid_nodes.size() - 1; i >= 0; i--)
+        for(auto node = fluid_nodes.end() - 1; node >= fluid_nodes.begin(); --node)
         {
             // Streaming
-            current_node = fluid_nodes[i];
-            shift_sequential::shift_stream(distribution_values, access_function, current_node, read_offset, write_offset);
+            shift_sequential::shift_stream(distribution_values, access_function, *node, read_offset, write_offset);
 
             // Collision
-            current_node = fluid_nodes[i];
-            current_distributions = access::get_distribution_values_of(distribution_values, current_node + write_offset, access_function);
-            velocities[current_node] = macroscopic::flow_velocity(current_distributions);
-            densities[current_node] = macroscopic::density(current_distributions);
-            current_distributions = collision::collide_bgk(current_distributions, velocities[current_node], densities[current_node]);
-            access::set_distribution_values_of(current_distributions, distribution_values, current_node + write_offset, access_function);
+            current_distributions = access::get_distribution_values_of(distribution_values, *node + write_offset, access_function);
+            velocities[*node] = macroscopic::flow_velocity(current_distributions);
+            densities[*node] = macroscopic::density(current_distributions);
+            current_distributions = collision::collide_bgk(current_distributions, velocities[*node], densities[*node]);
+            access::set_distribution_values_of(current_distributions, distribution_values, *node + write_offset, access_function);
         }
     }
     else
@@ -136,24 +64,19 @@ sim_data_tuple shift_sequential::perform_shift_stream_and_collide
         write_offset = 0;
 
         // Emplace bounce-back values
-        for(const auto& border_node : bsi)
-        {
-            shift_sequential::emplace_bounce_back_values(bsi, distribution_values, access_function, read_offset);
-        }
-
-        for(int i = 0; i < fluid_nodes.size(); ++i)
+        bounce_back::emplace_bounce_back_values(bsi, distribution_values, access_function, read_offset);
+ 
+        for(auto node = fluid_nodes.begin(); node < fluid_nodes.end(); ++node)
         {
             // Streaming
-            current_node = fluid_nodes[i];
-            shift_sequential::shift_stream(distribution_values, access_function, current_node, read_offset, write_offset);
+            shift_sequential::shift_stream(distribution_values, access_function, *node, read_offset, write_offset);
 
             // Collision
-            current_node = fluid_nodes[i];
-            current_distributions = access::get_distribution_values_of(distribution_values, current_node + write_offset, access_function);
-            velocities[current_node] = macroscopic::flow_velocity(current_distributions);
-            densities[current_node] = macroscopic::density(current_distributions);
-            current_distributions = collision::collide_bgk(current_distributions, velocities[current_node], densities[current_node]);
-            access::set_distribution_values_of(current_distributions, distribution_values, current_node + write_offset, access_function);
+            current_distributions = access::get_distribution_values_of(distribution_values, *node + write_offset, access_function);
+            velocities[*node] = macroscopic::flow_velocity(current_distributions);
+            densities[*node] = macroscopic::density(current_distributions);
+            current_distributions = collision::collide_bgk(current_distributions, velocities[*node], densities[*node]);
+            access::set_distribution_values_of(current_distributions, distribution_values, *node + write_offset, access_function);
         }
     }
 
@@ -207,7 +130,7 @@ sim_data_tuple shift_sequential::perform_shift_stream_and_collide_debug
     std::vector<double> densities(TOTAL_NODE_COUNT, -1);
     std::vector<double> debug_distributions(TOTAL_NODE_COUNT, 0);
 
-    if((iteration % 2) == 0) // Even time step, dis correct
+    if((iteration % 2) == 0)
     {
         read_offset = 0;
         write_offset = SHIFT_OFFSET;
@@ -219,21 +142,16 @@ sim_data_tuple shift_sequential::perform_shift_stream_and_collide_debug
         to_console::print_distribution_values(debug_distributions, access_function);
         std::cout << std::endl;
 
-        // Emplace bounce-back values
-        for(const auto& border_node : bsi)
-        {
-            shift_sequential::emplace_bounce_back_values(bsi, distribution_values, access_function, read_offset);
-        }
+        bounce_back::emplace_bounce_back_values(bsi, distribution_values, access_function, read_offset);
 
         std::cout << "Distribution values after emplace bounce-back: " << std::endl;
         debug_distributions = {distribution_values.begin() + (read_offset * DIRECTION_COUNT), distribution_values.end() - ((SHIFT_OFFSET - read_offset) * DIRECTION_COUNT)};
         to_console::print_distribution_values(debug_distributions, access_function);
 
         // Streaming
-        for(int i = fluid_nodes.size() - 1; i >= 0; i--)
+        for(auto node = fluid_nodes.end() - 1; node >= fluid_nodes.begin(); --node)
         {
-            current_node = fluid_nodes[i];
-            shift_sequential::shift_stream(distribution_values, access_function, current_node, read_offset, write_offset);
+            shift_sequential::shift_stream(distribution_values, access_function, *node, read_offset, write_offset);
         }
 
         std::cout << "Distribution values after streaming (properly shifted): " << std::endl;
@@ -241,30 +159,13 @@ sim_data_tuple shift_sequential::perform_shift_stream_and_collide_debug
         to_console::print_distribution_values(debug_distributions, access_function);
 
         // Collision
-        for(int i = fluid_nodes.size() - 1; i >= 0; --i)
+        for(auto node = fluid_nodes.end() - 1; node >= fluid_nodes.begin(); --node)
         {
-            current_node = fluid_nodes[i];
-            // std::cout << "Performing collision for node " << current_node << std::endl;
-            
-            // std::cout << "Got distribution values " << std::endl;
-
-            current_distributions = access::get_distribution_values_of(distribution_values, current_node + write_offset, access_function);
-
-            // to_console::print_vector(current_distributions, current_distributions.size());
-
-            velocities[current_node] = macroscopic::flow_velocity(current_distributions);
-
-            // std::cout << "Got velocity (" << velocities[current_node][0] << ", " << velocities[current_node][1] << ")" << std::endl;
-
-            densities[current_node] = macroscopic::density(current_distributions);
-
-            // std::cout << "Got density " << densities[current_node] << std::endl;
-
-            // std::cout << "Accessing collide_bgk " << std::endl;
-            current_distributions = collision::collide_bgk(current_distributions, velocities[current_node], densities[current_node]);
-
-            // std::cout << "Setting distribution values " << std::endl;
-            access::set_distribution_values_of(current_distributions, distribution_values, current_node + write_offset, access_function);
+            current_distributions = access::get_distribution_values_of(distribution_values, *node + write_offset, access_function);
+            velocities[*node] = macroscopic::flow_velocity(current_distributions);
+            densities[*node] = macroscopic::density(current_distributions);
+            current_distributions = collision::collide_bgk(current_distributions, velocities[*node], densities[*node]);
+            access::set_distribution_values_of(current_distributions, distribution_values, *node + write_offset, access_function);
         }
 
         std::cout << "Distribution values after collision: " << std::endl;
@@ -284,20 +185,16 @@ sim_data_tuple shift_sequential::perform_shift_stream_and_collide_debug
         std::cout << std::endl;
 
         // Emplace bounce-back values
-        for(const auto& border_node : bsi)
-        {
-            shift_sequential::emplace_bounce_back_values(bsi, distribution_values, access_function, read_offset);
-        }
+        bounce_back::emplace_bounce_back_values(bsi, distribution_values, access_function, read_offset);
 
         std::cout << "Distribution values after emplace bounce-back: " << std::endl;
         debug_distributions = {distribution_values.begin() + (read_offset * DIRECTION_COUNT), distribution_values.end() - ((SHIFT_OFFSET - read_offset) * DIRECTION_COUNT)};
         to_console::print_distribution_values(debug_distributions, access_function);
 
         // Streaming
-        for(int i = 0; i < fluid_nodes.size(); ++i)
+        for(auto node = fluid_nodes.begin(); node < fluid_nodes.end(); ++node)
         {
-            current_node = fluid_nodes[i];
-            shift_sequential::shift_stream(distribution_values, access_function, current_node, read_offset, write_offset);
+            shift_sequential::shift_stream(distribution_values, access_function, *node, read_offset, write_offset);
         }
 
         std::cout << "Distribution values after streaming (properly shifted): " << std::endl;
@@ -305,30 +202,13 @@ sim_data_tuple shift_sequential::perform_shift_stream_and_collide_debug
         to_console::print_distribution_values(debug_distributions, access_function);
 
         // Collision
-        for(int i = 0; i < fluid_nodes.size(); ++i)
+        for(auto node = fluid_nodes.begin(); node < fluid_nodes.end(); ++node)
         {
-            current_node = fluid_nodes[i];
-            // std::cout << "Performing collision for node " << current_node << std::endl;
-            
-            // std::cout << "Got distribution values " << std::endl;
-
-            current_distributions = access::get_distribution_values_of(distribution_values, current_node + write_offset, access_function);
-
-            // to_console::print_vector(current_distributions, current_distributions.size());
-
-            velocities[current_node] = macroscopic::flow_velocity(current_distributions);
-
-            // std::cout << "Got velocity (" << velocities[current_node][0] << ", " << velocities[current_node][1] << ")" << std::endl;
-
-            densities[current_node] = macroscopic::density(current_distributions);
-
-            // std::cout << "Got density " << densities[current_node] << std::endl;
-
-            // std::cout << "Accessing collide_bgk " << std::endl;
-            current_distributions = collision::collide_bgk(current_distributions, velocities[current_node], densities[current_node]);
-
-            // std::cout << "Setting distribution values " << std::endl;
-            access::set_distribution_values_of(current_distributions, distribution_values, current_node + write_offset, access_function);
+            current_distributions = access::get_distribution_values_of(distribution_values, *node + write_offset, access_function);
+            velocities[*node] = macroscopic::flow_velocity(current_distributions);
+            densities[*node] = macroscopic::density(current_distributions);
+            current_distributions = collision::collide_bgk(current_distributions, velocities[*node], densities[*node]);
+            access::set_distribution_values_of(current_distributions, distribution_values, *node + write_offset, access_function);
         }
 
         std::cout << "Distribution values after collision: " << std::endl;

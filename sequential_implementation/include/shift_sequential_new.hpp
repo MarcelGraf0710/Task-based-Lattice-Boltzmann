@@ -37,7 +37,7 @@ namespace shift_sequential
         // std::vector<double> dist_vals_debug = access::get_distribution_values_of(distribution_values, fluid_node, access_function);
         // to_console::print_vector(dist_vals_debug, dist_vals_debug.size());
 
-        for (const auto direction : {0, 1, 2, 3, 4, 5, 6, 7, 8})
+        for (const auto direction : ALL_DIRECTIONS)
         {
             // std::cout << "Performing stream (idx = " << fluid_node + write_offset << ", dir = " << direction << ") [" << distribution_values[access_function(fluid_node + write_offset, direction)] << "] <- ";
             // std::cout << "(idx = " << access::get_neighbor(fluid_node + read_offset, invert_direction(direction)) << ", dir = " << direction 
@@ -117,38 +117,6 @@ namespace shift_sequential
         border_swap_information &bsi,
         access_function access_function,
         unsigned int iterations
-    );
-
-    /**
-     * @brief Retrieves an improved version of the border swap information data structure.
-     *        This method does not consider inlet and outlet ghost nodes when performing bounce-back
-     *        as the inserted values will be overwritten by inflow and outflow values anyways.
-     * 
-     * @param fluid_nodes 
-     * @param phase_information 
-     * @return border_swap_information 
-     */
-    border_swap_information retrieve_fast_border_swap_info
-    (
-        const std::vector<unsigned int> &fluid_nodes, 
-        const std::vector<bool> &phase_information
-    );
-
-    /**
-     * @brief Performs an outstream step for all border nodes in the directions where they border non-inout ghost nodes.
-     *        The distribution values will be stored in the ghost nodes in inverted order such that
-     *        after this method is executed, the border nodes can be treated like regular nodes when performing an instream.
-     * 
-     * @param bsi 
-     * @param distribution_values 
-     * @param access_function 
-     */
-    void emplace_bounce_back_values
-    (
-        const border_swap_information &bsi,
-        std::vector<double> &distribution_values,
-        const access_function access_function,
-        const unsigned int read_offset
     );
 
     /**
