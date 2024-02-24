@@ -3,7 +3,7 @@ This repository contains the elaborations for my SimTech project.
 
 ## How to compile
 This project uses CMake to create an executable file.
-All parallel implementations use HPX (https://hpx-docs.stellar-group.org/latest/html/index.html) and thus require CMake to know the path to the HPX installation.
+All parallel implementations use [HPX](https://hpx-docs.stellar-group.org/latest/html/index.html) and thus require CMake to know the path to the HPX installation.
 Every `CMakeLists.txt` file must include the line `find_package(HPX REQUIRED)`. 
 This tells CMAKE that the project uses HPX and that the respective files need to be considered when building.
 In order for CMAKE to find HPX, one must specify the `CMAKE_PREFIX_PATH` to the path leading to the file `HPXConfig.cmake`.
