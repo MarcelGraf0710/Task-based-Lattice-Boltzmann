@@ -2,7 +2,7 @@
 #include "include/access.hpp"
 #include "include/simulation.hpp"
 #include "include/utils.hpp"
-#include "include/swap_sequential_experimental.hpp"
+#include "include/swap_sequential.hpp"
 
 
 int main(const int argc, const char** argv)

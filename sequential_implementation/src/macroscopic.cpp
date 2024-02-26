@@ -37,7 +37,7 @@ std::vector<velocity> macroscopic::calculate_all_velocities
     const access_function access_function
 )
 {
-    std::vector<velocity> result(all_distributions.size() / DIRECTION_COUNT, {0,0});
+    std::vector<velocity> result(TOTAL_NODE_COUNT, {0,0});
 
     for(const auto fluid_node : fluid_nodes)
     {
@@ -63,7 +63,7 @@ std::vector<double> macroscopic::calculate_all_densities
     const access_function access_function
 )
 {
-    std::vector<double> result(all_distributions.size() / DIRECTION_COUNT, -1);
+    std::vector<double> result(TOTAL_NODE_COUNT, -1);
 
     for(const auto fluid_node : fluid_nodes)
     {

@@ -35,7 +35,6 @@ sim_data_tuple shift_sequential::perform_shift_stream_and_collide
     
     std::vector<velocity> velocities(TOTAL_NODE_COUNT, velocity{0,0});
     std::vector<double> densities(TOTAL_NODE_COUNT, -1);
-    std::vector<double> debug_distributions(TOTAL_NODE_COUNT, 0);
 
     if((iteration % 2) == 0)
     {
@@ -257,31 +256,33 @@ void shift_sequential::update_velocity_input_density_output
     const unsigned int offset
 )
 {
-    // std::cout << "\033[34mEntering shift_sequential::update_velocity_input_density_output\033[0m" << std::endl;
 
     std::vector<double> current_dist_vals(DIRECTION_COUNT, 0);
     int current_border_node = 0;
     velocity v = INLET_VELOCITY;
     double density = 0;
 
-    // Correction of bordering velocity
-    current_border_node = access::get_node_index(HORIZONTAL_NODES - 2,0) + offset;
-    current_dist_vals = access::get_distribution_values_of(distribution_values, access::get_neighbor(current_border_node, 7), access_function);
-    access::set_distribution_values_of(current_dist_vals, distribution_values, current_border_node, access_function);
+    /* Correction of bordering velocity */
+    // current_border_node = access::get_node_index(HORIZONTAL_NODES - 2,0) + offset;
+    // current_dist_vals = access::get_distribution_values_of(distribution_values, access::get_neighbor(current_border_node, 7), access_function);
+    // access::set_distribution_values_of(current_dist_vals, distribution_values, current_border_node, access_function);
 
-    current_border_node = access::get_node_index(HORIZONTAL_NODES - 2,VERTICAL_NODES - 1) + offset;
-    current_dist_vals = access::get_distribution_values_of(distribution_values, access::get_neighbor(current_border_node, 1), access_function);
-    access::set_distribution_values_of(current_dist_vals, distribution_values, current_border_node, access_function);
+    // current_border_node = access::get_node_index(HORIZONTAL_NODES - 2,VERTICAL_NODES - 1) + offset;
+    // current_dist_vals = access::get_distribution_values_of(distribution_values, access::get_neighbor(current_border_node, 1), access_function);
+    // access::set_distribution_values_of(current_dist_vals, distribution_values, current_border_node, access_function);
 
 
     for(auto y = 0; y < VERTICAL_NODES; ++y)
     {
         // Update inlets
-        // std::cout << "Currently at node with coords (0, " << y << "); index is " << access::get_node_index(0,y) << " (with offset added: " << access::get_node_index(0,y) + offset << ")" << std::endl;
         current_border_node = access::get_node_index(0,y) + offset;
+
         v = INLET_VELOCITY;
+
         density = INLET_DENSITY;
+
         current_dist_vals = maxwell_boltzmann_distribution(v, density);
+
         access::set_distribution_values_of
         (
             current_dist_vals,
@@ -290,28 +291,15 @@ void shift_sequential::update_velocity_input_density_output
             access_function
         );
 
-        // std::cout << std::endl;
-
         // Update outlets
-        // std::cout << "Currently at node with coords (" << HORIZONTAL_NODES - 1 << ", " << y << "); index is " 
-        //          << access::get_node_index(HORIZONTAL_NODES - 1,y) << " (with offset added: " 
-        //          << access::get_node_index(HORIZONTAL_NODES - 1,y) + offset << ")" << std::endl;
-
         current_border_node = access::get_node_index(HORIZONTAL_NODES - 1,y) + offset;
 
         v = macroscopic::flow_velocity(access::get_distribution_values_of(distribution_values, access::get_neighbor(current_border_node, 3), access_function));
 
-        // std::cout << "\tVelocity is (" << v[0] << ", " << v[1] << "), got distribution values from neighbor node with index " << access::get_neighbor(current_border_node, 3) << std::endl;
-        // std::cout << "This neighbor has the distribution values " << std::endl;
-        // to_console::print_vector(access::get_distribution_values_of(distribution_values, access::get_neighbor(current_border_node, 3), access_function), 100);
-
         density = OUTLET_DENSITY;
 
-        // std::cout << "\tDensity is " << density << std::endl;
-
         current_dist_vals = maxwell_boltzmann_distribution(v, density);
-        // std::cout << "\tCalculated Maxwell Boltzmann distribution " << std::endl;
-        // to_console::print_vector(current_dist_vals, current_dist_vals.size());
+
         access::set_distribution_values_of
         (
             current_dist_vals,
@@ -319,7 +307,6 @@ void shift_sequential::update_velocity_input_density_output
             current_border_node,
             access_function
         );
-        // std::cout << std::endl;
     }
 }
 
@@ -340,48 +327,19 @@ void shift_sequential::run
     unsigned int iterations
 )
 {
-    std::cout << "------------------------------------------------------------------------------------------------------------------------" << std::endl;
-    std::cout << "Now running sequential shift algorithm for " << iterations << " iterations." << std::endl;
-    std::cout << std::endl;
+    to_console::print_run_greeting("sequential shift algorithm", iterations);
 
     std::vector<sim_data_tuple>result(
-        iterations, 
+        iterations,
         std::make_tuple(std::vector<velocity>(TOTAL_NODE_COUNT, {0,0}), std::vector<double>(TOTAL_NODE_COUNT, 0)));
 
     for(auto time = 0; time < iterations; ++time)
     {
         std::cout << "\033[33mIteration " << time << ":\033[0m" << std::endl;
-        result[time] = shift_sequential::perform_shift_stream_and_collide(values, fluid_nodes, bsi, access_function, time);
-        std::cout << "Finished iteration " << time << std::endl;
+        result[time] = shift_sequential::perform_shift_stream_and_collide_debug(values, fluid_nodes, bsi, access_function, time);
+        std::cout << "\tFinished iteration " << time << std::endl;
     }
-
-    std::cout << std::endl;
-    std::cout << std::endl;
-
-    std::cout << "Velocity values: " << std::endl;
-    std::cout << std::endl;
-    for(auto i = 0; i < iterations; ++i)
-    {
-        std::cout << "t = " << i << std::endl;
-        std::cout << "-------------------------------------------------------------------------------- " << std::endl;
-        to_console::print_velocity_vector(std::get<0>(result[i]));
-        std::cout << std::endl;
-    }
-    std::cout << std::endl;
-    std::cout << std::endl;
-
-    std::cout << "Density values: " << std::endl;
-    std::cout << std::endl;
-    
-    for(auto i = 0; i < iterations; ++i)
-    {
-        std::cout << "t = " << i << std::endl;
-        std::cout << "-------------------------------------------------------------------------------- " << std::endl;
-        to_console::print_vector(std::get<1>(result[i]));
-        std::cout << std::endl;
-    }
-    std::cout << "All done, exiting simulation. " << std::endl;
-   
+    to_console::print_simulation_results(result);
 }
 
 /**
