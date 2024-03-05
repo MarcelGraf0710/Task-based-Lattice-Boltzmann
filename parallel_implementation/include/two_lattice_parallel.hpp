@@ -139,7 +139,7 @@ namespace two_lattice_parallel
         const double &density
     )
     {
-        std::cout << "Accessing tl_collision on node "<< fluid_node << " with velocity (" << velocity[0] << ", " << velocity[1] << ") and density " << density << std::endl;
+        // std::cout << "Accessing tl_collision on node "<< fluid_node << " with velocity (" << velocity[0] << ", " << velocity[1] << ") and density " << density << std::endl;
         std::vector<double> vals = collision::collide_bgk(distribution_values, velocity, density);
         // std::cout << "Calculated distribution: " << std::endl;
         // to_console::print_vector(vals);

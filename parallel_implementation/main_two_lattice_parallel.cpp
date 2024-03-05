@@ -41,7 +41,6 @@ int hpx_main()
         std::cout << std::endl;
     }
 
-
     /* Setting up example domain */
     setup_example_domain(distribution_values_0, nodes, fluid_nodes, phase_information, swap_info, access_function, enable_debug);
 
