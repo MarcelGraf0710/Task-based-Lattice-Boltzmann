@@ -1,44 +1,49 @@
-#include <iostream>
 #include "include/access.hpp"
 #include "include/simulation.hpp"
 #include "include/utils.hpp"
-#include "include/shift_sequential_new.hpp"
+#include "include/two_lattice_sequential.hpp"
+#include <hpx/hpx_init.hpp>
 
-int main(const int argc, const char** argv)
+int hpx_main()
 {
     bool enable_debug = false;
-    if(argc > 2)
-    {
-        std::cout << "Illegal argument count. Choose argument 'debug' if you want to run this program in debug mode, or run it without arguments." << std::endl;
-        exit(-1);
-    }
-    else if(argc == 2)
-    {
-        std::string selection(argv[1]);
-        enable_debug = debug_handler(selection);
-    }
+    // if(argc > 2)
+    // {
+    //     std::cout << "Illegal argument count. Choose argument 'debug' if you want to run this program in debug mode, or run it without arguments." << std::endl;
+    //     exit(-1);
+    // }
+    // else if(argc == 2)
+    // {
+    //     std::string selection(argv[1]);
+    //     enable_debug = debug_handler(selection);
+    // }
 
     std::cout << std::endl;
     std::cout << "Starting simulation..." << std::endl;
     std::cout << std::endl;
     std::cout << std::setprecision(3) << std::fixed;
 
+    /* Color message */
+    to_console::print_ansi_color_message();
+
+
     /* Initializations */
-    std::vector<double> distribution_values(0, (TOTAL_NODE_COUNT + SHIFT_OFFSET) * DIRECTION_COUNT);
+    std::vector<double> distribution_values_0(0, TOTAL_NODE_COUNT * DIRECTION_COUNT);
     std::vector<unsigned int> nodes(0, TOTAL_NODE_COUNT);
     std::vector<unsigned int> fluid_nodes(0, TOTAL_NODE_COUNT);
     std::vector<bool> phase_information(false, TOTAL_NODE_COUNT);
     border_swap_information swap_info;
     access_function access_function = lbm_access::collision;
-    
+
     if(enable_debug)
     {
         std::cout << "All vectors declared. " << std::endl;
         std::cout << std::endl;
     }
 
+
     /* Setting up example domain */
-    shift_sequential::setup_example_domain(distribution_values, nodes, fluid_nodes, phase_information, swap_info, access_function, enable_debug);
+    setup_example_domain(distribution_values_0, nodes, fluid_nodes, phase_information, swap_info, access_function, enable_debug);
 
     if(enable_debug)
     {
@@ -62,10 +67,29 @@ int main(const int argc, const char** argv)
         std::cout << std::endl;
 
         std::cout << "Initial distributions:" << std::endl;
-        to_console::print_distribution_values(distribution_values, access_function);
+        to_console::print_distribution_values(distribution_values_0, access_function);
         std::cout << std::endl;
     }
 
+    std::vector<double> distribution_values_1 = distribution_values_0;
+
     /* Run simulation */
-    shift_sequential::run(fluid_nodes, distribution_values, swap_info, access_function, TIME_STEPS);
+    two_lattice_sequential::run
+    (
+        fluid_nodes, 
+        swap_info, 
+        distribution_values_0, 
+        distribution_values_1,   
+        access_function,
+        TIME_STEPS
+    );
+
+    return hpx::finalize();
+}
+
+int main()
+{
+    // Initialize HPX, run hpx_main as the first HPX thread, and
+    // wait for hpx::finalize being called.
+    return hpx::init();
 }

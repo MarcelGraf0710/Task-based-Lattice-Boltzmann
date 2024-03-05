@@ -155,6 +155,7 @@ namespace to_console
         const access_function access_function
     )
     {
+        std::cout << "Trying to print results " << std::endl;
         std::vector<std::vector<unsigned int>> print_dirs = {{6,7,8}, {3,4,5}, {0,1,2}};
         unsigned int current_node_index = 0;
         unsigned int previous_direction = 0;
@@ -168,6 +169,7 @@ namespace to_console
                 auto current_row = print_dirs[i];
                 for(auto x = 0; x < HORIZONTAL_NODES; ++x)
                 {
+                    //std::cout << "Currently at node with coords (" << x << ", " << y << ")" << std::endl;
                     if(x == 0 && y == 0) std::cout << "\033[31m";
                     else if(x == (HORIZONTAL_NODES - 1) && y == (VERTICAL_NODES -1)) std::cout << "\033[34m";
                     current_node_index = lbm_access::get_node_index(x, y);

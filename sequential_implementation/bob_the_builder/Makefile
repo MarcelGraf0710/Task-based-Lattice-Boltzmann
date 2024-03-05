@@ -129,29 +129,29 @@ sequential_lbm/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/build
 .PHONY : sequential_lbm/fast
 
-main_shift.o: main_shift.cpp.o
-.PHONY : main_shift.o
+main_two_lattice.o: main_two_lattice.cpp.o
+.PHONY : main_two_lattice.o
 
 # target to build an object file
-main_shift.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/main_shift.cpp.o
-.PHONY : main_shift.cpp.o
+main_two_lattice.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/main_two_lattice.cpp.o
+.PHONY : main_two_lattice.cpp.o
 
-main_shift.i: main_shift.cpp.i
-.PHONY : main_shift.i
+main_two_lattice.i: main_two_lattice.cpp.i
+.PHONY : main_two_lattice.i
 
 # target to preprocess a source file
-main_shift.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/main_shift.cpp.i
-.PHONY : main_shift.cpp.i
+main_two_lattice.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/main_two_lattice.cpp.i
+.PHONY : main_two_lattice.cpp.i
 
-main_shift.s: main_shift.cpp.s
-.PHONY : main_shift.s
+main_two_lattice.s: main_two_lattice.cpp.s
+.PHONY : main_two_lattice.s
 
 # target to generate assembly for a file
-main_shift.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/main_shift.cpp.s
-.PHONY : main_shift.cpp.s
+main_two_lattice.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sequential_lbm.dir/build.make CMakeFiles/sequential_lbm.dir/main_two_lattice.cpp.s
+.PHONY : main_two_lattice.cpp.s
 
 src/access.o: src/access.cpp.o
 .PHONY : src/access.o
@@ -402,9 +402,9 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... sequential_lbm"
-	@echo "... main_shift.o"
-	@echo "... main_shift.i"
-	@echo "... main_shift.s"
+	@echo "... main_two_lattice.o"
+	@echo "... main_two_lattice.i"
+	@echo "... main_two_lattice.s"
 	@echo "... src/access.o"
 	@echo "... src/access.i"
 	@echo "... src/access.s"

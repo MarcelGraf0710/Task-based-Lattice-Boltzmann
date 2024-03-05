@@ -1,6 +1,6 @@
-#include "../include/defines.hpp" 
 #ifndef ACCESS_HPP
 #define ACCESS_HPP
+#include "defines.hpp"
 
 /**
  * @brief This namespace contains functions that map input values to array index accesses.

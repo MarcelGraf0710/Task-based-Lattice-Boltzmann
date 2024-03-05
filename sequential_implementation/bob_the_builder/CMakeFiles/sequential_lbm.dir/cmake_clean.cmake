@@ -1,6 +1,6 @@
 file(REMOVE_RECURSE
-  "CMakeFiles/sequential_lbm.dir/main_shift.cpp.o"
-  "CMakeFiles/sequential_lbm.dir/main_shift.cpp.o.d"
+  "CMakeFiles/sequential_lbm.dir/main_two_lattice.cpp.o"
+  "CMakeFiles/sequential_lbm.dir/main_two_lattice.cpp.o.d"
   "CMakeFiles/sequential_lbm.dir/src/access.cpp.o"
   "CMakeFiles/sequential_lbm.dir/src/access.cpp.o.d"
   "CMakeFiles/sequential_lbm.dir/src/boundaries.cpp.o"

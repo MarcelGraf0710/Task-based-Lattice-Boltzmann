@@ -1,0 +1,11 @@
+
+#define MINIMUM_NODES_PER_THREAD 1000 
+
+void domain_decomposition()
+{
+    // LINES_PER_THREAD = round_up(MINIMUM_NODES_PER_THREAD / HORIZONTAL_NODES)
+    // if NODES_PER_CORE < MINIMUM_NODES_PER_THREAD:
+    //      NUMBER_OF_THREADS = round_down(TOTAL_NODE_COUNT /MINIMUM_NODES_PER_THREAD)
+    //      
+};
+
