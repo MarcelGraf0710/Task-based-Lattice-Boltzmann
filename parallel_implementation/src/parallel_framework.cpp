@@ -190,8 +190,9 @@ void parallel_framework::buffer_copy_update
     std::vector<double> current(DIRECTION_COUNT, 0);
     unsigned int current_neighbor = 0;
 
-    for(auto buffer_node = start; buffer_node < end; ++buffer_node)
+    for(auto buffer_node = start; buffer_node <= end; ++buffer_node)
     {
+        std::cout << "Currently dealing with buffer node " << buffer_node << std::endl;
         current_neighbor = lbm_access::get_neighbor(buffer_node, 1);
         for(auto direction : {6,7,8})
         {

@@ -47,7 +47,7 @@ namespace parallel_two_lattice_framework
      */
     sim_data_tuple perform_tl_stream_and_collide_debug
     (
-        start_end_it_tuple &fluid_nodes,
+        std::vector<start_end_it_tuple> &fluid_nodes,
         const border_swap_information &bsi,
         std::vector<double> &source, 
         std::vector<double> &destination,    

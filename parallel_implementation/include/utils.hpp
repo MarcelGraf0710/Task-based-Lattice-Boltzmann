@@ -50,6 +50,37 @@ namespace to_console
     } 
 
     /**
+     * @brief Allows to print out a vector representing a data layout whose column count is HORIZONTAL_NODES.
+     *        Notice that the vector is assumed to represent a matrix.
+     * 
+     * @tparam T the type of the objects the specified vector holds (must be numeric)
+     * @param vector the vector that is to be printed in the console
+     */
+    template <typename T>
+    void print_vector_buffered(const std::vector<T> &vector)
+    {
+        unsigned int line_counter = 0;
+
+        for(auto y = VERTICAL_NODES - 1; y >= 0; --y)
+        {
+            if(line_counter == SUBDOMAIN_HEIGHT) std::cout << "\033[32m";
+            for(auto x = 0; x < HORIZONTAL_NODES; ++x)
+            {
+                if(x == 0 && y == 0) std::cout << "\033[31m";
+                else if(x == (HORIZONTAL_NODES - 1) && y == (VERTICAL_NODES -1)) std::cout << "\033[34m";
+                std::cout << vector[matrix_access(y,x, HORIZONTAL_NODES)];
+                if (line_counter == SUBDOMAIN_HEIGHT) std::cout << "\t";
+                else std::cout << "\t\033[0m";
+            }
+            if (line_counter == SUBDOMAIN_HEIGHT) line_counter = 0;
+            else line_counter++;
+            std::cout << std::endl;
+            std::cout << "\033[0m";
+        }
+        std::cout << std::endl;
+    } 
+
+    /**
      * @brief Adapted version of print_vector that supports a custom column count.
      *        In order to enforce that the vector is printed as a row vector, specify a column count
      *        that exceeds the length of the vector, e.g. std::numeric_limits<int>::max_value()
@@ -119,6 +150,36 @@ namespace to_console
                 std::cout << " ";
             }
             std::cout << std::endl;
+        }
+        std::cout << std::endl;
+    } 
+
+    /**
+     * @brief Prints all velocity values in the lattice to the console.
+     *        All values are printed in order, i.e. the origin is located at the lower left corner of the output.
+     * 
+     * @param vector a vector containing all velocity values
+     */
+    inline void print_velocity_vector_buffered(const std::vector<velocity> &vector)
+    {
+        unsigned int line_counter = 0;
+    
+        for(auto y = VERTICAL_NODES - 1; y >= 0; --y)
+        {
+            if(line_counter == SUBDOMAIN_HEIGHT) std::cout << "\033[32m";
+            for(auto x = 0; x < HORIZONTAL_NODES; ++x)
+            {
+                if(x == 0 && y == 0) std::cout << "\033[31m";
+                else if(x == (HORIZONTAL_NODES - 1) && y == (VERTICAL_NODES -1)) std::cout << "\033[34m";
+                std::cout << "("<< vector[matrix_access(y,x, HORIZONTAL_NODES)][0] << ", " << vector[matrix_access(y,x, HORIZONTAL_NODES)][1] << ")";
+                if (line_counter == SUBDOMAIN_HEIGHT) std::cout << "\t  ";
+                else std::cout << "\t  \033[0m";
+                std::cout << " ";
+            }
+            if (line_counter == SUBDOMAIN_HEIGHT) line_counter = 0;
+            else line_counter++;
+            std::cout << std::endl;
+            std::cout << "\033[0m";
         }
         std::cout << std::endl;
     } 
@@ -215,7 +276,6 @@ namespace to_console
         {
             if(line_counter == SUBDOMAIN_HEIGHT)
             {
-                line_counter = 0;
                 std::cout << "\033[32m";
             }
             for(auto i = 0; i < 3; ++i)
@@ -241,7 +301,8 @@ namespace to_console
             }
             std::cout << std::endl;
             std::cout << std::endl;
-            line_counter++;
+            if(line_counter == SUBDOMAIN_HEIGHT) line_counter = 0;
+            else line_counter++;
             std::cout << "\033[0m";
         }
     }
@@ -289,6 +350,40 @@ namespace to_console
             std::cout << "t = " << i << std::endl;
             std::cout << "-------------------------------------------------------------------------------- " << std::endl;
             to_console::print_vector(std::get<1>(results[i]));
+            std::cout << std::endl;
+        }
+        std::cout << std::endl;
+    }
+
+    /**
+     * @brief Prints the simulation results, i.e. the velocity vectors and density values, for all time steps.
+     * 
+     * @param results a vector containing the simulation data tuples.
+     */
+    inline void print_simulation_results_buffered(std::vector<sim_data_tuple> &results)
+    {
+        unsigned int iterations = results.size();
+        std::cout << std::endl;
+        std::cout << "Velocity values: " << std::endl;
+        std::cout << std::endl;
+        for(auto i = 0; i < iterations; ++i)
+        {
+            std::cout << "t = " << i << std::endl;
+            std::cout << "-------------------------------------------------------------------------------- " << std::endl;
+            to_console::print_velocity_vector_buffered(std::get<0>(results[i]));
+            std::cout << std::endl;
+        }
+        std::cout << std::endl;
+        std::cout << std::endl;
+
+        std::cout << "Density values: " << std::endl;
+        std::cout << std::endl;
+        
+        for(auto i = 0; i < iterations; ++i)
+        {
+            std::cout << "t = " << i << std::endl;
+            std::cout << "-------------------------------------------------------------------------------- " << std::endl;
+            to_console::print_vector_buffered(std::get<1>(results[i]));
             std::cout << std::endl;
         }
         std::cout << std::endl;

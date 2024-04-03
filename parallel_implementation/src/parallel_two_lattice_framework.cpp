@@ -53,20 +53,16 @@ void parallel_two_lattice_framework::run
         }
 
         // TODO: Implement stream and collide
-        for (auto subdomain = 0; subdomain < SUBDOMAIN_COUNT; ++subdomain)
-        {
-            std::cout << "\t\033[33mPerforming iteration " << time << " for subdomain " << subdomain << "\033[0m" << std::endl;
-            result[time] = parallel_two_lattice_framework::perform_tl_stream_and_collide_debug
-            (
-                fluid_nodes[subdomain], boundary_nodes, source, destination, access_function
-            );
-        }
+        result[time] = parallel_two_lattice_framework::perform_tl_stream_and_collide_debug
+        (
+            fluid_nodes, boundary_nodes, source, destination, access_function
+        );
 
         std::cout << "\tFinished iteration " << time << std::endl;
         std::swap(source, destination);
     }
 
-    to_console::print_simulation_results(result);
+    to_console::print_simulation_results_buffered(result);
     std::cout << "All done, exiting simulation. " << std::endl;
 }
 
@@ -85,19 +81,13 @@ void parallel_two_lattice_framework::run
  */
 sim_data_tuple parallel_two_lattice_framework::perform_tl_stream_and_collide_debug
 (
-    start_end_it_tuple &fluid_nodes,
+    std::vector<start_end_it_tuple> &fluid_nodes,
     const border_swap_information &bsi,
     std::vector<double> &source, 
     std::vector<double> &destination,    
     const access_function access_function
 )
 {
-    std::cout << "\t SOURCE before stream and collide: " << std::endl;
-    to_console::print_distribution_values_buffered(source, access_function);
-
-    std::cout << "DESTINATION as received by perform_tl_stream_and_collide: " << std::endl;
-    to_console::print_distribution_values_buffered(destination, access_function);
-
     std::vector<velocity> velocities(TOTAL_NODE_COUNT, velocity{0,0});
     velocity current_velocity = {0,0};
 
@@ -106,42 +96,58 @@ sim_data_tuple parallel_two_lattice_framework::perform_tl_stream_and_collide_deb
 
     std::vector<double> current_distributions(DIRECTION_COUNT, 0);
 
+    start_end_it_tuple bounds;
+
     std::cout << "\t TL stream and collide: initializations and declarations performed." << std::endl;
 
-    /* Streaming step */
-    for(auto it = std::get<0>(fluid_nodes); it <= std::get<1>(fluid_nodes); ++it)
+    for (auto subdomain = 0; subdomain < SUBDOMAIN_COUNT; ++subdomain)
     {
-        two_lattice_sequential::tl_stream(
-            source, 
-            destination, 
-            access_function, 
-            *it);
+        std::cout << "\t\033[33mPerforming iteration for subdomain " << subdomain << "\033[0m" << std::endl;
+        std::cout << std::endl;
+
+        bounds = fluid_nodes[subdomain];
+
+        std::cout << "\t SOURCE before stream and collide: " << std::endl;
+        to_console::print_distribution_values_buffered(source, access_function);
+
+        std::cout << "DESTINATION as received by perform_tl_stream_and_collide: " << std::endl;
+        to_console::print_distribution_values_buffered(destination, access_function);
+
+        /* Streaming step */
+        for(auto it = std::get<0>(bounds); it <= std::get<1>(bounds); ++it)
+        {
+            two_lattice_sequential::tl_stream(
+                source, 
+                destination, 
+                access_function, 
+                *it);
+        }
+        std::cout << "DESTINATION after streaming: " << std::endl;
+        to_console::print_distribution_values_buffered(destination, access_function);
+
+        /* Collision step */
+        for(auto it = std::get<0>(bounds); it <= std::get<1>(bounds); ++it)
+        {   
+            current_distributions = 
+                lbm_access::get_distribution_values_of(destination, *it, access_function);
+
+            current_velocity = macroscopic::flow_velocity(current_distributions);    
+            velocities[*it] = current_velocity;
+
+            current_density = macroscopic::density(current_distributions);
+            densities[*it] = current_density;
+            
+            two_lattice_sequential::tl_collision(
+                destination, 
+                *it, 
+                current_distributions,
+                access_function, 
+                current_velocity, 
+                current_density);
+        }
+        std::cout << "\t DESTINATION after collision: " << std::endl;
+        to_console::print_distribution_values_buffered(destination, access_function);
     }
-    std::cout << "DESTINATION after streaming: " << std::endl;
-    to_console::print_distribution_values_buffered(destination, access_function);
-
-    /* Collision step */
-    for(auto it = std::get<0>(fluid_nodes); it <= std::get<1>(fluid_nodes); ++it)
-    {   
-        current_distributions = 
-            lbm_access::get_distribution_values_of(destination, *it, access_function);
-
-        current_velocity = macroscopic::flow_velocity(current_distributions);    
-        velocities[*it] = current_velocity;
-
-        current_density = macroscopic::density(current_distributions);
-        densities[*it] = current_density;
-        
-        two_lattice_sequential::tl_collision(
-            destination, 
-            *it, 
-            current_distributions,
-            access_function, 
-            current_velocity, 
-            current_density);
-    }
-    std::cout << "\t DESTINATION after collision: " << std::endl;
-    to_console::print_distribution_values_buffered(destination, access_function);
 
     boundary_conditions::update_velocity_input_density_output(destination, velocities, densities, access_function);
     std::cout << "Updated inlet and outlet ghost nodes." <<std::endl;
