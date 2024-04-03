@@ -135,6 +135,40 @@ namespace parallel_two_lattice_framework
         std::vector<double> vals = collision::collide_bgk(distribution_values, velocity, density);
         lbm_access::set_distribution_values_of(vals, destination, fluid_node, access_function);
     }
+
+    /**
+     * @brief Performs the combined streaming and collision step for all fluid nodes within the simulation domain.
+     *        The border conditions are enforced through ghost nodes.
+     *        This variant of the combined streaming and collision step will print several debug comments to the console.
+     * 
+     * @param fluid_nodes a vector containing the indices of all fluid nodes within the simulation domain.
+     * @param bsi see documentation of border_swap_information
+     * @param source a vector containing the distribution values of the previous time step
+     * @param destination the distribution values will be written to this vector after performing both steps.
+     * @param access_function the function used to access the distribution values
+     * @return see documentation of sim_data_tuple
+     */
+    sim_data_tuple perform_tl_stream_and_collide_parallel
+    (
+        std::vector<start_end_it_tuple> &fluid_nodes,
+        const border_swap_information &bsi,
+        std::vector<double> &source, 
+        std::vector<double> &destination,    
+        const access_function access_function
+    );
+
+    void tl_stream_and_collide_helper
+    (
+        std::vector<double> &source, 
+        std::vector<double> &destination, 
+        const access_function &access_function, 
+        const unsigned int fluid_node, 
+        std::vector<velocity> &velocities, 
+        std::vector<double> &densities,
+        start_end_it_tuple bounds
+    );
 }
+
+
 
 #endif

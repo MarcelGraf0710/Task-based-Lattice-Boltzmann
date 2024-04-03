@@ -17,14 +17,14 @@ start_end_it_tuple parallel_framework::get_subdomain_fluid_node_pointers
     const std::vector<unsigned int> &fluid_nodes
 )
 {
-    std::cout << "Accessing parallel_framework::get_subdomain_fluid_node_pointers for subdomain " << subdomain << std::endl;
-    to_console::print_vector(fluid_nodes, HORIZONTAL_NODES - 2);
+    // std::cout << "Accessing parallel_framework::get_subdomain_fluid_node_pointers for subdomain " << subdomain << std::endl;
+    //to_console::print_vector(fluid_nodes, HORIZONTAL_NODES - 2);
 
     unsigned int min_node_in_question = (SUBDOMAIN_HEIGHT + 1) * HORIZONTAL_NODES * subdomain;
-    std::cout << "Minimum node in question for subdomain " << subdomain << ": " << min_node_in_question << std::endl;
+    // std::cout << "Minimum node in question for subdomain " << subdomain << ": " << min_node_in_question << std::endl;
 
     unsigned int max_node_in_question = min_node_in_question + SUBDOMAIN_HEIGHT * HORIZONTAL_NODES - 1;
-    std::cout << "Maximum node in question for subdomain " << subdomain << ": " << max_node_in_question << std::endl;
+    // std::cout << "Maximum node in question for subdomain " << subdomain << ": " << max_node_in_question << std::endl;
 
     std::vector<unsigned int>::const_iterator first = fluid_nodes.begin();
     std::vector<unsigned int>::const_iterator end = fluid_nodes.end() - 1;
@@ -45,11 +45,11 @@ start_end_it_tuple parallel_framework::get_subdomain_fluid_node_pointers
         current_value = *end;
     }
 
-    std::cout << "Got node limits (";
-    std::cout << *(first);
-    std::cout << ", ";
-    std::cout << *(end);
-    std::cout << ")" << std::endl;
+    // std::cout << "Got node limits (";
+    // std::cout << *(first);
+    // std::cout << ", ";
+    // std::cout << *(end);
+    // std::cout << ")" << std::endl;
 
     return std::make_tuple(first, end);
 }
@@ -128,19 +128,19 @@ border_swap_information parallel_framework::retrieve_fast_border_swap_info
     std::vector<unsigned int>::const_iterator start;
     std::vector<unsigned int>::const_iterator end;
 
-    std::cout << "Accessing parallel_framework::retrieve_fast_border_swap_info " << std::endl;
-    std::cout << "Received fluid node bounds " << std::endl;
+    // std::cout << "Accessing parallel_framework::retrieve_fast_border_swap_info " << std::endl;
+    // std::cout << "Received fluid node bounds " << std::endl;
 
-    for(auto subdomain = 0; subdomain < SUBDOMAIN_COUNT; ++subdomain)
-    {
-        std::cout << "(";
-        std::cout << *(std::get<0>(fluid_node_bounds[subdomain]));
-        std::cout << ", ";
-        std::cout << *(std::get<1>(fluid_node_bounds[subdomain]));
-        std::cout << ")" << std::endl;
-    }
+    // for(auto subdomain = 0; subdomain < SUBDOMAIN_COUNT; ++subdomain)
+    // {
+    //     std::cout << "(";
+    //     std::cout << *(std::get<0>(fluid_node_bounds[subdomain]));
+    //     std::cout << ", ";
+    //     std::cout << *(std::get<1>(fluid_node_bounds[subdomain]));
+    //     std::cout << ")" << std::endl;
+    // }
 
-    std::cout << std::endl;
+    // std::cout << std::endl;
 
     for(auto subdomain = 0; subdomain < SUBDOMAIN_COUNT; ++subdomain)
     {
@@ -192,7 +192,7 @@ void parallel_framework::buffer_copy_update
 
     for(auto buffer_node = start; buffer_node <= end; ++buffer_node)
     {
-        std::cout << "Currently dealing with buffer node " << buffer_node << std::endl;
+        // std::cout << "Currently dealing with buffer node " << buffer_node << std::endl;
         current_neighbor = lbm_access::get_neighbor(buffer_node, 1);
         for(auto direction : {6,7,8})
         {

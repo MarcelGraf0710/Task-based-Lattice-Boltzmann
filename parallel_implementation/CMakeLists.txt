@@ -13,6 +13,7 @@ set(HEADER_FILES include/access.hpp
                  include/simulation.hpp
                  #include/swap_sequential.hpp
                  include/two_lattice_sequential.hpp
+                 #include/two_lattice_parallel.hpp
                  include/parallel_framework.hpp
                  include/parallel_two_lattice_framework.hpp
                  #include/two_step_sequential.hpp
@@ -29,6 +30,7 @@ set(SOURCE_FILES src/access.cpp
                  #src/swap_sequential.cpp
                  #src/two_lattice_parallel.cpp
                  #src/two_step_sequential.cpp
+                 #src/two_lattice_parallel.cpp
                  src/two_lattice_sequential.cpp
                  src/parallel_framework.cpp
                  src/parallel_two_lattice_framework.cpp

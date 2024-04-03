@@ -4,8 +4,9 @@
 #include "include/two_lattice_sequential.hpp"
 #include "include/parallel_two_lattice_framework.hpp"
 #include "include/parallel_framework.hpp"
+#include <hpx/hpx_init.hpp>
 
-int main(const int argc, const char** argv)
+int hpx_main()
 {
     std::cout << std::endl;
     std::cout << "Starting simulation..." << std::endl;
@@ -33,34 +34,34 @@ int main(const int argc, const char** argv)
     std::vector<start_end_it_tuple> subdomain_fluid_bounds;
     for(auto subdomain = 0; subdomain < SUBDOMAIN_COUNT; ++subdomain)
     {
-        std::cout << "Currently determining bounds for subdomain " << subdomain << std::endl;
+        // std::cout << "Currently determining bounds for subdomain " << subdomain << std::endl;
         subdomain_fluid_bounds.push_back(parallel_framework::get_subdomain_fluid_node_pointers(subdomain, fluid_nodes));
     }
 
     swap_info = parallel_framework::retrieve_fast_border_swap_info(subdomain_fluid_bounds, fluid_nodes, phase_information);
 
-    /* Illustration of the phase information */
-    std::cout << "Illustration of lattice: " << std::endl;
-    to_console::print_phase_vector(phase_information);
-    std::cout << std::endl;
+    // /* Illustration of the phase information */
+    // std::cout << "Illustration of lattice: " << std::endl;
+    // to_console::print_phase_vector(phase_information);
+    // std::cout << std::endl;
 
-    /* Overview */
-    std::cout << "Enumeration of all nodes within the lattice: " << std::endl;
-    to_console::print_vector(nodes);
-    std::cout << std::endl;
+    // /* Overview */
+    // std::cout << "Enumeration of all nodes within the lattice: " << std::endl;
+    // to_console::print_vector_buffered(nodes);
+    // std::cout << std::endl;
 
-    std::cout << "Enumeration of all fluid nodes within the simulation domain: " << std::endl;
-    to_console::print_vector(fluid_nodes, HORIZONTAL_NODES - 2);
-    std::cout << std::endl;
+    // std::cout << "Enumeration of all fluid nodes within the simulation domain: " << std::endl;
+    // to_console::print_vector(fluid_nodes, HORIZONTAL_NODES - 2);
+    // std::cout << std::endl;
 
-    std::cout << "Swap info:" << std::endl;
-    for(const auto& current : swap_info)
-        to_console::print_vector(current, current.size());
-    std::cout << std::endl;
+    // std::cout << "Swap info:" << std::endl;
+    // for(const auto& current : swap_info)
+    //     to_console::print_vector(current, current.size());
+    // std::cout << std::endl;
 
-    std::cout << "Initial distributions:" << std::endl;
-    to_console::print_distribution_values_buffered(distribution_values_0, access_function);
-    std::cout << std::endl;
+    // std::cout << "Initial distributions:" << std::endl;
+    // to_console::print_distribution_values_buffered(distribution_values_0, access_function);
+    // std::cout << std::endl;
 
     std::vector<double> distribution_values_1 = distribution_values_0;
 
@@ -75,5 +76,12 @@ int main(const int argc, const char** argv)
         TIME_STEPS
     );
 
-    return 0;
+    return hpx::finalize();
+}
+
+int main()
+{
+    // Initialize HPX, run hpx_main as the first HPX thread, and
+    // wait for hpx::finalize being called.
+    return hpx::init();
 }

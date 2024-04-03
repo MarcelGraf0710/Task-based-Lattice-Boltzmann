@@ -395,6 +395,7 @@ namespace to_console
         std::cout << "In all following prints showing the entire simulation domain, "; 
         std::cout << "the origin will be marked in \033[31mred\033[0m and the outmost coordinate will be marked in \033[34mblue\033[0m." << std::endl;
         std::cout << "Milestones will be marked in \033[33myellow\033[0m." << std::endl;
+        std::cout << "In the case of parallel implementations, buffer nodes will be marked in \033[32mgreen\033[0m." << std::endl;
         std::cout << std::endl;
     }
 }
