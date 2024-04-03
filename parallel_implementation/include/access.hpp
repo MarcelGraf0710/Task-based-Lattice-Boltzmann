@@ -127,4 +127,9 @@ namespace semi_direct_access
     std::vector<unsigned int> get_fluid_segments(const std::vector<bool> &node_phases);
 }
 
+namespace buffered_access 
+{
+
+}
+
 #endif

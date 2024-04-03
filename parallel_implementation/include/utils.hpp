@@ -189,6 +189,64 @@ namespace to_console
         }
     }
 
+
+    /**
+     * @brief Prints all distribution values in to the console.
+     *        They are displayed in the original order, i.e. the origin is located at the lower left corner of the printed distribution chart.
+     * 
+     * @param distribution_values a vector containing the distribution values of all nodes 
+     * @param access_function the function used to access the distribution values
+     */
+    inline void print_distribution_values_buffered
+    (
+        const std::vector<double> &distribution_values, 
+        const access_function access_function
+    )
+    {
+        std::cout << "Trying to print results " << std::endl;
+        std::vector<std::vector<unsigned int>> print_dirs = {{6,7,8}, {3,4,5}, {0,1,2}};
+        unsigned int current_node_index = 0;
+        unsigned int previous_direction = 0;
+        std::vector<double> current_values(9,0);
+        std::cout << std::setprecision(3) << std::fixed;
+        unsigned int line_counter = 0;
+
+        for(auto y = VERTICAL_NODES - 1; y >= 0; --y)
+        {
+            if(line_counter == SUBDOMAIN_HEIGHT)
+            {
+                line_counter = 0;
+                std::cout << "\033[32m";
+            }
+            for(auto i = 0; i < 3; ++i)
+            {
+                auto current_row = print_dirs[i];
+                for(auto x = 0; x < HORIZONTAL_NODES; ++x)
+                {
+                    //std::cout << "Currently at node with coords (" << x << ", " << y << ")" << std::endl;
+                    if(x == 0 && y == 0) std::cout << "\033[31m";
+                    else if(x == (HORIZONTAL_NODES - 1) && y == (VERTICAL_NODES - 1)) std::cout << "\033[34m";
+                    current_node_index = lbm_access::get_node_index(x, y);
+                    current_values = lbm_access::get_distribution_values_of(distribution_values, current_node_index, access_function);
+
+                    for(auto j = 0; j < 3; ++j)
+                    {
+                        auto direction = current_row[j];
+                        std::cout << current_values[direction] << "  ";
+                    }
+                    std::cout << "\t";
+                    if((x == 0 && y == 0) || (x == (HORIZONTAL_NODES - 1) && y == (VERTICAL_NODES - 1))) std::cout << "\033[0m";
+                }
+                std::cout << std::endl;
+            }
+            std::cout << std::endl;
+            std::cout << std::endl;
+            line_counter++;
+            std::cout << "\033[0m";
+        }
+    }
+
+
     /**
      * @brief Prints the greeting message displayed when running an algorithm.
      * 
