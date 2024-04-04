@@ -1,5 +1,4 @@
 #include "../include/parallel_two_lattice_framework.hpp"
-
 #include "../include/two_lattice_sequential.hpp"
 #include "../include/access.hpp"
 #include "../include/defines.hpp"
@@ -15,22 +14,10 @@
 #include <hpx/execution.hpp>
 #include <hpx/iostream.hpp>
 
-
-    // hpx::for_each
-    // (
-    //     hpx::execution::par, 
-    //     fluid_nodes.begin(), 
-    //     fluid_nodes.end(), 
-    //     [&source, &destination, access_function, &velocities, &densities](unsigned int fluid_node)
-    //     {
-    //         tl_stream_and_collide_helper(source, destination, access_function, fluid_node, velocities, densities);
-    //     }
-    // );
-
 /**
- * @brief Performs the sequential two-lattice algorithm for the specified number of iterations.
+ * @brief Performs the framework-based parallel two-lattice algorithm for the specified number of iterations.
  * 
- * @param fluid_nodes A vector containing the indices of all fluid nodes in the domain
+ * @param fluid_nodes A vector of tuples of iterators pointing at the first and last fluid node of each domain
  * @param boundary_nodes see documentation of border_swap_information
  * @param distribution_values_0 source for even time steps and destination for odd time steps
  * @param distribution_values_1 source for odd time steps and destination for even time steps
@@ -39,7 +26,7 @@
  */
 void parallel_two_lattice_framework::run
 (  
-    std::vector<start_end_it_tuple> &fluid_nodes,       
+    const std::vector<start_end_it_tuple> &fluid_nodes,       
     const border_swap_information &boundary_nodes,
     std::vector<double> &distribution_values_0, 
     std::vector<double> &distribution_values_1,   
@@ -53,52 +40,66 @@ void parallel_two_lattice_framework::run
     std::vector<double> &destination = distribution_values_1;
     std::vector<double> &temp = distribution_values_1;
 
+    // Initializations relevant for buffering
+    std::vector<std::tuple<unsigned int, unsigned int>> buffer_ranges;
+    std::vector<unsigned int> buffer_indices;
+    for (auto buffer_index = 0; buffer_index < BUFFER_COUNT; ++buffer_index)
+    {
+        buffer_ranges.push_back(parallel_framework::get_buffer_node_range(buffer_index));
+        buffer_indices.push_back(buffer_index);
+    }
+
     std::vector<sim_data_tuple>result(
         iterations, 
         std::make_tuple(std::vector<velocity>(TOTAL_NODE_COUNT, {0,0}), std::vector<double>(TOTAL_NODE_COUNT, 0)));
 
+    /* Parallelization framework */
     for(auto time = 0; time < iterations; ++time)
     {
         std::cout << "\033[33mIteration " << time << ":\033[0m" << std::endl;
+        
         // Global boundary update
-        bounce_back::emplace_bounce_back_values(boundary_nodes, source, access_function);
+        bounce_back::emplace_bounce_back_values_parallel(boundary_nodes, source, access_function, 0);
 
         // Buffer update
-        for (auto buffer_index = 0; buffer_index < BUFFER_COUNT; ++buffer_index)
-        {
-            parallel_framework::buffer_copy_update(parallel_framework::get_buffer_node_range(buffer_index), source, access_function);
-        }
+        hpx::for_each
+        (
+            hpx::execution::par, 
+            buffer_indices.begin(), 
+            buffer_indices.end(), 
+            [&buffer_ranges, &source, &access_function](unsigned int buffer_index)
+            {
+                parallel_framework::buffer_copy_update(buffer_ranges[buffer_index], source, access_function);
+            }
+        );
 
-        // TODO: Implement stream and collide
+        // Framework-based parallel two-lattice: combined stream and collision
         result[time] = parallel_two_lattice_framework::perform_tl_stream_and_collide_parallel
         (
             fluid_nodes, boundary_nodes, source, destination, access_function
         );
-
         std::cout << "\tFinished iteration " << time << std::endl;
         std::swap(source, destination);
     }
-
-    to_console::print_simulation_results_buffered(result);
+    to_console::buffered::print_simulation_results(result);
     std::cout << "All done, exiting simulation. " << std::endl;
 }
 
-
 /**
- * @brief Performs the combined streaming and collision step for all fluid nodes within the simulation domain.
- *        The border conditions are enforced through ghost nodes.
- *        This variant of the combined streaming and collision step will print several debug comments to the console.
+ * @brief This method is a serialized debug version of perform_tl_stream_and_collide_parallel.
+ *        It acts as a proof-of-concept method that is suitable for testing such that errors related to
+ *        the framework itself rather than the actual parallelization can be spotted.
  * 
- * @param fluid_nodes a vector containing the indices of all fluid nodes within the simulation domain.
+ * @param fluid_nodes A vector of tuples of iterators pointing at the first and last fluid node of each domain
  * @param bsi see documentation of border_swap_information
- * @param source a vector containing the distribution values of the previous time step
- * @param destination the distribution values will be written to this vector after performing both steps.
- * @param access_function the function used to access the distribution values
+ * @param distribution_values_0 source for even time steps and destination for odd time steps
+ * @param distribution_values_1 source for odd time steps and destination for even time steps
+ * @param access_function the access function according to which distribution values are to be accessed
  * @return see documentation of sim_data_tuple
  */
 sim_data_tuple parallel_two_lattice_framework::perform_tl_stream_and_collide_debug
 (
-    std::vector<start_end_it_tuple> &fluid_nodes,
+    const std::vector<start_end_it_tuple> &fluid_nodes,
     const border_swap_information &bsi,
     std::vector<double> &source, 
     std::vector<double> &destination,    
@@ -125,10 +126,10 @@ sim_data_tuple parallel_two_lattice_framework::perform_tl_stream_and_collide_deb
         bounds = fluid_nodes[subdomain];
 
         std::cout << "\t SOURCE before stream and collide: " << std::endl;
-        to_console::print_distribution_values_buffered(source, access_function);
+        to_console::buffered::print_distribution_values(source, access_function);
 
         std::cout << "DESTINATION as received by perform_tl_stream_and_collide: " << std::endl;
-        to_console::print_distribution_values_buffered(destination, access_function);
+        to_console::buffered::print_distribution_values(destination, access_function);
 
         /* Streaming step */
         for(auto it = std::get<0>(bounds); it <= std::get<1>(bounds); ++it)
@@ -140,7 +141,7 @@ sim_data_tuple parallel_two_lattice_framework::perform_tl_stream_and_collide_deb
                 *it);
         }
         std::cout << "DESTINATION after streaming: " << std::endl;
-        to_console::print_distribution_values_buffered(destination, access_function);
+        to_console::buffered::print_distribution_values(destination, access_function);
 
         /* Collision step */
         for(auto it = std::get<0>(bounds); it <= std::get<1>(bounds); ++it)
@@ -163,12 +164,12 @@ sim_data_tuple parallel_two_lattice_framework::perform_tl_stream_and_collide_deb
                 current_density);
         }
         std::cout << "\t DESTINATION after collision: " << std::endl;
-        to_console::print_distribution_values_buffered(destination, access_function);
+        to_console::buffered::print_distribution_values(destination, access_function);
     }
 
     boundary_conditions::update_velocity_input_density_output(destination, velocities, densities, access_function);
     std::cout << "Updated inlet and outlet ghost nodes." <<std::endl;
-    to_console::print_distribution_values_buffered(destination, access_function);
+    to_console::buffered::print_distribution_values(destination, access_function);
 
     sim_data_tuple result{velocities, densities};
 
@@ -189,7 +190,7 @@ sim_data_tuple parallel_two_lattice_framework::perform_tl_stream_and_collide_deb
  */
 sim_data_tuple parallel_two_lattice_framework::perform_tl_stream_and_collide_parallel
 (
-    std::vector<start_end_it_tuple> &fluid_nodes,
+    const std::vector<start_end_it_tuple> &fluid_nodes,
     const border_swap_information &bsi,
     std::vector<double> &source, 
     std::vector<double> &destination,    
@@ -197,12 +198,7 @@ sim_data_tuple parallel_two_lattice_framework::perform_tl_stream_and_collide_par
 )
 {
     std::vector<velocity> velocities(TOTAL_NODE_COUNT, velocity{0,0});
-
-
     std::vector<double> densities(TOTAL_NODE_COUNT, -1);
-
-    
-
     start_end_it_tuple bounds;
 
     std::vector<int> subdomains(SUBDOMAIN_COUNT, 0);
@@ -223,14 +219,17 @@ sim_data_tuple parallel_two_lattice_framework::perform_tl_stream_and_collide_par
         }
     );
 
-    boundary_conditions::update_velocity_input_density_output(destination, velocities, densities, access_function);
+    boundary_conditions::update_velocity_input_density_output_parallel(destination, velocities, densities, access_function);
 
     sim_data_tuple result{velocities, densities};
 
     return result;
 }
 
-
+/** 
+ * @brief This helper function of parallel_two_lattice_framework::perform_tl_stream_and_collide_parallel
+ *        is used in the HPX loop. It performs the actual streaming and collision.
+ */
 void parallel_two_lattice_framework::tl_stream_and_collide_helper
 (
     std::vector<double> &source, 
@@ -239,7 +238,7 @@ void parallel_two_lattice_framework::tl_stream_and_collide_helper
     const unsigned int fluid_node, 
     std::vector<velocity> &velocities, 
     std::vector<double> &densities,
-    start_end_it_tuple bounds
+    const start_end_it_tuple bounds
 )
 {
     std::vector<double> current_distributions(DIRECTION_COUNT, 0);

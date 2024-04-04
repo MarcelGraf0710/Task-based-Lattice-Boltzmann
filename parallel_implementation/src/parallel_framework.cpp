@@ -4,12 +4,10 @@
     
 /**
  * @brief This function is used to determine the fluid nodes belonging to a certain subdomain.
- *        It returns a tuple of const_iterator pointing towards the first and the last fluid node 
- *        of the specified subdomain respectively.
  * 
  * @param subdomain the index of the subdomain (counting starts at the bottom)
  * @param fluid_nodes a vector containing all fluid nodes within the simulation domain
- * @return a tuple of const_iterator where the 0th entry is an iter
+ * @return see documentation of start_end_it_tuple
  */
 start_end_it_tuple parallel_framework::get_subdomain_fluid_node_pointers
 (
@@ -108,9 +106,7 @@ void parallel_framework::setup_parallel_domain
 }
 
 /**
- * @brief Retrieves an improved version of the border swap information data structure.
- *        This method does not consider inlet and outlet ghost nodes when performing bounce-back
- *        as the inserted values will be overwritten by inflow and outflow values anyways.
+ * @brief Retrieves a version of the border swap information data structure that is suitable for the parallel framework.
  * 
  * @param fluid_nodes a vector containing the indices of all fluid nodes within the simulation domain
  * @param phase_information a vector containing the phase information for every vector (true means solid)
@@ -178,6 +174,15 @@ std::tuple<unsigned int, unsigned int> parallel_framework::get_buffer_node_range
     return std::make_tuple(start,start + HORIZONTAL_NODES - 1); 
 }
 
+/**
+ * @brief Performs the pre-iteration buffer initialization for the buffer with the specified boundaries.
+ *        For every buffer node, the directions pointing up will be copied from the nodes below and the
+ *        directions pointing down will be copied from the nodes above.
+ * 
+ * @param buffer_bounds a tuple containing the first and last index of the buffer
+ * @param distribution_values a vector containing all distribution values
+ * @param access_function this function will be used to access the distribution values
+ */
 void parallel_framework::buffer_copy_update
 (
     std::tuple<unsigned int, unsigned int> buffer_bounds,

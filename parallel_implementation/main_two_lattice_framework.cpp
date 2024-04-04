@@ -47,7 +47,7 @@ int hpx_main()
 
     // /* Overview */
     // std::cout << "Enumeration of all nodes within the lattice: " << std::endl;
-    // to_console::print_vector_buffered(nodes);
+    // to_console::buffered::print_vector(nodes);
     // std::cout << std::endl;
 
     // std::cout << "Enumeration of all fluid nodes within the simulation domain: " << std::endl;
@@ -60,7 +60,7 @@ int hpx_main()
     // std::cout << std::endl;
 
     // std::cout << "Initial distributions:" << std::endl;
-    // to_console::print_distribution_values_buffered(distribution_values_0, access_function);
+    // to_console::buffered::print_distribution_values(distribution_values_0, access_function);
     // std::cout << std::endl;
 
     std::vector<double> distribution_values_1 = distribution_values_0;

@@ -12,18 +12,26 @@
 #include <set>
 #include <iostream>
 
+/**
+ * @brief This convenience type definition is used to declare the fluid nodes belonging to the individual subdomains.
+ *        The 0th entry points towards a pointer towards the first fluid node and the 1st entry towards a pointer towards
+ *        the last fluid node belonging to a certain subdomain. 
+ * 
+ */
 typedef std::tuple<std::vector<unsigned int>::const_iterator, std::vector<unsigned int>::const_iterator> start_end_it_tuple;
 
+/**
+ * @brief This namespace contains all methods that form the basis of the frameworks used for the parallelization of
+ *        the different lattice Boltzmann algorithms.
+ */
 namespace parallel_framework
 {
     /**
      * @brief This function is used to determine the fluid nodes belonging to a certain subdomain.
-     *        It returns a tuple of const_iterator pointing towards the first and the last fluid node 
-     *        of the specified subdomain respectively.
      * 
      * @param subdomain the index of the subdomain (counting starts at the bottom)
      * @param fluid_nodes a vector containing all fluid nodes within the simulation domain
-     * @return a tuple of const_iterator where the 0th entry is an iter pointing towards the first and the 1st entry to the last fluid node
+     * @return see documentation of start_end_it_tuple
      */
     start_end_it_tuple get_subdomain_fluid_node_pointers
     (
@@ -64,9 +72,7 @@ namespace parallel_framework
     );
 
     /**
-     * @brief Retrieves an improved version of the border swap information data structure.
-     *        This method does not consider inlet and outlet ghost nodes when performing bounce-back
-     *        as the inserted values will be overwritten by inflow and outflow values anyways.
+     * @brief Retrieves a version of the border swap information data structure that is suitable for the parallel framework.
      * 
      * @param fluid_nodes a vector containing the indices of all fluid nodes within the simulation domain
      * @param phase_information a vector containing the phase information for every vector (true means solid)
@@ -79,6 +85,15 @@ namespace parallel_framework
         const std::vector<bool> &phase_information
     );
 
+    /**
+     * @brief Performs the pre-iteration buffer initialization for the buffer with the specified boundaries.
+     *        For every buffer node, the directions pointing up will be copied from the nodes below and the
+     *        directions pointing down will be copied from the nodes above.
+     * 
+     * @param buffer_bounds a tuple containing the first and last index of the buffer
+     * @param distribution_values a vector containing all distribution values
+     * @param access_function this function will be used to access the distribution values
+     */
     void buffer_copy_update
     (
         std::tuple<unsigned int, unsigned int> buffer_bounds,
