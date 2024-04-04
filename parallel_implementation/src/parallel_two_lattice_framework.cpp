@@ -69,7 +69,7 @@ void parallel_two_lattice_framework::run
             buffer_indices.end(), 
             [&buffer_ranges, &source, &access_function](unsigned int buffer_index)
             {
-                parallel_framework::buffer_copy_update(buffer_ranges[buffer_index], source, access_function);
+                parallel_framework::copy_to_buffer(buffer_ranges[buffer_index], source, access_function);
             }
         );
 
@@ -199,7 +199,6 @@ sim_data_tuple parallel_two_lattice_framework::perform_tl_stream_and_collide_par
 {
     std::vector<velocity> velocities(TOTAL_NODE_COUNT, velocity{0,0});
     std::vector<double> densities(TOTAL_NODE_COUNT, -1);
-    start_end_it_tuple bounds;
 
     std::vector<int> subdomains(SUBDOMAIN_COUNT, 0);
     for(auto i = 0; i < SUBDOMAIN_COUNT; ++i)
@@ -212,10 +211,9 @@ sim_data_tuple parallel_two_lattice_framework::perform_tl_stream_and_collide_par
         hpx::execution::par, 
         subdomains.begin(), 
         subdomains.end(), 
-        [&source, &destination, access_function, &velocities, &densities, &bounds, &fluid_nodes](unsigned int fluid_node)
+        [&source, &destination, access_function, &velocities, &densities, &fluid_nodes](unsigned int subdomain)
         {
-            bounds = fluid_nodes[fluid_node];
-            parallel_two_lattice_framework::tl_stream_and_collide_helper(source, destination, access_function, fluid_node, velocities, densities, bounds);
+            parallel_two_lattice_framework::tl_stream_and_collide_helper(source, destination, access_function, velocities, densities, fluid_nodes[subdomain]);
         }
     );
 
@@ -235,7 +233,6 @@ void parallel_two_lattice_framework::tl_stream_and_collide_helper
     std::vector<double> &source, 
     std::vector<double> &destination, 
     const access_function &access_function, 
-    const unsigned int fluid_node, 
     std::vector<velocity> &velocities, 
     std::vector<double> &densities,
     const start_end_it_tuple bounds

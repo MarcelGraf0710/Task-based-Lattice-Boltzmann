@@ -88,7 +88,6 @@ namespace parallel_two_lattice_framework
         std::vector<double> &source, 
         std::vector<double> &destination, 
         const access_function &access_function, 
-        const unsigned int fluid_node, 
         std::vector<velocity> &velocities, 
         std::vector<double> &densities,
         const start_end_it_tuple bounds

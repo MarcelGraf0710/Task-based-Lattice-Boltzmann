@@ -86,6 +86,20 @@ namespace parallel_framework
     );
 
     /**
+     * @brief Retrieves a version of the border swap information data structure that is suitable for the parallel framework.
+     * 
+     * @param fluid_nodes a vector containing the indices of all fluid nodes within the simulation domain
+     * @param phase_information a vector containing the phase information for every vector (true means solid)
+     * @return border_swap_information see documentation of border_swap_information
+     */
+    std::vector<border_swap_information> subdomain_wise_border_swap_info
+    (
+        const std::vector<start_end_it_tuple> &fluid_node_bounds,
+        const std::vector<unsigned int> &fluid_nodes,  
+        const std::vector<bool> &phase_information
+    );
+
+    /**
      * @brief Performs the pre-iteration buffer initialization for the buffer with the specified boundaries.
      *        For every buffer node, the directions pointing up will be copied from the nodes below and the
      *        directions pointing down will be copied from the nodes above.
@@ -94,9 +108,25 @@ namespace parallel_framework
      * @param distribution_values a vector containing all distribution values
      * @param access_function this function will be used to access the distribution values
      */
-    void buffer_copy_update
+    void copy_to_buffer
     (
-        std::tuple<unsigned int, unsigned int> buffer_bounds,
+        const std::tuple<unsigned int, unsigned int> &buffer_bounds,
+        std::vector<double> &distribution_values,
+        access_function access_function
+    );
+
+    /**
+     * @brief Performs the pre-iteration buffer initialization for the buffer with the specified boundaries.
+     *        For every buffer node, the directions pointing up will be copied from the nodes below and the
+     *        directions pointing down will be copied from the nodes above.
+     * 
+     * @param buffer_bounds a tuple containing the first and last index of the buffer
+     * @param distribution_values a vector containing all distribution values
+     * @param access_function this function will be used to access the distribution values
+     */
+    void copy_from_buffer
+    (
+        const std::tuple<unsigned int, unsigned int> &buffer_bounds,
         std::vector<double> &distribution_values,
         access_function access_function
     );

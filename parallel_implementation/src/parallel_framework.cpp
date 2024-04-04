@@ -161,6 +161,63 @@ border_swap_information parallel_framework::retrieve_fast_border_swap_info
 }
 
 /**
+ * @brief Retrieves a version of the border swap information data structure that is suitable for the parallel framework.
+ * 
+ * @param fluid_nodes a vector containing the indices of all fluid nodes within the simulation domain
+ * @param phase_information a vector containing the phase information for every vector (true means solid)
+ * @return border_swap_information see documentation of border_swap_information
+ */
+std::vector<border_swap_information> parallel_framework::subdomain_wise_border_swap_info
+(
+    const std::vector<start_end_it_tuple> &fluid_node_bounds,
+    const std::vector<unsigned int> &fluid_nodes,  
+    const std::vector<bool> &phase_information
+)
+{
+    std::vector<unsigned int> current_adjacencies;
+    border_swap_information current_bsi;
+    std::vector<unsigned int>::const_iterator start;
+    std::vector<unsigned int>::const_iterator end;
+    std::vector<border_swap_information> result;
+
+    // std::cout << "Accessing parallel_framework::retrieve_fast_border_swap_info " << std::endl;
+    // std::cout << "Received fluid node bounds " << std::endl;
+
+    // for(auto subdomain = 0; subdomain < SUBDOMAIN_COUNT; ++subdomain)
+    // {
+    //     std::cout << "(";
+    //     std::cout << *(std::get<0>(fluid_node_bounds[subdomain]));
+    //     std::cout << ", ";
+    //     std::cout << *(std::get<1>(fluid_node_bounds[subdomain]));
+    //     std::cout << ")" << std::endl;
+    // }
+
+    // std::cout << std::endl;
+
+    for(auto subdomain = 0; subdomain < SUBDOMAIN_COUNT; ++subdomain)
+    {
+        start = std::get<0>(fluid_node_bounds[subdomain]);
+        end = std::get<1>(fluid_node_bounds[subdomain]);
+        current_bsi = {};
+        for(auto it = start; it <= end; ++it)
+        {
+            current_adjacencies = {*it};
+            for(const auto direction : STREAMING_DIRECTIONS)
+            {
+                unsigned int current_neighbor = lbm_access::get_neighbor(*it, direction);
+                if(is_non_inout_ghost_node(current_neighbor, phase_information))
+                {
+                    current_adjacencies.push_back(direction);
+                }
+            }
+            if(current_adjacencies.size() > 1) current_bsi.push_back(current_adjacencies);
+        }
+        result.push_back(current_bsi);
+    }
+    return result;
+}
+
+/**
  * @brief Returns a tuple specifying the inclusive range boundaries for the specified buffer index.
  * 
  * @return a tuple, 0th entry: start node of buffer, 1st entry: end note of buffer
@@ -183,9 +240,9 @@ std::tuple<unsigned int, unsigned int> parallel_framework::get_buffer_node_range
  * @param distribution_values a vector containing all distribution values
  * @param access_function this function will be used to access the distribution values
  */
-void parallel_framework::buffer_copy_update
+void parallel_framework::copy_to_buffer
 (
-    std::tuple<unsigned int, unsigned int> buffer_bounds,
+    const std::tuple<unsigned int, unsigned int> &buffer_bounds,
     std::vector<double> &distribution_values,
     access_function access_function
 )
@@ -209,6 +266,43 @@ void parallel_framework::buffer_copy_update
         {
             distribution_values[access_function(buffer_node, direction)] = distribution_values[access_function(current_neighbor, direction)];
         }
-        
+    }
+}
+
+/**
+ * @brief Performs the pre-iteration buffer initialization for the buffer with the specified boundaries.
+ *        For every buffer node, the directions pointing up will be copied from the nodes below and the
+ *        directions pointing down will be copied from the nodes above.
+ * 
+ * @param buffer_bounds a tuple containing the first and last index of the buffer
+ * @param distribution_values a vector containing all distribution values
+ * @param access_function this function will be used to access the distribution values
+ */
+void parallel_framework::copy_from_buffer
+(
+    const std::tuple<unsigned int, unsigned int> &buffer_bounds,
+    std::vector<double> &distribution_values,
+    access_function access_function
+)
+{
+    unsigned int start = std::get<0>(buffer_bounds);
+    unsigned int end = std::get<1>(buffer_bounds);
+    std::vector<double> current(DIRECTION_COUNT, 0);
+    unsigned int current_neighbor = 0;
+
+    for(auto buffer_node = start; buffer_node <= end; ++buffer_node)
+    {
+        // std::cout << "Currently dealing with buffer node " << buffer_node << std::endl;
+        current_neighbor = lbm_access::get_neighbor(buffer_node, 7);
+        for(auto direction : {6,7,8})
+        {
+            distribution_values[access_function(current_neighbor, direction)] = distribution_values[access_function(buffer_node, direction)];
+        }
+
+        current_neighbor = lbm_access::get_neighbor(buffer_node, 1);
+        for(auto direction : {0,1,2})
+        {
+            distribution_values[access_function(current_neighbor, direction)] = distribution_values[access_function(buffer_node, direction)];
+        }
     }
 }
