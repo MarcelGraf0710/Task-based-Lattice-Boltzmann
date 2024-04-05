@@ -115,6 +115,13 @@ namespace parallel_framework
         access_function access_function
     );
 
+    void copy_to_buffer_node
+    (   
+        unsigned int buffer_node, 
+        std::vector<double> &distribution_values,
+        access_function access_function
+    );
+
     /**
      * @brief Performs the pre-iteration buffer initialization for the buffer with the specified boundaries.
      *        For every buffer node, the directions pointing up will be copied from the nodes below and the

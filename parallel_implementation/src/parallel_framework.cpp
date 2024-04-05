@@ -249,25 +249,46 @@ void parallel_framework::copy_to_buffer
 {
     unsigned int start = std::get<0>(buffer_bounds);
     unsigned int end = std::get<1>(buffer_bounds);
-    std::vector<double> current(DIRECTION_COUNT, 0);
-    unsigned int current_neighbor = 0;
+    // std::vector<double> current(DIRECTION_COUNT, 0);
+    // unsigned int current_neighbor = 0;
 
     for(auto buffer_node = start; buffer_node <= end; ++buffer_node)
     {
         // std::cout << "Currently dealing with buffer node " << buffer_node << std::endl;
-        current_neighbor = lbm_access::get_neighbor(buffer_node, 1);
-        for(auto direction : {6,7,8})
-        {
-            distribution_values[access_function(buffer_node, direction)] = distribution_values[access_function(current_neighbor, direction)];
-        }
+        // current_neighbor = lbm_access::get_neighbor(buffer_node, 1);
+        // for(auto direction : {6,7,8})
+        // {
+        //     distribution_values[access_function(buffer_node, direction)] = distribution_values[access_function(current_neighbor, direction)];
+        // }
 
-        current_neighbor = lbm_access::get_neighbor(buffer_node, 7);
-        for(auto direction : {0,1,2})
-        {
-            distribution_values[access_function(buffer_node, direction)] = distribution_values[access_function(current_neighbor, direction)];
-        }
+        // current_neighbor = lbm_access::get_neighbor(buffer_node, 7);
+        // for(auto direction : {0,1,2})
+        // {
+        //     distribution_values[access_function(buffer_node, direction)] = distribution_values[access_function(current_neighbor, direction)];
+        // }
+        copy_to_buffer_node(buffer_node, distribution_values, access_function);
     }
 }
+
+void parallel_framework::copy_to_buffer_node
+(   
+    unsigned int buffer_node, 
+    std::vector<double> &distribution_values,
+    access_function access_function
+)
+{
+        for(auto direction : {6,7,8})
+        {
+            distribution_values[access_function(buffer_node, direction)] = distribution_values[access_function(lbm_access::get_neighbor(buffer_node, 1), direction)];
+        }
+        for(auto direction : {0,1,2})
+        {
+            distribution_values[access_function(buffer_node, direction)] = distribution_values[access_function(lbm_access::get_neighbor(buffer_node, 7), direction)];
+        }
+}
+
+
+
 
 /**
  * @brief Performs the pre-iteration buffer initialization for the buffer with the specified boundaries.

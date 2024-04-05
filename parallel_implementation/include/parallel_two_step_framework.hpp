@@ -11,6 +11,9 @@
 #include "boundaries.hpp"
 #include "parallel_framework.hpp"
 
+extern std::set<unsigned int> inflow_instream_dirs;
+extern std::set<unsigned int> outflow_instream_dirs;
+
 /**
  * @brief This namespace contains all methods for the framework of the parallel two-step algorithm.
  *        Notice that the framework itself is the same for all algorithms but the respective executions need adaptions.
@@ -68,6 +71,7 @@ namespace parallel_two_step_framework
         const access_function access_function
     );
 
+
     /**
      * @brief Performs the streaming and collision step for all fluid nodes within the simulation domain.
      *        The border conditions are enforced through ghost nodes.
@@ -84,7 +88,28 @@ namespace parallel_two_step_framework
         const std::vector<start_end_it_tuple> &fluid_nodes,
         const std::vector<border_swap_information> &bsis,
         std::vector<double> &distribution_values,    
-        const access_function access_function
+        const access_function access_function,
+        const std::tuple<std::vector<unsigned int>, std::vector<unsigned int>> &y_values
+    );
+
+    /**
+     * @brief Performs the streaming and collision step for all fluid nodes within the simulation domain.
+     *        The border conditions are enforced through ghost nodes.
+     *        This variant will print several debug comments to the console.
+     * 
+     * @param fluid_nodes A vector containing the indices of all fluid nodes in the domain
+     * @param bsi see documentation of border_swap_information
+     * @param distribution_values a vector containing all distribution values
+     * @param access_function the access to node values will be performed according to this access function.
+     * @return sim_data_tuple see documentation of sim_data_tuple
+     */
+    sim_data_tuple parallel_ts_stream_and_collide
+    (
+        const std::vector<start_end_it_tuple> &fluid_nodes,
+        const std::vector<border_swap_information> &bsis,
+        std::vector<double> &distribution_values,    
+        const access_function access_function,
+        const std::tuple<std::vector<unsigned int>, std::vector<unsigned int>> &y_values
     );
 
     /** 
@@ -98,6 +123,20 @@ namespace parallel_two_step_framework
         std::vector<velocity> &velocities, 
         std::vector<double> &densities,
         const start_end_it_tuple bounds
+    );
+
+    /**
+     * @brief Realizes inflow and outflow by an inward stream of each border node.
+     *        This method is intended for use with two-step, swap and shift algorithms.
+     * 
+     * @param distribution_values a vector containing the distribution values of all nodes
+     * @param access_function the access function used to access the distribution values
+     */
+    void ghost_stream_inout
+    (
+        std::vector<double> &distribution_values, 
+        const access_function access_function,
+        const std::tuple<std::vector<unsigned int>, std::vector<unsigned int>> &y_vals
     );
 }
 
