@@ -159,6 +159,18 @@ namespace parallel_framework
         std::vector<double> &densities, 
         const access_function access_function
     );
+
+    /**
+     * @brief Initializes the specified arguments to match the dimensions of the buffers.
+     * 
+     * @param buffer_ranges a vector containing a tuple of the indices of the first and last node belonging to a certain buffer
+     * @param y_values a tuple containing the y values of all regular layers (0) and all buffer layers (1)
+     */
+    void buffer_dimension_initializations
+    (
+        std::vector<std::tuple<unsigned int, unsigned int>> &buffer_ranges,
+        std::tuple<std::vector<unsigned int>, std::vector<unsigned int>> &y_values
+    );
 }
 
 #endif

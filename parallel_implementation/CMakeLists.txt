@@ -41,5 +41,5 @@ set(SOURCE_FILES src/access.cpp
 #add_executable(parallel_lbm main_two_lattice_parallel.cpp ${SOURCE_FILES})
 #target_link_libraries(parallel_lbm HPX::hpx HPX::wrap_main HPX::iostreams_component)
 
-add_executable(test main_two_step_framework.cpp ${SOURCE_FILES})
+add_executable(test main_two_lattice_framework.cpp ${SOURCE_FILES})
 target_link_libraries(test HPX::hpx HPX::wrap_main HPX::iostreams_component)

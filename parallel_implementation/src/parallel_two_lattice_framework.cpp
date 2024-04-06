@@ -34,20 +34,16 @@ void parallel_two_lattice_framework::run
     const unsigned int iterations
 )
 {
-    to_console::print_run_greeting("Parallel two-lattice algorithm (framework version)", iterations);
+    to_console::print_run_greeting("parallel two-lattice algorithm (framework version)", iterations);
 
-    std::vector<double> &source = distribution_values_0;
-    std::vector<double> &destination = distribution_values_1;
-    std::vector<double> &temp = distribution_values_1;
+    std::vector<double> source = distribution_values_0;
+    std::vector<double> destination = distribution_values_1;
+    std::vector<double> temp;
 
     // Initializations relevant for buffering
     std::vector<std::tuple<unsigned int, unsigned int>> buffer_ranges;
-    std::vector<unsigned int> buffer_indices;
-    for (auto buffer_index = 0; buffer_index < BUFFER_COUNT; ++buffer_index)
-    {
-        buffer_ranges.push_back(parallel_framework::get_buffer_node_range(buffer_index));
-        buffer_indices.push_back(buffer_index);
-    }
+    std::tuple<std::vector<unsigned int>, std::vector<unsigned int>> y_values;
+    parallel_framework::buffer_dimension_initializations(buffer_ranges, y_values);
 
     std::vector<sim_data_tuple>result(
         iterations, 
@@ -57,29 +53,15 @@ void parallel_two_lattice_framework::run
     for(auto time = 0; time < iterations; ++time)
     {
         std::cout << "\033[33mIteration " << time << ":\033[0m" << std::endl;
-        
-        // Global boundary update
-        bounce_back::emplace_bounce_back_values_parallel(boundary_nodes, source, access_function, 0);
-
-        // Buffer update
-        hpx::for_each
-        (
-            hpx::execution::par, 
-            buffer_indices.begin(), 
-            buffer_indices.end(), 
-            [&buffer_ranges, &source, &access_function](unsigned int buffer_index)
-            {
-                parallel_framework::copy_to_buffer(buffer_ranges[buffer_index], source, access_function);
-            }
-        );
 
         // Framework-based parallel two-lattice: combined stream and collision
         result[time] = parallel_two_lattice_framework::perform_tl_stream_and_collide_parallel
-        (
-            fluid_nodes, boundary_nodes, source, destination, access_function
-        );
+        (fluid_nodes, boundary_nodes, source, destination, access_function, y_values, buffer_ranges);
         std::cout << "\tFinished iteration " << time << std::endl;
-        std::swap(source, destination);
+
+        temp = std::move(source);
+        source = std::move(destination);
+        destination = std::move(temp);
     }
     to_console::buffered::print_simulation_results(result);
     std::cout << "All done, exiting simulation. " << std::endl;
@@ -186,6 +168,8 @@ sim_data_tuple parallel_two_lattice_framework::perform_tl_stream_and_collide_deb
  * @param source a vector containing the distribution values of the previous time step
  * @param destination the distribution values will be written to this vector after performing both steps.
  * @param access_function the function used to access the distribution values
+ * @param y_values a tuple containing the y values of all regular layers (0) and all buffer layers (1)
+ * @param buffer_ranges a vector containing a tuple of the indices of the first and last node belonging to a certain buffer
  * @return see documentation of sim_data_tuple
  */
 sim_data_tuple parallel_two_lattice_framework::perform_tl_stream_and_collide_parallel
@@ -194,30 +178,37 @@ sim_data_tuple parallel_two_lattice_framework::perform_tl_stream_and_collide_par
     const border_swap_information &bsi,
     std::vector<double> &source, 
     std::vector<double> &destination,    
-    const access_function access_function
+    const access_function access_function,
+    const std::tuple<std::vector<unsigned int>, std::vector<unsigned int>> &y_values,
+    const std::vector<std::tuple<unsigned int, unsigned int>> &buffer_ranges
 )
 {
     std::vector<velocity> velocities(TOTAL_NODE_COUNT, velocity{0,0});
     std::vector<double> densities(TOTAL_NODE_COUNT, -1);
 
-    std::vector<int> subdomains(SUBDOMAIN_COUNT, 0);
-    for(auto i = 0; i < SUBDOMAIN_COUNT; ++i)
-    {
-        subdomains[i] = i;
-    }
+        // Global boundary update
+        bounce_back::emplace_bounce_back_values_parallel(bsi, source, access_function, 0);
 
-    hpx::for_each
+        // Buffer update
+        hpx::experimental::for_loop
+        (
+            hpx::execution::par, 0, BUFFER_COUNT,
+            [&](unsigned int buffer_index)
+            {
+                parallel_framework::copy_to_buffer(buffer_ranges[buffer_index], source, access_function);
+            }
+        );
+
+    hpx::experimental::for_loop
     (
-        hpx::execution::par, 
-        subdomains.begin(), 
-        subdomains.end(), 
-        [&source, &destination, access_function, &velocities, &densities, &fluid_nodes](unsigned int subdomain)
+        hpx::execution::par, 0, SUBDOMAIN_COUNT, 
+        [&](unsigned int subdomain)
         {
             parallel_two_lattice_framework::tl_stream_and_collide_helper(source, destination, access_function, velocities, densities, fluid_nodes[subdomain]);
         }
     );
 
-    boundary_conditions::update_velocity_input_density_output_parallel(destination, velocities, densities, access_function);
+    parallel_framework::update_velocity_input_density_output(y_values, destination, velocities, densities, access_function);
 
     sim_data_tuple result{velocities, densities};
 
@@ -230,7 +221,7 @@ sim_data_tuple parallel_two_lattice_framework::perform_tl_stream_and_collide_par
  */
 void parallel_two_lattice_framework::tl_stream_and_collide_helper
 (
-    std::vector<double> &source, 
+    const std::vector<double> &source, 
     std::vector<double> &destination, 
     const access_function &access_function, 
     std::vector<velocity> &velocities, 

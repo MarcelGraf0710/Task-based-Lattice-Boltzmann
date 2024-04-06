@@ -174,7 +174,7 @@ void bounce_back::emplace_bounce_back_values_parallel
         hpx::execution::par, 
         bsi.begin(), 
         bsi.end(), 
-        [&distribution_values, access_function, read_offset](const std::vector<unsigned int>& fluid_node)
+        [&](const std::vector<unsigned int>& fluid_node)
         {
             for(auto direction_iterator = fluid_node.begin()+1; direction_iterator < fluid_node.end(); ++direction_iterator) 
             {

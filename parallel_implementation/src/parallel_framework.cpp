@@ -405,3 +405,39 @@ void parallel_framework::update_velocity_input_density_output
         parallel_framework::copy_to_buffer_node(current_border_node, distribution_values, access_function);
         });
     }
+
+/**
+ * @brief Initializes the specified arguments to match the dimensions of the buffers.
+ * 
+ * @param buffer_ranges a vector containing a tuple of the indices of the first and last node belonging to a certain buffer
+ * @param y_values a tuple containing the y values of all regular layers (0) and all buffer layers (1)
+ */
+void parallel_framework::buffer_dimension_initializations
+(
+    std::vector<std::tuple<unsigned int, unsigned int>> &buffer_ranges,
+    std::tuple<std::vector<unsigned int>, std::vector<unsigned int>> &y_values
+)
+{
+    for (auto buffer_index = 0; buffer_index < BUFFER_COUNT; ++buffer_index)
+    {
+        buffer_ranges.push_back(parallel_framework::get_buffer_node_range(buffer_index));
+    }
+    std::vector<unsigned int> all_ghost_y_vals;
+    std::vector<unsigned int> buffer_y_vals;
+    unsigned int horizontal_counter = 0;
+    for(auto y = 0; y < VERTICAL_NODES; ++y)
+    {
+        if(horizontal_counter < SUBDOMAIN_HEIGHT)
+        {
+            all_ghost_y_vals.push_back(y);
+            horizontal_counter++;
+        }
+        else
+        {
+            buffer_y_vals.push_back(y);
+            horizontal_counter = 0;
+        }
+    }
+    std::vector<unsigned int> ghost_y_vals(all_ghost_y_vals.begin()+1, all_ghost_y_vals.end()-1);
+    y_values = std::make_tuple(ghost_y_vals, buffer_y_vals);
+}
