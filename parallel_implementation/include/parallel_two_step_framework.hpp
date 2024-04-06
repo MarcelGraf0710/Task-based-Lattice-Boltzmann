@@ -33,7 +33,7 @@ namespace parallel_two_step_framework
     (  
         const std::vector<start_end_it_tuple> &fluid_nodes,       
         std::vector<double> &distribution_values, 
-        const std::vector<border_swap_information> &bsis,
+        border_swap_information &bsi,
         access_function access_function,
         unsigned int iterations
     );
@@ -86,7 +86,7 @@ namespace parallel_two_step_framework
     sim_data_tuple perform_ts_stream_and_collide_debug
     (
         const std::vector<start_end_it_tuple> &fluid_nodes,
-        const std::vector<border_swap_information> &bsis,
+        const border_swap_information &bsi,
         std::vector<double> &distribution_values,    
         const access_function access_function,
         const std::tuple<std::vector<unsigned int>, std::vector<unsigned int>> &y_values
@@ -106,7 +106,7 @@ namespace parallel_two_step_framework
     sim_data_tuple parallel_ts_stream_and_collide
     (
         const std::vector<start_end_it_tuple> &fluid_nodes,
-        const std::vector<border_swap_information> &bsis,
+        const border_swap_information &bsi,
         std::vector<double> &distribution_values,    
         const access_function access_function,
         const std::tuple<std::vector<unsigned int>, std::vector<unsigned int>> &y_values
@@ -137,6 +137,22 @@ namespace parallel_two_step_framework
         std::vector<double> &distribution_values, 
         const access_function access_function,
         const std::tuple<std::vector<unsigned int>, std::vector<unsigned int>> &y_vals
+    );
+
+    /**
+     * @brief Performs a halfway bounce-back streaming update for all fluid nodes within the simulation domain.
+     *        This version utilizes the ghost nodes bordering a boundary node. It is intended for use with
+     *        the two-step, swap and shift algorithms.
+     * 
+     * @param ba see documentation of border_adjacency
+     * @param distribution_values a vector containing the distribution values of all nodes
+     * @param access_function the access function used to access the distribution values
+     */
+    void perform_boundary_update
+    (
+        const border_swap_information &bsi,
+        std::vector<double> &distribution_values, 
+        const access_function access_function
     );
 }
 

@@ -137,6 +137,28 @@ namespace parallel_framework
         std::vector<double> &distribution_values,
         access_function access_function
     );
+
+    /**
+     * @brief Updates the ghost nodes that represent inlet and outlet edges.
+     *        When updating, a velocity border condition will be considered for the input
+     *        and a density border condition for the output.
+     *        The inlet velocity is constant throughout all inlet nodes whereas the outlet nodes
+     *        all have the specified density.
+     *        The corresponding values are constants defined in "../include/"defines.hpp".
+     * 
+     * @param distribution_values a vector containing the distribution values of all nodes
+     * @param velocities a vector containing the velocities of all nodes
+     * @param densities a vector containing the densities of all nodes
+     * @param access_function the access function used to access the distribution values
+     */
+    void update_velocity_input_density_output
+    (
+        const std::tuple<std::vector<unsigned int>, std::vector<unsigned int>> &y_values,
+        std::vector<double> &distribution_values,
+        std::vector<velocity> &velocities,
+        std::vector<double> &densities, 
+        const access_function access_function
+    );
 }
 
 #endif

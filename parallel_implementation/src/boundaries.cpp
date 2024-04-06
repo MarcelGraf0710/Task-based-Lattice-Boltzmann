@@ -519,7 +519,6 @@ void boundary_conditions::update_velocity_input_density_output_parallel
         });
 }
 
-
 /**
  * @brief Updates the ghost nodes that represent inlet and outlet edges.
  *        When updating, a density border condition will be considered for both the input and the output.

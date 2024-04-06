@@ -26,7 +26,7 @@ void parallel_two_step_framework::run
 (  
     const std::vector<start_end_it_tuple> &fluid_nodes,       
     std::vector<double> &distribution_values, 
-    const std::vector<border_swap_information> &bsis,
+    border_swap_information &bsi,
     access_function access_function,
     unsigned int iterations
 )
@@ -70,8 +70,8 @@ void parallel_two_step_framework::run
         std::cout << "\033[33mIteration " << time << ":\033[0m" << std::endl;
 
         // Framework-based parallel two-step: combined stream and collision
-        result[time] = parallel_two_step_framework::perform_ts_stream_and_collide_debug
-        (fluid_nodes, bsis, distribution_values, access_function, y_vals);
+        result[time] = parallel_two_step_framework::parallel_ts_stream_and_collide
+        (fluid_nodes, bsi, distribution_values, access_function, y_vals);
         std::cout << "\tFinished iteration " << time << std::endl;
     }
     to_console::buffered::print_simulation_results(result);
@@ -126,7 +126,7 @@ void parallel_two_step_framework::perform_stream
 sim_data_tuple parallel_two_step_framework::perform_ts_stream_and_collide_debug
 (
     const std::vector<start_end_it_tuple> &fluid_nodes,
-    const std::vector<border_swap_information> &bsis,
+    const border_swap_information &bsi,
     std::vector<double> &distribution_values,    
     const access_function access_function,
     const std::tuple<std::vector<unsigned int>, std::vector<unsigned int>> &y_values
@@ -154,31 +154,25 @@ sim_data_tuple parallel_two_step_framework::perform_ts_stream_and_collide_debug
         parallel_two_step_framework::perform_stream(fluid_nodes[subdomain], distribution_values, access_function);
     }
 
-    /* Get missing streams from buffer */
+    /* Get remaining streams from buffer */
+    std::cout << "Copying to buffer" << std::endl;
     for(auto buffer_index : buffer_indices)
     {
         parallel_framework::copy_from_buffer(buffer_ranges[buffer_index], distribution_values, access_function);
     }
-    
     std::cout << "\t Distribution values after streaming:" << std::endl;
     to_console::buffered::print_distribution_values(distribution_values, access_function);
     std::cout << std::endl;
 
     /* Perform bounce-back using ghost nodes */
-    for(auto subdomain = 0; subdomain < SUBDOMAIN_COUNT; ++subdomain)
-    {
-        bounce_back::perform_boundary_update(bsis[subdomain], distribution_values, access_function);
-    }
+    parallel_two_step_framework::perform_boundary_update(bsi, distribution_values, access_function);
     std::cout << "\t Distribution values after bounce-back update:" << std::endl;
     to_console::buffered::print_distribution_values(distribution_values, access_function);
     std::cout << std::endl;
 
     /* Perform inflow and outflow using ghost nodes */
-    std::cout << "Performing ghost stream inout " << std::endl;
-    for(auto subdomain = 0; subdomain < SUBDOMAIN_COUNT; ++subdomain)
-    {
-        parallel_two_step_framework::ghost_stream_inout(distribution_values, access_function, y_values);
-    } 
+    std::cout << "Performing ghost stream inout" << std::endl;
+    parallel_two_step_framework::ghost_stream_inout(distribution_values, access_function, y_values);
     
     std::cout << "\t Distribution values after inflow and outflow via ghost nodes:" << std::endl;
     to_console::buffered::print_distribution_values(distribution_values, access_function);
@@ -194,16 +188,10 @@ sim_data_tuple parallel_two_step_framework::perform_ts_stream_and_collide_debug
     std::cout << std::endl;
 
     /* Update ghost nodes */
-    boundary_conditions::update_velocity_input_density_output(distribution_values, velocities, densities, access_function);
+    parallel_framework::update_velocity_input_density_output(y_values, distribution_values, velocities, densities, access_function);
     std::cout << "Distribution values after ghost node update: " << std::endl;
     to_console::buffered::print_distribution_values(distribution_values, access_function);
     std::cout << std::endl;
-
-    // // Restore buffer correctness
-    for(auto buffer_index : buffer_indices)
-    {
-        parallel_framework::copy_to_buffer(buffer_ranges[buffer_index], distribution_values, access_function);
-    }
 
     sim_data_tuple result{velocities, densities};
 
@@ -224,7 +212,7 @@ sim_data_tuple parallel_two_step_framework::perform_ts_stream_and_collide_debug
 sim_data_tuple parallel_two_step_framework::parallel_ts_stream_and_collide
 (
     const std::vector<start_end_it_tuple> &fluid_nodes,
-    const std::vector<border_swap_information> &bsis,
+    const border_swap_information &bsi,
     std::vector<double> &distribution_values,    
     const access_function access_function,
     const std::tuple<std::vector<unsigned int>, std::vector<unsigned int>> &y_values
@@ -242,51 +230,40 @@ sim_data_tuple parallel_two_step_framework::parallel_ts_stream_and_collide
         buffer_indices.push_back(buffer_index);
     }
 
-    /* Streaming */
-    for(auto subdomain = 0; subdomain < SUBDOMAIN_COUNT; ++subdomain)
-    {
-        parallel_two_step_framework::perform_stream(fluid_nodes[subdomain], distribution_values, access_function);
-    }
+    /* Perform streaming for all fluid nodes */
+    hpx::experimental::for_loop(
+        hpx::execution::par, 0, SUBDOMAIN_COUNT,
+        [&fluid_nodes, &distribution_values, access_function](int subdomain)
+        {  
+            parallel_two_step_framework::perform_stream(fluid_nodes[subdomain], distribution_values, access_function);
+        });
 
-    /* Get missing streams from buffer */
-    for(auto buffer_index : buffer_indices)
-    {
-        parallel_framework::copy_from_buffer(buffer_ranges[buffer_index], distribution_values, access_function);
-    }
+    /* Get remaining streams from buffer */
+    hpx::for_each(
+        hpx::execution::par, buffer_indices.begin(), buffer_indices.end(), 
+        [&buffer_ranges, &distribution_values, access_function](unsigned int buffer_index)
+        {
+            parallel_framework::copy_from_buffer(buffer_ranges[buffer_index], distribution_values, access_function);
+        }
+    );
 
     /* Perform bounce-back using ghost nodes */
-    for(auto subdomain = 0; subdomain < SUBDOMAIN_COUNT; ++subdomain)
-    {
-        bounce_back::perform_boundary_update(bsis[subdomain], distribution_values, access_function);
-    }
+    parallel_two_step_framework::perform_boundary_update(bsi, distribution_values, access_function);
 
     /* Perform inflow and outflow using ghost nodes */
-    std::cout << "Performing ghost stream inout " << std::endl;
-    boundary_conditions::ghost_stream_inout(distribution_values, access_function);
-    std::cout << "\t Distribution values after inflow and outflow via ghost nodes:" << std::endl;
-    to_console::buffered::print_distribution_values(distribution_values, access_function);
-    std::cout << std::endl;
+    parallel_two_step_framework::ghost_stream_inout(distribution_values, access_function, y_values);
 
     /* Perform collision for all fluid nodes */
-    for(auto subdomain = 0; subdomain < SUBDOMAIN_COUNT; ++subdomain)
-    {
+    hpx::experimental::for_loop(
+        hpx::execution::par, 0, SUBDOMAIN_COUNT,
+        [&fluid_nodes, &distribution_values, &velocities, &densities, access_function](int subdomain)
+        {
+        
         parallel_two_step_framework::perform_collision(distribution_values, access_function, velocities, densities, fluid_nodes[subdomain]);
-    }
-    std::cout << "Distribution values after collision: " << std::endl;
-    to_console::buffered::print_distribution_values(distribution_values, access_function);
-    std::cout << std::endl;
+    });
 
     /* Update ghost nodes */
-    boundary_conditions::update_velocity_input_density_output(distribution_values, velocities, densities, access_function);
-    std::cout << "Distribution values after ghost node update: " << std::endl;
-    to_console::buffered::print_distribution_values(distribution_values, access_function);
-    std::cout << std::endl;
-
-    // Restore buffer correctness
-    for(auto buffer_index : buffer_indices)
-    {
-        parallel_framework::copy_to_buffer(buffer_ranges[buffer_index], distribution_values, access_function);
-    }
+    parallel_framework::update_velocity_input_density_output(y_values, distribution_values, velocities, densities, access_function);
 
     sim_data_tuple result{velocities, densities};
 
@@ -382,4 +359,41 @@ void parallel_two_step_framework::ghost_stream_inout
         current_border_node = lbm_access::get_node_index(HORIZONTAL_NODES - 2,y);
         parallel_framework::copy_to_buffer_node(current_border_node, distribution_values, access_function);
     }
+}
+
+/**
+ * @brief Performs a halfway bounce-back streaming update for all fluid nodes within the simulation domain.
+ *        This version utilizes the ghost nodes bordering a boundary node. It is intended for use with
+ *        the two-step, swap and shift algorithms.
+ * 
+ * @param ba see documentation of border_adjacency
+ * @param distribution_values a vector containing the distribution values of all nodes
+ * @param access_function the access function used to access the distribution values
+ */
+void parallel_two_step_framework::perform_boundary_update
+(
+    const border_swap_information &bsi,
+    std::vector<double> &distribution_values, 
+    const access_function access_function
+)
+{
+    hpx::for_each
+    (
+        hpx::execution::par, 
+        bsi.begin(), 
+        bsi.end(), 
+        [&](std::vector<unsigned int> current)
+        {
+            //std::cout << "Current:" << std::endl;
+            //to_console::print_vector(current, current.size());
+            int current_border_node = current[0];
+            std::set<unsigned int> remaining_dirs = bounce_back::determine_bounce_back_directions(current);
+            for(const auto direction : remaining_dirs)
+            {
+                distribution_values[access_function(current_border_node, direction)] = 
+                distribution_values[access_function(lbm_access::get_neighbor(current_border_node, invert_direction(direction)), invert_direction(direction))];
+            }
+        }
+    );
+
 }

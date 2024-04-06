@@ -252,39 +252,6 @@ namespace to_console
 
     namespace buffered
     {
-        /**
-         * @brief Prints the simulation results, i.e. the velocity vectors and density values, for all time steps.
-         * 
-         * @param results a vector containing the simulation data tuples.
-         */
-        inline void print_simulation_results(std::vector<sim_data_tuple> &results)
-        {
-            unsigned int iterations = results.size();
-            std::cout << std::endl;
-            std::cout << "Velocity values: " << std::endl;
-            std::cout << std::endl;
-            for(auto i = 0; i < iterations; ++i)
-            {
-                std::cout << "t = " << i << std::endl;
-                std::cout << "-------------------------------------------------------------------------------- " << std::endl;
-                print_velocity_vector(std::get<0>(results[i]));
-                std::cout << std::endl;
-            }
-            std::cout << std::endl;
-            std::cout << std::endl;
-
-            std::cout << "Density values: " << std::endl;
-            std::cout << std::endl;
-            
-            for(auto i = 0; i < iterations; ++i)
-            {
-                std::cout << "t = " << i << std::endl;
-                std::cout << "-------------------------------------------------------------------------------- " << std::endl;
-                print_vector(std::get<1>(results[i]));
-                std::cout << std::endl;
-            }
-            std::cout << std::endl;
-        }
 
         /**
          * @brief Prints all velocity values in the lattice to the console.
@@ -347,6 +314,42 @@ namespace to_console
             std::cout << std::endl;
         } 
 
+        /**
+         * @brief Prints the simulation results, i.e. the velocity vectors and density values, for all time steps.
+         * 
+         * @param results a vector containing the simulation data tuples.
+         */
+        inline void print_simulation_results(std::vector<sim_data_tuple> &results)
+        {
+            unsigned int iterations = results.size();
+            std::cout << std::endl;
+            std::cout << "Velocity values: " << std::endl;
+            std::cout << std::endl;
+            for(auto i = 0; i < iterations; ++i)
+            {
+                std::cout << "t = " << i << std::endl;
+                std::cout << "-------------------------------------------------------------------------------- " << std::endl;
+                to_console::buffered::print_velocity_vector(std::get<0>(results[i]));
+                std::cout << std::endl;
+            }
+            std::cout << std::endl;
+            std::cout << std::endl;
+
+            std::cout << "Density values: " << std::endl;
+            std::cout << std::endl;
+            
+            for(auto i = 0; i < iterations; ++i)
+            {
+                std::cout << "t = " << i << std::endl;
+                std::cout << "-------------------------------------------------------------------------------- " << std::endl;
+                to_console::buffered::print_vector(std::get<1>(results[i]));
+                std::cout << std::endl;
+            }
+            std::cout << std::endl;
+        }
+
+
+
     /**
      * @brief Prints all distribution values in to the console.
      *        They are displayed in the original order, i.e. the origin is located at the lower left corner of the printed distribution chart.
@@ -360,7 +363,6 @@ namespace to_console
         const access_function access_function
     )
     {
-        std::cout << "Trying to print results " << std::endl;
         std::vector<std::vector<unsigned int>> print_dirs = {{6,7,8}, {3,4,5}, {0,1,2}};
         unsigned int current_node_index = 0;
         unsigned int previous_direction = 0;
