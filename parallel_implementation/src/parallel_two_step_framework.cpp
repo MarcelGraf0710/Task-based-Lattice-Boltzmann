@@ -49,7 +49,7 @@ void parallel_two_step_framework::run
         std::cout << "\033[33mIteration " << time << ":\033[0m" << std::endl;
 
         // Framework-based parallel two-step: combined stream and collision
-        result[time] = parallel_two_step_framework::perform_ts_stream_and_collide_debug
+        result[time] = parallel_two_step_framework::parallel_ts_stream_and_collide
         (fluid_nodes, bsi, distribution_values, access_function, y_values, buffer_ranges);
         std::cout << "\tFinished iteration " << time << std::endl;
     }
@@ -280,7 +280,7 @@ sim_data_tuple parallel_two_step_framework::parallel_ts_stream_and_collide
         hpx::execution::par, 0, BUFFER_COUNT, 
         [&](unsigned int buffer_index)
         {
-            parallel_framework::copy_from_buffer(buffer_ranges[buffer_index], distribution_values, access_function);
+            parallel_framework::copy_from_buffer(std::make_tuple(std::get<0>(buffer_ranges[buffer_index])+1, std::get<1>(buffer_ranges[buffer_index])-1), distribution_values, access_function);
         }
     );
 

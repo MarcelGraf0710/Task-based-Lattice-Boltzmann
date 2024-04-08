@@ -57,7 +57,7 @@ void parallel_two_lattice_framework::run
         // Framework-based parallel two-lattice: combined stream and collision
         // result[time] = parallel_two_lattice_framework::perform_tl_stream_and_collide_parallel
         // (fluid_nodes, boundary_nodes, source, destination, access_function, y_values, buffer_ranges);
-        result[time] = parallel_two_lattice_framework::perform_tl_stream_and_collide_debug
+        result[time] = parallel_two_lattice_framework::perform_tl_stream_and_collide_parallel
         (fluid_nodes, boundary_nodes, source, destination, access_function, y_values, buffer_ranges);
         
         std::cout << "\tFinished iteration " << time << std::endl;
