@@ -16,8 +16,8 @@ set(HEADER_FILES include/access.hpp
                  include/two_lattice_parallel.hpp
                  include/parallel_framework.hpp
                  include/parallel_two_lattice_framework.hpp
-                 include/parallel_two_step_framework.hpp
-                 #include/parallel_swap_framework.hpp
+                 #include/parallel_two_step_framework.hpp
+                 include/parallel_swap_framework.hpp
                  include/two_step_sequential.hpp
                  include/utils.hpp
                  )
@@ -36,16 +36,16 @@ set(SOURCE_FILES src/access.cpp
                  src/two_lattice_sequential.cpp
                  src/parallel_framework.cpp
                  src/parallel_two_lattice_framework.cpp
-                 src/parallel_two_step_framework.cpp
-                 #src/parallel_swap_framework.cpp
+                 #src/parallel_two_step_framework.cpp
+                 src/parallel_swap_framework.cpp
                  )
                  
 #add_executable(parallel_lbm main_two_lattice_parallel.cpp ${SOURCE_FILES})
 #target_link_libraries(parallel_lbm HPX::hpx HPX::wrap_main HPX::iostreams_component)
 
-# add_executable(test_swap main_swap_framework.cpp ${SOURCE_FILES})
-# target_link_libraries(test_swap HPX::hpx HPX::wrap_main HPX::iostreams_component)
+add_executable(test_swap main_swap_framework.cpp ${SOURCE_FILES})
+target_link_libraries(test_swap HPX::hpx HPX::wrap_main HPX::iostreams_component)
 add_executable(test_two_lattice main_two_lattice_framework.cpp ${SOURCE_FILES})
 target_link_libraries(test_two_lattice HPX::hpx HPX::wrap_main HPX::iostreams_component)
-add_executable(test_two_step main_two_step_framework.cpp ${SOURCE_FILES})
-target_link_libraries(test_two_step HPX::hpx HPX::wrap_main HPX::iostreams_component)
+# add_executable(test_two_step main_two_step_framework.cpp ${SOURCE_FILES})
+# target_link_libraries(test_two_step HPX::hpx HPX::wrap_main HPX::iostreams_component)

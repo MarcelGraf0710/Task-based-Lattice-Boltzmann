@@ -87,6 +87,10 @@ sim_data_tuple parallel_swap_framework::perform_swap_stream_and_collide_debug
     std::vector<velocity> velocities(TOTAL_NODE_COUNT, velocity{0,0});
     std::vector<double> densities(TOTAL_NODE_COUNT, -1);
 
+    std::vector<double> corner_values = parallel_swap_framework::extract_corner_distributions(distribution_values, access_function);
+    std::cout << "Extracted corner values " << std::endl;
+    to_console::print_vector(corner_values, 5);
+
     // Border node initialization
     for(const auto node : bsi)
     {
@@ -141,6 +145,9 @@ sim_data_tuple parallel_swap_framework::perform_swap_stream_and_collide_debug
     to_console::buffered::print_distribution_values(distribution_values, access_function);
     std::cout << std::endl;
 
+    // Restore inout correctness
+    parallel_swap_framework::restore_corner_distributions(corner_values, distribution_values, access_function);
+
     /* Update ghost nodes */
     parallel_framework::update_velocity_input_density_output(y_values, distribution_values, velocities, densities, access_function);
     std::cout << "Distribution values after ghost node update: " << std::endl;
@@ -177,6 +184,7 @@ sim_data_tuple parallel_swap_framework::parallel_swap_stream_and_collide
 {
     std::vector<velocity> velocities(TOTAL_NODE_COUNT, velocity{0,0});
     std::vector<double> densities(TOTAL_NODE_COUNT, -1);
+    std::vector<double> corner_values = parallel_swap_framework::extract_corner_distributions(distribution_values, access_function);
 
     /* Border node initialization */
     hpx::for_each
@@ -232,6 +240,9 @@ sim_data_tuple parallel_swap_framework::parallel_swap_stream_and_collide
     //     }
     // }
 
+    // Restore inout correctness
+    parallel_swap_framework::restore_corner_distributions(corner_values, distribution_values, access_function);
+
     /* Update ghost nodes */
     parallel_framework::update_velocity_input_density_output(y_values, distribution_values, velocities, densities, access_function);
 
@@ -267,4 +278,47 @@ void parallel_swap_framework::swap_buffer_update
             distribution_values[access_function(lbm_access::get_neighbor(buffer_node, direction), invert_direction(direction))] = distribution_values[access_function(lbm_access::get_neighbor(buffer_node, 1), direction)];
         }
     }
+}
+
+void parallel_swap_framework::restore_inout_correctness
+(
+    std::vector<double> &distribution_values,    
+    const access_function access_function
+)
+{
+    unsigned int restore_node = lbm_access::get_node_index(1,1);
+    distribution_values[access_function(lbm_access::get_neighbor(restore_node, 0), 8)] = distribution_values[access_function(restore_node, 0)]; 
+    restore_node = lbm_access::get_node_index(HORIZONTAL_NODES - 2, 1);
+    distribution_values[access_function(lbm_access::get_neighbor(restore_node, 2), 6)] = distribution_values[access_function(restore_node, 2)]; 
+    restore_node = lbm_access::get_node_index(1, VERTICAL_NODES - 2);
+    distribution_values[access_function(lbm_access::get_neighbor(restore_node, 6), 2)] = distribution_values[access_function(restore_node, 6)]; 
+    restore_node = lbm_access::get_node_index(HORIZONTAL_NODES - 2, VERTICAL_NODES - 2);
+    distribution_values[access_function(lbm_access::get_neighbor(restore_node, 8), 0)] = distribution_values[access_function(restore_node, 8)]; 
+}
+
+std::vector<double> parallel_swap_framework::extract_corner_distributions
+(
+    const std::vector<double> &distribution_values,    
+    const access_function access_function
+)
+{
+    std::vector<double> result(4, 0);
+    result[0] = distribution_values[access_function(lbm_access::get_node_index(0,0), 8)];
+    result[1] = distribution_values[access_function(lbm_access::get_node_index(HORIZONTAL_NODES - 1, 0), 6)];
+    result[2] = distribution_values[access_function(lbm_access::get_node_index(0, VERTICAL_NODES - 1), 2)];
+    result[3] = distribution_values[access_function(lbm_access::get_node_index(HORIZONTAL_NODES - 1, VERTICAL_NODES - 1), 0)];
+    return result;
+}
+
+void parallel_swap_framework::restore_corner_distributions
+(
+    const std::vector<double> &corner_values,  
+    std::vector<double> &distribution_values,    
+    const access_function access_function
+)
+{
+    distribution_values[access_function(lbm_access::get_node_index(0,0), 8)] = corner_values[0];
+    distribution_values[access_function(lbm_access::get_node_index(HORIZONTAL_NODES - 1, 0), 6)] = corner_values[1];
+    distribution_values[access_function(lbm_access::get_node_index(0, VERTICAL_NODES - 1), 2)] = corner_values[2];
+    distribution_values[access_function(lbm_access::get_node_index(HORIZONTAL_NODES - 1, VERTICAL_NODES - 1), 0)] = corner_values[3];
 }

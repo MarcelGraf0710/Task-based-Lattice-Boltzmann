@@ -15,13 +15,13 @@
 
 #define DIMENSION_COUNT 2
 #define DIRECTION_COUNT 9
-#define VERTICAL_NODES 14 // 15, readable up to 50 in console, beyond not recommended
-#define HORIZONTAL_NODES 7 // comfortable console limit: 9
+#define VERTICAL_NODES 26 // 15, readable up to 50 in console, beyond not recommended // 14 as for parallel
+#define HORIZONTAL_NODES 7 // comfortable console limit: 9 
 #define TOTAL_NODE_COUNT VERTICAL_NODES * HORIZONTAL_NODES
 #define BOLTZMANN_CONSTANT 1.380649e-23
 #define RELAXATION_TIME 1.4
 #define TIME_STEPS 50
-#define SUBDOMAIN_HEIGHT 4
+#define SUBDOMAIN_HEIGHT 8 // 4 as for parallel
 #define SUBDOMAIN_COUNT (VERTICAL_NODES + 1) / (1 + SUBDOMAIN_HEIGHT)
 #define BUFFER_COUNT SUBDOMAIN_COUNT - 1
 

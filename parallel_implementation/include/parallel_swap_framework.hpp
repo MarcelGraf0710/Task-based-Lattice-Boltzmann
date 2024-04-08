@@ -89,6 +89,25 @@ namespace parallel_swap_framework
         std::vector<double> &distribution_values,
         const access_function access_function
     );
+
+    void restore_inout_correctness
+    (
+        std::vector<double> &distribution_values,    
+        const access_function access_function
+    );
+
+    std::vector<double> extract_corner_distributions
+    (
+        const std::vector<double> &distribution_values,    
+        const access_function access_function
+    );
+
+    void restore_corner_distributions
+    (
+        const std::vector<double> &corner_values,  
+        std::vector<double> &distribution_values,    
+        const access_function access_function
+    );
 }
 
 #endif
