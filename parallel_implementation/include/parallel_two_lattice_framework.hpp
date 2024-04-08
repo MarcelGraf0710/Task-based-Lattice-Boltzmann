@@ -47,6 +47,7 @@ namespace parallel_two_lattice_framework
      * @param distribution_values_0 source for even time steps and destination for odd time steps
      * @param distribution_values_1 source for odd time steps and destination for even time steps
      * @param access_function the access function according to which distribution values are to be accessed
+     * @param buffer_ranges a vector containing a tuple of the indices of the first and last node belonging to a certain buffer
      * @return see documentation of sim_data_tuple
      */
     sim_data_tuple perform_tl_stream_and_collide_debug
@@ -55,7 +56,9 @@ namespace parallel_two_lattice_framework
         const border_swap_information &bsi,
         std::vector<double> &source, 
         std::vector<double> &destination,    
-        const access_function access_function
+        const access_function access_function,
+        const std::tuple<std::vector<unsigned int>, std::vector<unsigned int>> &y_values,
+        const std::vector<std::tuple<unsigned int, unsigned int>> &buffer_ranges
     );
 
     /**

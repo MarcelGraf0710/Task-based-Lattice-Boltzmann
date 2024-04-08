@@ -55,8 +55,11 @@ void parallel_two_lattice_framework::run
         std::cout << "\033[33mIteration " << time << ":\033[0m" << std::endl;
 
         // Framework-based parallel two-lattice: combined stream and collision
-        result[time] = parallel_two_lattice_framework::perform_tl_stream_and_collide_parallel
+        // result[time] = parallel_two_lattice_framework::perform_tl_stream_and_collide_parallel
+        // (fluid_nodes, boundary_nodes, source, destination, access_function, y_values, buffer_ranges);
+        result[time] = parallel_two_lattice_framework::perform_tl_stream_and_collide_debug
         (fluid_nodes, boundary_nodes, source, destination, access_function, y_values, buffer_ranges);
+        
         std::cout << "\tFinished iteration " << time << std::endl;
 
         temp = std::move(source);
@@ -77,6 +80,7 @@ void parallel_two_lattice_framework::run
  * @param distribution_values_0 source for even time steps and destination for odd time steps
  * @param distribution_values_1 source for odd time steps and destination for even time steps
  * @param access_function the access function according to which distribution values are to be accessed
+ * @param buffer_ranges a vector containing a tuple of the indices of the first and last node belonging to a certain buffer
  * @return see documentation of sim_data_tuple
  */
 sim_data_tuple parallel_two_lattice_framework::perform_tl_stream_and_collide_debug
@@ -85,7 +89,9 @@ sim_data_tuple parallel_two_lattice_framework::perform_tl_stream_and_collide_deb
     const border_swap_information &bsi,
     std::vector<double> &source, 
     std::vector<double> &destination,    
-    const access_function access_function
+    const access_function access_function,
+    const std::tuple<std::vector<unsigned int>, std::vector<unsigned int>> &y_values,
+    const std::vector<std::tuple<unsigned int, unsigned int>> &buffer_ranges
 )
 {
     std::vector<velocity> velocities(TOTAL_NODE_COUNT, velocity{0,0});
@@ -99,6 +105,15 @@ sim_data_tuple parallel_two_lattice_framework::perform_tl_stream_and_collide_deb
     start_end_it_tuple bounds;
 
     std::cout << "\t TL stream and collide: initializations and declarations performed." << std::endl;
+
+    // Global boundary update
+    bounce_back::emplace_bounce_back_values_parallel(bsi, source, access_function, 0);
+
+    // Buffer update
+    for(auto buffer_index = 0; buffer_index < BUFFER_COUNT; ++buffer_index)
+    {
+        parallel_framework::copy_to_buffer(buffer_ranges[buffer_index], source, access_function);
+    }
 
     for (auto subdomain = 0; subdomain < SUBDOMAIN_COUNT; ++subdomain)
     {
@@ -149,7 +164,7 @@ sim_data_tuple parallel_two_lattice_framework::perform_tl_stream_and_collide_deb
         to_console::buffered::print_distribution_values(destination, access_function);
     }
 
-    boundary_conditions::update_velocity_input_density_output(destination, velocities, densities, access_function);
+    parallel_framework::update_velocity_input_density_output(y_values, destination, velocities, densities, access_function);
     std::cout << "Updated inlet and outlet ghost nodes." <<std::endl;
     to_console::buffered::print_distribution_values(destination, access_function);
 

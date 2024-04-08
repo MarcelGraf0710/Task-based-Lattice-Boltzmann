@@ -359,8 +359,8 @@ void parallel_framework::update_velocity_input_density_output
     // std::cout << "Entering parallel_framework::update_velocity_input_density_output " << std::endl;
     // to_console::print_vector(std::get<0>(y_values), std::get<0>(y_values).size());
     // to_console::print_vector(std::get<1>(y_values), std::get<1>(y_values).size());
-    hpx::experimental::for_loop(
-        hpx::execution::par, 0, VERTICAL_NODES,
+    hpx::for_each(
+        hpx::execution::par, std::get<0>(y_values).begin(), std::get<0>(y_values).end(),
         [&distribution_values, &velocities, &densities, access_function](int y)
         {
         // Update inlets
@@ -398,13 +398,13 @@ void parallel_framework::update_velocity_input_density_output
         hpx::execution::par, std::get<1>(y_values).begin(), std::get<1>(y_values).end(),
         [&distribution_values, &velocities, &densities, access_function](int y)
         {
-        int current_border_node = lbm_access::get_node_index(0,y);
-        parallel_framework::copy_to_buffer_node(current_border_node, distribution_values, access_function);
+            int current_border_node = lbm_access::get_node_index(0,y);
+            parallel_framework::copy_to_buffer_node(current_border_node, distribution_values, access_function);
 
-        current_border_node = lbm_access::get_node_index(HORIZONTAL_NODES - 1,y);
-        parallel_framework::copy_to_buffer_node(current_border_node, distribution_values, access_function);
-        });
-    }
+            current_border_node = lbm_access::get_node_index(HORIZONTAL_NODES - 1,y);
+            parallel_framework::copy_to_buffer_node(current_border_node, distribution_values, access_function);
+    });
+}
 
 /**
  * @brief Initializes the specified arguments to match the dimensions of the buffers.
@@ -441,3 +441,70 @@ void parallel_framework::buffer_dimension_initializations
     std::vector<unsigned int> ghost_y_vals(all_ghost_y_vals.begin()+1, all_ghost_y_vals.end()-1);
     y_values = std::make_tuple(ghost_y_vals, buffer_y_vals);
 }
+
+/**
+ * @brief Performs the collision step for all fluid nodes within the specified bounds.
+ * 
+ * @param fluid_node_bounds a tuple of the first and last element of an iterator over all fluid nodes within the respective subdomain
+ * @param distribution_values a vector containing all distribution distribution_values
+ * @param access_function the access to node values will be performed according to this access function
+ * @param velocities a vector containing the velocity values of all nodes
+ * @param densities a vector containing the density values of all nodes
+ */
+void parallel_framework::perform_collision
+(
+    const start_end_it_tuple fluid_node_bounds,
+    std::vector<double> &distribution_values, 
+    const access_function &access_function, 
+    std::vector<velocity> &velocities, 
+    std::vector<double> &densities
+)
+{
+    std::vector<double> current_distributions(DIRECTION_COUNT, 0);
+    velocity current_velocity = {0,0};
+    double current_density = 0;
+
+    for(auto it = std::get<0>(fluid_node_bounds); it <= std::get<1>(fluid_node_bounds); ++it)
+    {
+        current_distributions = 
+            lbm_access::get_distribution_values_of(distribution_values, *it, access_function);
+        current_velocity = macroscopic::flow_velocity(current_distributions);    
+        velocities[*it] = current_velocity;
+        current_density = macroscopic::density(current_distributions);
+        densities[*it] = current_density;
+        current_distributions = collision::collide_bgk(current_distributions, current_velocity, current_density);
+        lbm_access::set_distribution_values_of(current_distributions, distribution_values, *it, access_function);
+    }
+} 
+
+/**
+ * @brief Performs the collision step for the specified fluid node.
+ * 
+ * @param node the index of the node for which the collision step will be performed
+ * @param distribution_values a vector containing all distribution distribution_values
+ * @param access_function the access to node values will be performed according to this access function
+ * @param velocities a vector containing the velocity values of all nodes
+ * @param densities a vector containing the density values of all nodes
+ */
+void parallel_framework::perform_collision
+(
+    const unsigned int node,
+    std::vector<double> &distribution_values, 
+    const access_function &access_function, 
+    std::vector<velocity> &velocities, 
+    std::vector<double> &densities
+)
+{
+    std::vector<double> current_distributions(DIRECTION_COUNT, 0);
+    velocity current_velocity = {0,0};
+    double current_density = 0;
+
+    current_distributions = 
+        lbm_access::get_distribution_values_of(distribution_values, node, access_function);
+    current_velocity = macroscopic::flow_velocity(current_distributions);    
+    velocities[node] = current_velocity;
+    current_density = macroscopic::density(current_distributions);
+    densities[node] = current_density;
+    current_distributions = collision::collide_bgk(current_distributions, current_velocity, current_density);
+    lbm_access::set_distribution_values_of(current_distributions, distribution_values, node, access_function);
+} 

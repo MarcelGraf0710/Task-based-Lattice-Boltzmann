@@ -261,6 +261,7 @@ namespace to_console
          */
         inline void print_velocity_vector(const std::vector<velocity> &vector)
         {
+            std::cout << std::setprecision(5) << std::fixed;
             unsigned int line_counter = 0;
         
             for(auto y = VERTICAL_NODES - 1; y >= 0; --y)
@@ -271,8 +272,8 @@ namespace to_console
                     if(x == 0 && y == 0) std::cout << "\033[31m";
                     else if(x == (HORIZONTAL_NODES - 1) && y == (VERTICAL_NODES -1)) std::cout << "\033[34m";
                     std::cout << "("<< vector[matrix_access(y,x, HORIZONTAL_NODES)][0] << ", " << vector[matrix_access(y,x, HORIZONTAL_NODES)][1] << ")";
-                    if (line_counter == SUBDOMAIN_HEIGHT) std::cout << "\t  ";
-                    else std::cout << "\t  \033[0m";
+                    if (line_counter == SUBDOMAIN_HEIGHT) std::cout << "  \t";
+                    else std::cout << "  \t\033[0m";
                     std::cout << " ";
                 }
                 if (line_counter == SUBDOMAIN_HEIGHT) line_counter = 0;
@@ -281,6 +282,7 @@ namespace to_console
                 std::cout << "\033[0m";
             }
             std::cout << std::endl;
+            std::cout << std::setprecision(3) << std::fixed;
         } 
 
         /**
@@ -382,6 +384,7 @@ namespace to_console
                 for(auto x = 0; x < HORIZONTAL_NODES; ++x)
                 {
                     //std::cout << "Currently at node with coords (" << x << ", " << y << ")" << std::endl;
+                    if(x == 0 || x == 1 || x == HORIZONTAL_NODES - 1 || x == HORIZONTAL_NODES - 2) std::cout << std::setprecision(5) << std::fixed;
                     if(x == 0 && y == 0) std::cout << "\033[31m";
                     else if(x == (HORIZONTAL_NODES - 1) && y == (VERTICAL_NODES - 1)) std::cout << "\033[34m";
                     current_node_index = lbm_access::get_node_index(x, y);
@@ -394,6 +397,7 @@ namespace to_console
                     }
                     std::cout << "\t";
                     if((x == 0 && y == 0) || (x == (HORIZONTAL_NODES - 1) && y == (VERTICAL_NODES - 1))) std::cout << "\033[0m";
+                    if(x == 0 || x == 1 || x == HORIZONTAL_NODES - 1 || x == HORIZONTAL_NODES - 2) std::cout << std::setprecision(3) << std::fixed;
                 }
                 std::cout << std::endl;
             }
@@ -403,6 +407,7 @@ namespace to_console
             else line_counter++;
             std::cout << "\033[0m";
         }
+        std::cout << std::setprecision(3) << std::fixed;
     }
     }
 }

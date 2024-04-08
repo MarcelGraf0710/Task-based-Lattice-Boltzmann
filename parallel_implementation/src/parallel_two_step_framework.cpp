@@ -9,6 +9,7 @@
 #include <hpx/algorithm.hpp>
 #include <hpx/execution.hpp>
 #include <hpx/iostream.hpp>
+#include "../include/two_lattice_sequential.hpp"
 
 std::set<unsigned int> inflow_instream_dirs{2,5,8};
 std::set<unsigned int> outflow_instream_dirs{0,3,6};
@@ -36,7 +37,7 @@ void parallel_two_step_framework::run
     // Initializations relevant for buffering
     std::vector<std::tuple<unsigned int, unsigned int>> buffer_ranges;
     std::tuple<std::vector<unsigned int>, std::vector<unsigned int>> y_values;
-    parallel_two_step_framework::buffer_dimension_initializations(buffer_ranges, y_values);
+    parallel_framework::buffer_dimension_initializations(buffer_ranges, y_values);
 
     std::vector<sim_data_tuple>result(
         iterations, 
@@ -48,7 +49,7 @@ void parallel_two_step_framework::run
         std::cout << "\033[33mIteration " << time << ":\033[0m" << std::endl;
 
         // Framework-based parallel two-step: combined stream and collision
-        result[time] = parallel_two_step_framework::parallel_ts_stream_and_collide
+        result[time] = parallel_two_step_framework::perform_ts_stream_and_collide_debug
         (fluid_nodes, bsi, distribution_values, access_function, y_values, buffer_ranges);
         std::cout << "\tFinished iteration " << time << std::endl;
     }
@@ -110,9 +111,22 @@ void parallel_two_step_framework::perform_collision
     std::vector<double> current_distributions(DIRECTION_COUNT, 0);
     velocity current_velocity = {0,0};
     double current_density = 0;
-
     for(auto it = std::get<0>(fluid_node_bounds); it <= std::get<1>(fluid_node_bounds); ++it)
     {
+        if(*it == 82)
+        {
+            std::cout << std::setprecision(8) << std::fixed;
+            current_distributions = 
+                lbm_access::get_distribution_values_of(distribution_values, *it, access_function);
+            std::cout << "Two-step: Performing collision for node 82 " << std::endl;
+            std::cout << "Got distribution values " << std::endl;
+            to_console::print_vector(lbm_access::get_distribution_values_of(distribution_values, *it, access_function), DIRECTION_COUNT);
+            std::cout << "Got velocity (" << std::get<0>(macroscopic::flow_velocity(current_distributions)) << ", " << std::get<1>(macroscopic::flow_velocity(current_distributions)) << ")" << std::endl;
+            std::cout << "Got density: " << macroscopic::density(current_distributions) << std::endl;
+            std::cout << "Resulting distribution is " << std::endl;
+            to_console::print_vector(collision::collide_bgk(current_distributions, current_velocity, current_density), DIRECTION_COUNT);
+            std::cout << std::setprecision(3) << std::fixed;
+        }
         current_distributions = 
             lbm_access::get_distribution_values_of(distribution_values, *it, access_function);
         current_velocity = macroscopic::flow_velocity(current_distributions);    
@@ -161,10 +175,11 @@ sim_data_tuple parallel_two_step_framework::perform_ts_stream_and_collide_debug
     }
 
     /* Get remaining streams from buffer */
-    std::cout << "Copying to buffer" << std::endl;
+    std::cout << "Copying from buffer" << std::endl;
+
     for(auto buffer_index = 0; buffer_index < BUFFER_COUNT; ++buffer_index)
     {
-        parallel_framework::copy_from_buffer(buffer_ranges[buffer_index], distribution_values, access_function);
+        parallel_framework::copy_from_buffer(std::make_tuple(std::get<0>(buffer_ranges[buffer_index])+1, std::get<1>(buffer_ranges[buffer_index])-1), distribution_values, access_function);
     }
     std::cout << "\t Distribution values after streaming:" << std::endl;
     to_console::buffered::print_distribution_values(distribution_values, access_function);
@@ -184,10 +199,33 @@ sim_data_tuple parallel_two_step_framework::perform_ts_stream_and_collide_debug
     to_console::buffered::print_distribution_values(distribution_values, access_function);
     std::cout << std::endl;
 
+    double current_density = 0;
+    velocity current_velocity = {0,0};
+    std::vector<double> current_distributions(DIRECTION_COUNT, 0);
+
     /* Perform collision for all fluid nodes */
     for(auto subdomain = 0; subdomain < SUBDOMAIN_COUNT; ++subdomain)
     {
-        parallel_two_step_framework::perform_collision(fluid_nodes[subdomain], distribution_values, access_function, velocities, densities);
+        //parallel_two_step_framework::perform_collision(fluid_nodes[subdomain], distribution_values, access_function, velocities, densities);
+        for(auto it = std::get<0>(fluid_nodes[subdomain]); it <= std::get<1>(fluid_nodes[subdomain]); ++it)
+        {   
+            current_distributions = 
+                lbm_access::get_distribution_values_of(distribution_values, *it, access_function);
+
+            current_velocity = macroscopic::flow_velocity(current_distributions);    
+            velocities[*it] = current_velocity;
+
+            current_density = macroscopic::density(current_distributions);
+            densities[*it] = current_density;
+            
+            two_lattice_sequential::tl_collision(
+                distribution_values, 
+                *it, 
+                current_distributions,
+                access_function, 
+                current_velocity, 
+                current_density);
+        }
     }
     std::cout << "Distribution values after collision: " << std::endl;
     to_console::buffered::print_distribution_values(distribution_values, access_function);
@@ -258,7 +296,7 @@ sim_data_tuple parallel_two_step_framework::parallel_ts_stream_and_collide
         [&](int subdomain)
         {
         
-        parallel_two_step_framework::perform_collision(fluid_nodes[subdomain], distribution_values, access_function, velocities, densities);
+        parallel_framework::perform_collision(fluid_nodes[subdomain], distribution_values, access_function, velocities, densities);
     });
 
     /* Update ghost nodes */
@@ -283,6 +321,36 @@ void parallel_two_step_framework::ghost_stream_inout
     const std::tuple<std::vector<unsigned int>, std::vector<unsigned int>> &y_values
 )
 {
+
+    // // Restore buffer correctness
+    // hpx::for_each
+    // (
+    //     hpx::execution::par, 
+    //     std::get<1>(y_values).begin(), 
+    //     std::get<1>(y_values).end(), 
+    //     [&](int y)
+    //     {
+    //         unsigned int current_border_node = lbm_access::get_node_index(0,y);
+    //         parallel_framework::copy_to_buffer_node(current_border_node, distribution_values, access_function);
+        
+    //         current_border_node = lbm_access::get_node_index(HORIZONTAL_NODES - 1,y);
+    //         parallel_framework::copy_to_buffer_node(current_border_node, distribution_values, access_function);
+
+    //         // unsigned int buffer_node = 0; 
+    //         // unsigned int current_neighbor = 0;
+
+    //         // for(auto side : {1, HORIZONTAL_NODES - 2})
+    //         // {
+    //         //     buffer_node = lbm_access::get_node_index(side, y);
+    //         //     current_neighbor = lbm_access::get_neighbor(buffer_node, 1);
+    //         //     distribution_values[access_function(current_neighbor, 2)] = distribution_values[access_function(buffer_node, 2)];
+
+    //         //     current_neighbor = lbm_access::get_neighbor(buffer_node, 7);
+    //         //     distribution_values[access_function(current_neighbor, 8)] = distribution_values[access_function(buffer_node, 8)];
+    //         // }
+    //     }
+    // );
+
     hpx::for_each
     (
         hpx::execution::par, 
@@ -308,21 +376,7 @@ void parallel_two_step_framework::ghost_stream_inout
         }
     );
 
-    // Restore buffer correctness
-    hpx::for_each
-    (
-        hpx::execution::par, 
-        std::get<1>(y_values).begin(), 
-        std::get<1>(y_values).end(), 
-        [&](int y)
-        {
-            unsigned int current_border_node = lbm_access::get_node_index(1,y);
-            parallel_framework::copy_to_buffer_node(current_border_node, distribution_values, access_function);
-        
-            current_border_node = lbm_access::get_node_index(HORIZONTAL_NODES - 2,y);
-            parallel_framework::copy_to_buffer_node(current_border_node, distribution_values, access_function);
-        }
-    );
+
 }
 
 /**
@@ -339,56 +393,38 @@ void parallel_two_step_framework::perform_boundary_update
     const access_function access_function
 )
 {
-    hpx::for_each
-    (
-        hpx::execution::par, 
-        bsi.begin(), 
-        bsi.end(), 
-        [&](std::vector<unsigned int> current)
+    // hpx::for_each
+    // (
+    //     hpx::execution::par, 
+    //     bsi.begin(), 
+    //     bsi.end(), 
+    //     [&](std::vector<unsigned int> current)
+    //     {
+    //         int current_border_node = current[0];
+    //         std::set<unsigned int> remaining_dirs = bounce_back::determine_bounce_back_directions(current);
+    //         std::cout << "Performing bounce-back for node " << current_border_node << " in directions ";
+    //         to_console::print_set(remaining_dirs);
+    //         for(const auto direction : remaining_dirs)
+    //         {
+    //             distribution_values[access_function(current_border_node, direction)] = 
+    //             distribution_values[access_function(lbm_access::get_neighbor(current_border_node, invert_direction(direction)), invert_direction(direction))];
+    //         }
+    //     }
+    // );
+    
+    for(auto current : bsi)
+    {
+        int current_border_node = current[0];
+        std::set<unsigned int> remaining_dirs = bounce_back::determine_bounce_back_directions(current);
+        std::cout << "Performing bounce-back for node " << current_border_node << " in directions ";
+        to_console::print_set(remaining_dirs);
+        for(const auto direction : remaining_dirs)
         {
-            int current_border_node = current[0];
-            std::set<unsigned int> remaining_dirs = bounce_back::determine_bounce_back_directions(current);
-            for(const auto direction : remaining_dirs)
-            {
-                distribution_values[access_function(current_border_node, direction)] = 
-                distribution_values[access_function(lbm_access::get_neighbor(current_border_node, invert_direction(direction)), invert_direction(direction))];
-            }
+            distribution_values[access_function(current_border_node, direction)] = 
+            distribution_values[access_function(lbm_access::get_neighbor(current_border_node, invert_direction(direction)), invert_direction(direction))];
         }
-    );
-}
+    }
 
-/**
- * @brief Initializes the specified arguments to match the dimensions of the buffers.
- * 
- * @param buffer_ranges a vector containing a tuple of the indices of the first and last node belonging to a certain buffer
- * @param y_values a tuple containing the y values of all regular layers (0) and all buffer layers (1)
- */
-void parallel_two_step_framework::buffer_dimension_initializations
-(
-    std::vector<std::tuple<unsigned int, unsigned int>> &buffer_ranges,
-    std::tuple<std::vector<unsigned int>, std::vector<unsigned int>> &y_values
-)
-{
-    for (auto buffer_index = 0; buffer_index < BUFFER_COUNT; ++buffer_index)
-    {
-        buffer_ranges.push_back(parallel_framework::get_buffer_node_range(buffer_index));
-    }
-    std::vector<unsigned int> all_ghost_y_vals;
-    std::vector<unsigned int> buffer_y_vals;
-    unsigned int horizontal_counter = 0;
-    for(auto y = 0; y < VERTICAL_NODES; ++y)
-    {
-        if(horizontal_counter < SUBDOMAIN_HEIGHT)
-        {
-            all_ghost_y_vals.push_back(y);
-            horizontal_counter++;
-        }
-        else
-        {
-            buffer_y_vals.push_back(y);
-            horizontal_counter = 0;
-        }
-    }
-    std::vector<unsigned int> ghost_y_vals(all_ghost_y_vals.begin()+1, all_ghost_y_vals.end()-1);
-    y_values = std::make_tuple(ghost_y_vals, buffer_y_vals);
+
+
 }

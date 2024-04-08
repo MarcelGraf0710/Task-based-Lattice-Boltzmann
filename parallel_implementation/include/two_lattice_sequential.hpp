@@ -131,6 +131,18 @@ namespace two_lattice_sequential
         const double &density
     )
     {
+        if(fluid_node == 82)
+        {
+            std::cout << std::setprecision(8) << std::fixed;
+            std::cout << "Two-lattice: Performing collision for node 82 " << std::endl;
+            std::cout << "Got distribution values " << std::endl;
+            to_console::print_vector(distribution_values, DIRECTION_COUNT);
+            std::cout << "Got velocity (" << velocity[0] << ", " << velocity[1] << ")" << std::endl;
+            std::cout << "Got density: " << density << std::endl;
+            std::cout << "Resulting distribution is " << std::endl;
+            to_console::print_vector(collision::collide_bgk(distribution_values, velocity, density), DIRECTION_COUNT);
+            std::cout << std::setprecision(3) << std::fixed;
+        }
         std::vector<double> vals = collision::collide_bgk(distribution_values, velocity, density);
         lbm_access::set_distribution_values_of(vals, destination, fluid_node, access_function);
     }
