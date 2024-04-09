@@ -2,7 +2,7 @@
 #include "include/access.hpp"
 #include "include/simulation.hpp"
 #include "include/utils.hpp"
-#include "include/shift_sequential_new.hpp"
+#include "include/shift_sequential.hpp"
 
 int main(const int argc, const char** argv)
 {
@@ -38,7 +38,7 @@ int main(const int argc, const char** argv)
     }
 
     /* Setting up example domain */
-    shift_sequential::setup_example_domain(distribution_values, nodes, fluid_nodes, phase_information, swap_info, access_function, enable_debug);
+    shift_sequential::setup_example_domain(distribution_values, nodes, fluid_nodes, phase_information, swap_info, access_function);
 
     if(enable_debug)
     {

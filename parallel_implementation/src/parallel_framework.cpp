@@ -130,20 +130,6 @@ border_swap_information parallel_framework::retrieve_fast_border_swap_info
     std::vector<unsigned int>::const_iterator start;
     std::vector<unsigned int>::const_iterator end;
 
-    // std::cout << "Accessing parallel_framework::retrieve_fast_border_swap_info " << std::endl;
-    // std::cout << "Received fluid node bounds " << std::endl;
-
-    // for(auto subdomain = 0; subdomain < SUBDOMAIN_COUNT; ++subdomain)
-    // {
-    //     std::cout << "(";
-    //     std::cout << *(std::get<0>(fluid_node_bounds[subdomain]));
-    //     std::cout << ", ";
-    //     std::cout << *(std::get<1>(fluid_node_bounds[subdomain]));
-    //     std::cout << ")" << std::endl;
-    // }
-
-    // std::cout << std::endl;
-
     for(auto subdomain = 0; subdomain < SUBDOMAIN_COUNT; ++subdomain)
     {
         start = std::get<0>(fluid_node_bounds[subdomain]);
