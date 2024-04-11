@@ -120,23 +120,9 @@ namespace parallel_shift_framework_new
         const unsigned int write_offset
     )
     {
-        std::cout << "Performing collision for node " << node << std::endl;
-
         std::vector<double> current_distributions = lbm_access::get_distribution_values_of(distribution_values, node + write_offset, access_function);
-
-        std::cout << "After streaming, this node has the following distribution values: " << std::endl;
-        to_console::print_vector(current_distributions, DIRECTION_COUNT);
-
         velocities[node] = macroscopic::flow_velocity(current_distributions);
-
-        std::cout << "For node " << node << ", store velocity: (" << velocities[node][0] << ", " << velocities[node][1] << ")" << std::endl;
-
         densities[node] = macroscopic::density(current_distributions);
-
-        std::cout << "For node " << node << ", store density: (" << densities[node] << std::endl;
-
-        std::cout << std::endl;
-
         current_distributions = collision::collide_bgk(current_distributions, velocities[node], densities[node]);
         lbm_access::set_distribution_values_of(current_distributions, distribution_values, node + write_offset, access_function);
     }
@@ -327,6 +313,26 @@ namespace parallel_shift_framework_new
     {
         return 3 * (direction / 3) * (TOTAL_NODE_COUNT + BUFFER_COUNT * HORIZONTAL_NODES + SUBDOMAIN_COUNT * (SHIFT_OFFSET)) + (direction % 3) + 3 * node; 
     }
+
+    /**
+     * @brief Performs a combined collision and streaming step for the specified fluid node.
+     * 
+     * @param values the vector containing the distribution values of all nodes
+     * @param access_function the access function according to which the values are to be accessed
+     * @param node_index index of the fluid node whose values are to be manipulated
+     * @param read_offset read offset of the current iteration (even: 0 / odd: N_e)
+     * @param write_offset write offset of the current iteration (even: N_e / odd: 0)
+     */
+    sim_data_tuple parallel_shift_stream_and_collide_actual
+    (
+        const std::vector<start_end_it_tuple> &fluid_nodes,
+        const std::vector<border_swap_information> &bsi,
+        std::vector<double> &distribution_values, 
+        const access_function access_function,
+        const std::tuple<std::vector<unsigned int>, std::vector<unsigned int>> &y_values,
+        const std::vector<std::tuple<unsigned int, unsigned int>> &buffer_ranges,
+        const unsigned int iteration
+    );
 }
 
 #endif

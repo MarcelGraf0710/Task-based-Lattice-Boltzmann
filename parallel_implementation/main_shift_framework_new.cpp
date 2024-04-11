@@ -42,27 +42,18 @@ int hpx_main()
 
     distribution_values.resize((TOTAL_NODE_COUNT  + SHIFT_OFFSET) * DIRECTION_COUNT, 0);
 
-    /* Illustration of the phase information */
-    std::cout << "Illustration of lattice: " << std::endl;
-    to_console::print_phase_vector(phase_information);
-    std::cout << std::endl;
-
-    /* Overview */
-    std::cout << "Enumeration of all nodes within the lattice: " << std::endl;
-    to_console::buffered::print_vector(nodes);
-    std::cout << std::endl;
-
-    std::cout << "Enumeration of all fluid nodes within the simulation domain: " << std::endl;
-    to_console::print_vector(fluid_nodes, HORIZONTAL_NODES - 2);
-    std::cout << std::endl;
-
-    // std::cout << "Swap info:" << std::endl;
-    // for(const auto& current : swap_info)
-    //     to_console::print_vector(current, current.size());
+    // /* Illustration of the phase information */
+    // std::cout << "Illustration of lattice: " << std::endl;
+    // to_console::print_phase_vector(phase_information);
     // std::cout << std::endl;
 
-    // std::cout << "Initial distributions:" << std::endl;
-    // parallel_shift_framework_new::print_distribution_values(distribution_values, access_function, 0, buffer_ranges);
+    // /* Overview */
+    // std::cout << "Enumeration of all nodes within the lattice: " << std::endl;
+    // to_console::buffered::print_vector(nodes);
+    // std::cout << std::endl;
+
+    // std::cout << "Enumeration of all fluid nodes within the simulation domain: " << std::endl;
+    // to_console::print_vector(fluid_nodes, HORIZONTAL_NODES - 2);
     // std::cout << std::endl;
 
     /* Run simulation */

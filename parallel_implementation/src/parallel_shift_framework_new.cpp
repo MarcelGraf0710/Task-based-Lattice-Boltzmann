@@ -44,42 +44,13 @@ void parallel_shift_framework_new::run
         iterations, 
         std::make_tuple(std::vector<velocity>(TOTAL_NODE_COUNT, {0,0}), std::vector<double>(TOTAL_NODE_COUNT, 0)));
 
-    for(auto subdomain = 0; subdomain < SUBDOMAIN_COUNT; ++subdomain)
-    {
-        for(auto node = std::get<0>(fluid_nodes[subdomain]); node <= std::get<1>(fluid_nodes[subdomain]); ++node)
-        {
-            std::cout << "Distribution values of node " << *node << ":" << std::endl;
-            to_console::print_vector(lbm_access::get_distribution_values_of(distribution_values, *node, access_function), DIRECTION_COUNT);
-            std::cout << std::endl;
-        }
-    }
-    std::cout << std::endl;
-
-    int dir_ctr = 0;
-    int dir_trigger = 0;
-    for(auto i = 0; i < distribution_values.size(); ++i)
-    {
-        if(dir_trigger == 0)
-        {
-            std::cout << "Direction " << dir_ctr << std::endl;
-            ++dir_ctr;
-            dir_trigger = (TOTAL_NODE_COUNT + BUFFER_COUNT * HORIZONTAL_NODES + SUBDOMAIN_COUNT * (SHIFT_OFFSET));
-        }
-        std::cout << i << ": "<< distribution_values[i] << ", " << std::endl;
-        dir_trigger--;
-    }
-
-    std::cout << std::endl;
-
     /* Parallelization framework */
     for(auto time = 0; time < iterations; ++time)
     {
         std::cout << "\033[33mIteration " << time << ":\033[0m" << std::endl;
 
         // Framework-based parallel two-lattice: combined stream and collision
-        // result[time] = parallel_two_lattice_framework::perform_tl_stream_and_collide_parallel
-        // (fluid_nodes, boundary_nodes, source, destination, access_function, y_values, buffer_ranges);
-        result[time] = parallel_shift_framework_new::parallel_shift_stream_and_collide
+        result[time] = parallel_shift_framework_new::parallel_shift_stream_and_collide_actual
         (fluid_nodes, boundary_nodes, distribution_values, access_function, y_values, buffer_ranges, time);
         
         std::cout << "\tFinished iteration " << time << std::endl;
@@ -462,6 +433,121 @@ sim_data_tuple parallel_shift_framework_new::parallel_shift_stream_and_collide
     return result;
 }
 
+/**
+ * @brief Performs a combined collision and streaming step for the specified fluid node.
+ * 
+ * @param values the vector containing the distribution values of all nodes
+ * @param access_function the access function according to which the values are to be accessed
+ * @param node_index index of the fluid node whose values are to be manipulated
+ * @param read_offset read offset of the current iteration (even: 0 / odd: N_e)
+ * @param write_offset write offset of the current iteration (even: N_e / odd: 0)
+ */
+sim_data_tuple parallel_shift_framework_new::parallel_shift_stream_and_collide_actual
+(
+    const std::vector<start_end_it_tuple> &fluid_nodes,
+    const std::vector<border_swap_information> &bsi,
+    std::vector<double> &distribution_values, 
+    const access_function access_function,
+    const std::tuple<std::vector<unsigned int>, std::vector<unsigned int>> &y_values,
+    const std::vector<std::tuple<unsigned int, unsigned int>> &buffer_ranges,
+    const unsigned int iteration
+)
+{
+    unsigned int read_offset = 0;
+    unsigned int write_offset = 0;
+    std::vector<velocity> velocities(TOTAL_NODE_COUNT, velocity{0,0});
+    std::vector<double> densities(TOTAL_NODE_COUNT, -1);
+
+    if((iteration % 2) == 0)
+    {
+        read_offset = 0;
+        write_offset = (SHIFT_OFFSET);
+
+        // Emplace bounce-back values
+        hpx::experimental::for_loop
+        (
+            hpx::execution::par, 0, SUBDOMAIN_COUNT, 
+            [&](unsigned int subdomain)
+            {
+                unsigned int subdomain_offset = subdomain * (SHIFT_OFFSET);
+                bounce_back::emplace_bounce_back_values_parallel(bsi[subdomain], distribution_values, access_function, subdomain_offset + read_offset);
+            }
+        );
+
+        // Buffer update
+        hpx::experimental::for_loop
+        (
+            hpx::execution::par, 0, BUFFER_COUNT, 
+            [&](unsigned int buffer)
+            {
+                int buffer_offset = (buffer+1) * (SHIFT_OFFSET);
+                parallel_shift_framework_new::buffer_update_even_time_step(buffer_ranges[buffer], distribution_values, access_function, buffer_offset);
+            }
+        );
+
+        hpx::experimental::for_loop
+        (
+            hpx::execution::par, 0, SUBDOMAIN_COUNT, 
+            [&](unsigned int subdomain)
+            {
+                unsigned int subdomain_offset = subdomain * (SHIFT_OFFSET);
+                for(auto it = std::get<1>(fluid_nodes[subdomain]); it >= std::get<0>(fluid_nodes[subdomain]); --it)
+                {
+                    shift_sequential::shift_stream(distribution_values, access_function, *it, read_offset + subdomain_offset, write_offset + subdomain_offset);
+                    parallel_shift_framework_new::perform_collision(*it, distribution_values, access_function, velocities, densities, write_offset + subdomain_offset);
+                }
+            }
+        );
+    }
+    else
+    {
+        read_offset = (SHIFT_OFFSET);
+        write_offset = 0;
+
+        // Emplace bounce-back values
+        hpx::experimental::for_loop
+        (
+            hpx::execution::par, 0, SUBDOMAIN_COUNT, 
+            [&](unsigned int subdomain)
+            {
+                unsigned int subdomain_offset = subdomain * (SHIFT_OFFSET);
+                bounce_back::emplace_bounce_back_values_parallel(bsi[subdomain], distribution_values, access_function, subdomain_offset + read_offset);
+            }
+        );
+
+        // Buffer update
+        hpx::experimental::for_loop
+        (
+            hpx::execution::par, 0, BUFFER_COUNT, 
+            [&](unsigned int buffer)
+            {
+                int buffer_offset = (buffer+1) * (SHIFT_OFFSET);
+                parallel_shift_framework_new::buffer_update_odd_time_step(buffer_ranges[buffer], distribution_values, access_function, buffer_offset);
+            }
+        );
+
+        hpx::experimental::for_loop
+        (
+            hpx::execution::par, 0, SUBDOMAIN_COUNT, 
+            [&](unsigned int subdomain)
+            {
+                unsigned int subdomain_offset = subdomain * (SHIFT_OFFSET);
+                for(auto it = std::get<0>(fluid_nodes[subdomain]); it <= std::get<1>(fluid_nodes[subdomain]); ++it)
+                {
+                    shift_sequential::shift_stream(distribution_values, access_function, *it, read_offset + subdomain_offset, write_offset + subdomain_offset);
+                    parallel_shift_framework_new::perform_collision(*it, distribution_values, access_function, velocities, densities, write_offset + subdomain_offset);
+                }
+            }
+        );
+    }
+
+    /* Update ghost nodes */
+    parallel_shift_framework_new::update_velocity_input_density_output(distribution_values, velocities, densities, access_function, write_offset);
+    
+    sim_data_tuple result{velocities, densities};
+    return result;
+}
+
 
 
 /**
@@ -560,7 +646,7 @@ void parallel_shift_framework_new::setup_parallel_domain
     access_function access_function
 )
 {
-    distribution_values.assign((TOTAL_NODE_COUNT + BUFFER_COUNT * HORIZONTAL_NODES + SUBDOMAIN_COUNT * (SHIFT_OFFSET)) * DIRECTION_COUNT, 0); 
+    distribution_values.assign((TOTAL_NODE_COUNT + (BUFFER_COUNT) * (HORIZONTAL_NODES) + (SUBDOMAIN_COUNT) * (SHIFT_OFFSET)) * DIRECTION_COUNT, 0); 
     std::vector<double> regular_values = maxwell_boltzmann_distribution(VELOCITY_VECTORS.at(4), 1);
     std::vector<double> inlet_values = maxwell_boltzmann_distribution(INLET_VELOCITY, INLET_DENSITY);
     std::vector<double> outlet_values = maxwell_boltzmann_distribution(OUTLET_VELOCITY, OUTLET_DENSITY);
@@ -571,30 +657,34 @@ void parallel_shift_framework_new::setup_parallel_domain
         nodes.push_back(i);
     }
 
-    for(auto subdomain = 0; subdomain < SUBDOMAIN_COUNT; ++subdomain)
-    {
-        unsigned int subdomain_offset = subdomain * (SHIFT_OFFSET); // subdomain * ((SHIFT_OFFSET) + HORIZONTAL_NODES);
-        int last_node = 0;
-        for(auto y = subdomain * SUBDOMAIN_HEIGHT + subdomain; y < (subdomain + 1) * SUBDOMAIN_HEIGHT + subdomain; ++y)
-        {
-            for(auto x = 0; x < HORIZONTAL_NODES; ++x)
+        hpx::experimental::for_loop
+        (
+            hpx::execution::par, 0, SUBDOMAIN_COUNT, 
+            [&](unsigned int subdomain)
             {
-                last_node = lbm_access::get_node_index(x,y);
-                if(x == 0)
+                unsigned int subdomain_offset = subdomain * (SHIFT_OFFSET);
+                int last_node = 0;
+                for(auto y = subdomain * SUBDOMAIN_HEIGHT + subdomain; y < (subdomain + 1) * SUBDOMAIN_HEIGHT + subdomain; ++y)
                 {
-                    lbm_access::set_distribution_values_of(inlet_values, distribution_values, last_node + subdomain_offset, access_function);
-                }
-                else if(x == HORIZONTAL_NODES - 1)
-                {
-                    lbm_access::set_distribution_values_of(outlet_values, distribution_values, last_node + subdomain_offset, access_function);
-                }
-                else
-                {
-                    lbm_access::set_distribution_values_of(regular_values, distribution_values, last_node + subdomain_offset, access_function);
+                    for(auto x = 0; x < HORIZONTAL_NODES; ++x)
+                    {
+                        last_node = lbm_access::get_node_index(x,y);
+                        if(x == 0)
+                        {
+                            lbm_access::set_distribution_values_of(inlet_values, distribution_values, last_node + subdomain_offset, access_function);
+                        }
+                        else if(x == HORIZONTAL_NODES - 1)
+                        {
+                            lbm_access::set_distribution_values_of(outlet_values, distribution_values, last_node + subdomain_offset, access_function);
+                        }
+                        else
+                        {
+                            lbm_access::set_distribution_values_of(regular_values, distribution_values, last_node + subdomain_offset, access_function);
+                        }
+                    }
                 }
             }
-        }
-    }
+        );
 
     /* Phase information vector */
     phase_information.assign(TOTAL_NODE_COUNT, false);
@@ -632,43 +722,47 @@ void parallel_shift_framework_new::update_velocity_input_density_output
     const unsigned int offset
 )
 {
-    for(auto subdomain = 0; subdomain < SUBDOMAIN_COUNT; ++subdomain)
-    {
-        unsigned int subdomain_offset = subdomain * (SHIFT_OFFSET); // subdomain * ((SHIFT_OFFSET) + HORIZONTAL_NODES);
-        int last_node = 0;
-        std::vector<double> current_dist_vals(DIRECTION_COUNT, 0);
-        int current_border_node = 0;
-        velocity v = {0,0};
+        hpx::experimental::for_loop
+        (
+            hpx::execution::par, 0, SUBDOMAIN_COUNT, 
+            [&](unsigned int subdomain)
+            {
+                unsigned int subdomain_offset = subdomain * (SHIFT_OFFSET); // subdomain * ((SHIFT_OFFSET) + HORIZONTAL_NODES);
+                int last_node = 0;
+                std::vector<double> current_dist_vals(DIRECTION_COUNT, 0);
+                int current_border_node = 0;
+                velocity v = {0,0};
 
-        for(auto y = subdomain * SUBDOMAIN_HEIGHT + subdomain; y < (subdomain + 1) * SUBDOMAIN_HEIGHT + subdomain; ++y)
-        {
-            current_border_node = lbm_access::get_node_index(0,y);
-            current_dist_vals = maxwell_boltzmann_distribution(INLET_VELOCITY, INLET_DENSITY);
-            lbm_access::set_distribution_values_of
-            (
-                current_dist_vals,
-                distribution_values,
-                current_border_node + offset + subdomain_offset,
-                access_function
-            );
-            velocities[current_border_node] = macroscopic::flow_velocity(current_dist_vals);
-            densities[current_border_node] = macroscopic::density(current_dist_vals);
+                for(auto y = subdomain * SUBDOMAIN_HEIGHT + subdomain; y < (subdomain + 1) * SUBDOMAIN_HEIGHT + subdomain; ++y)
+                {
+                    current_border_node = lbm_access::get_node_index(0,y);
+                    current_dist_vals = maxwell_boltzmann_distribution(INLET_VELOCITY, INLET_DENSITY);
+                    lbm_access::set_distribution_values_of
+                    (
+                        current_dist_vals,
+                        distribution_values,
+                        current_border_node + offset + subdomain_offset,
+                        access_function
+                    );
+                    velocities[current_border_node] = macroscopic::flow_velocity(current_dist_vals);
+                    densities[current_border_node] = macroscopic::density(current_dist_vals);
 
-            current_border_node = lbm_access::get_node_index(HORIZONTAL_NODES - 1,y);
-            v = macroscopic::flow_velocity(lbm_access::get_distribution_values_of(distribution_values, lbm_access::get_neighbor(current_border_node + offset + subdomain_offset, 3), access_function));
-            current_dist_vals = maxwell_boltzmann_distribution(v, OUTLET_DENSITY);
-            lbm_access::set_distribution_values_of
-            (
-                current_dist_vals,
-                distribution_values,
-                current_border_node + offset + subdomain_offset,
-                access_function
-            );
+                    current_border_node = lbm_access::get_node_index(HORIZONTAL_NODES - 1,y);
+                    v = macroscopic::flow_velocity(lbm_access::get_distribution_values_of(distribution_values, lbm_access::get_neighbor(current_border_node + offset + subdomain_offset, 3), access_function));
+                    current_dist_vals = maxwell_boltzmann_distribution(v, OUTLET_DENSITY);
+                    lbm_access::set_distribution_values_of
+                    (
+                        current_dist_vals,
+                        distribution_values,
+                        current_border_node + offset + subdomain_offset,
+                        access_function
+                    );
 
-            velocities[current_border_node] = v;
-            densities[current_border_node] = OUTLET_DENSITY;
-        }
-    }
+                    velocities[current_border_node] = v;
+                    densities[current_border_node] = OUTLET_DENSITY;
+                }
+            }
+        );
 
         unsigned int update_node = 0;
         std::vector<double> current_distributions = maxwell_boltzmann_distribution(OUTLET_VELOCITY, OUTLET_DENSITY);
@@ -679,11 +773,6 @@ void parallel_shift_framework_new::update_velocity_input_density_output
         lbm_access::set_distribution_values_of(current_distributions, distribution_values, update_node + offset, access_function);
         
         y = VERTICAL_NODES - 1;
-        std::cout << "Last node I'm dealing with is original " << lbm_access::get_node_index(x,y) << std::endl;
-        std::cout << "Additional term is " << (BUFFER_COUNT) * (SHIFT_OFFSET) << std::endl;
-        std::cout << "BUFFER_COUNT: " << BUFFER_COUNT << std::endl;
-        std::cout << "SHIFT_OFFSET: " << SHIFT_OFFSET << std::endl;
         update_node = lbm_access::get_node_index(x,y) + (BUFFER_COUNT) * (SHIFT_OFFSET);
-         std::cout << "I am being transferred to index " << update_node << ", is that correct?" << std::endl;
         lbm_access::set_distribution_values_of(current_distributions, distribution_values, update_node + offset, access_function);
 }
