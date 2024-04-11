@@ -23,7 +23,7 @@ int hpx_main()
     std::vector<unsigned int> fluid_nodes(0, TOTAL_NODE_COUNT);
     std::vector<bool> phase_information(false, TOTAL_NODE_COUNT);
     std::vector<border_swap_information> swap_info;
-    access_function access_function = lbm_access::bundle;
+    access_function access_function = parallel_shift_framework_new::bundle;
 
     std::cout << "All vectors declared. " << std::endl;
     std::cout << std::endl;

@@ -303,6 +303,30 @@ namespace parallel_shift_framework_new
         }
         std::cout << std::setprecision(3) << std::fixed;
     }
+
+    /**
+     * @brief Returns the array index of the stream layout
+     * 
+     * @param node the node in the simulation domain
+     * @param direction the direction of the velocity vector
+     * @return the index of the array storing the distribution values  
+     */
+    inline unsigned int stream(unsigned int node, unsigned int direction)
+    {
+        return (TOTAL_NODE_COUNT + BUFFER_COUNT * HORIZONTAL_NODES + SUBDOMAIN_COUNT * (SHIFT_OFFSET)) * direction + node;
+    }
+
+    /**
+     * @brief Returns the array index of the bundle layout
+     * 
+     * @param node the node in the simulation domain
+     * @param direction the direction of the velocity vector
+     * @return the index of the array storing the distribution values  
+     */
+    inline unsigned int bundle(unsigned int node, unsigned int direction)
+    {
+        return 3 * (direction / 3) * (TOTAL_NODE_COUNT + BUFFER_COUNT * HORIZONTAL_NODES + SUBDOMAIN_COUNT * (SHIFT_OFFSET)) + (direction % 3) + 3 * node; 
+    }
 }
 
 #endif

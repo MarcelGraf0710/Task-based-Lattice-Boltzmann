@@ -44,6 +44,33 @@ void parallel_shift_framework_new::run
         iterations, 
         std::make_tuple(std::vector<velocity>(TOTAL_NODE_COUNT, {0,0}), std::vector<double>(TOTAL_NODE_COUNT, 0)));
 
+    for(auto subdomain = 0; subdomain < SUBDOMAIN_COUNT; ++subdomain)
+    {
+        for(auto node = std::get<0>(fluid_nodes[subdomain]); node <= std::get<1>(fluid_nodes[subdomain]); ++node)
+        {
+            std::cout << "Distribution values of node " << *node << ":" << std::endl;
+            to_console::print_vector(lbm_access::get_distribution_values_of(distribution_values, *node, access_function), DIRECTION_COUNT);
+            std::cout << std::endl;
+        }
+    }
+    std::cout << std::endl;
+
+    int dir_ctr = 0;
+    int dir_trigger = 0;
+    for(auto i = 0; i < distribution_values.size(); ++i)
+    {
+        if(dir_trigger == 0)
+        {
+            std::cout << "Direction " << dir_ctr << std::endl;
+            ++dir_ctr;
+            dir_trigger = (TOTAL_NODE_COUNT + BUFFER_COUNT * HORIZONTAL_NODES + SUBDOMAIN_COUNT * (SHIFT_OFFSET));
+        }
+        std::cout << i << ": "<< distribution_values[i] << ", " << std::endl;
+        dir_trigger--;
+    }
+
+    std::cout << std::endl;
+
     /* Parallelization framework */
     for(auto time = 0; time < iterations; ++time)
     {
