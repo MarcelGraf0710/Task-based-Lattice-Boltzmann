@@ -88,7 +88,7 @@ sim_data_tuple parallel_shift_framework::perform_shift_stream_and_collide_debug
     
     std::vector<velocity> velocities(TOTAL_NODE_COUNT, velocity{0,0});
     std::vector<double> densities(TOTAL_NODE_COUNT, -1);
-    std::vector<double> debug_distributions(TOTAL_NODE_COUNT, 0);
+    std::vector<double> debug_distributions((TOTAL_NODE_COUNT  + SHIFT_OFFSET) * DIRECTION_COUNT, 0);
 
     if((iteration % 2) == 0) // Even time step, dis correct
     {
@@ -283,6 +283,169 @@ sim_data_tuple parallel_shift_framework::perform_shift_stream_and_collide_debug
     sim_data_tuple result{velocities, densities};
     return result;
 }
+
+/**
+ * @brief Performs a combined collision and streaming step for the specified fluid node.
+ * 
+ * @param values the vector containing the distribution values of all nodes
+ * @param access_function the access function according to which the values are to be accessed
+ * @param node_index index of the fluid node whose values are to be manipulated
+ * @param read_offset read offset of the current iteration (even: 0 / odd: N_e)
+ * @param write_offset write offset of the current iteration (even: N_e / odd: 0)
+ */
+sim_data_tuple parallel_shift_framework::parallel_shift_stream_and_collide
+(
+    const std::vector<start_end_it_tuple> &fluid_nodes,
+    const border_swap_information &bsi,
+    std::vector<double> &distribution_values, 
+    const access_function access_function,
+    const std::tuple<std::vector<unsigned int>, std::vector<unsigned int>> &y_values,
+    const std::vector<std::tuple<unsigned int, unsigned int>> &buffer_ranges,
+    const unsigned int iteration
+)
+{
+    unsigned int current_node = 0;
+    unsigned int read_offset = 0;
+    unsigned int write_offset = 0;
+    std::vector<velocity> velocities(TOTAL_NODE_COUNT, velocity{0,0});
+    std::vector<double> densities(TOTAL_NODE_COUNT, -1);
+
+    if((iteration % 2) == 0)
+    {
+        read_offset = 0;
+        write_offset = SHIFT_OFFSET;
+
+        // Emplace bounce-back values
+        for(const auto& border_node : bsi)
+            bounce_back::emplace_bounce_back_values_parallel(bsi, distribution_values, access_function, read_offset);
+
+        // Buffer update
+        hpx::experimental::for_loop
+        (
+            hpx::execution::par, 0, BUFFER_COUNT,
+            [&](unsigned int buffer_index)
+            {
+                parallel_shift_framework::copy_to_buffer(buffer_ranges[buffer_index], distribution_values, access_function, read_offset);
+            }
+        );
+
+        // hpx::experimental::for_loop
+        // (
+        //     hpx::execution::par, 0, SUBDOMAIN_COUNT,
+        //     [&](unsigned int subdomain)
+        //     {
+        //     for(auto it = std::get<1>(fluid_nodes[SUBDOMAIN_COUNT - 1 - subdomain]); it >= std::get<0>(fluid_nodes[SUBDOMAIN_COUNT - 1 - subdomain]); --it)
+        //     {
+        //         shift_sequential::shift_stream(distribution_values, access_function, *it, read_offset, write_offset);
+        //         parallel_shift_framework::perform_collision(*it, distribution_values, access_function, velocities, densities, write_offset);
+        //     }
+        //     }
+        // );
+
+        for(auto subdomain =  SUBDOMAIN_COUNT - 1; subdomain >= 0; --subdomain)
+        {
+            for(auto it = std::get<1>(fluid_nodes[subdomain]); it >= std::get<0>(fluid_nodes[subdomain]); --it)
+            {
+                shift_sequential::shift_stream(distribution_values, access_function, *it, read_offset, write_offset);
+                parallel_shift_framework::perform_collision(*it, distribution_values, access_function, velocities, densities, write_offset);
+            }
+        }
+    }
+    else
+    {
+        read_offset = SHIFT_OFFSET;
+        write_offset = 0;
+
+        // Emplace bounce-back values
+        for(const auto& border_node : bsi)
+            bounce_back::emplace_bounce_back_values_parallel(bsi, distribution_values, access_function, read_offset);
+
+        // Buffer update
+        hpx::experimental::for_loop
+        (
+            hpx::execution::par, 0, BUFFER_COUNT,
+            [&](unsigned int buffer_index)
+            {
+                parallel_shift_framework::copy_to_buffer(buffer_ranges[buffer_index], distribution_values, access_function, read_offset);
+            }
+        );
+
+        // hpx::experimental::for_loop
+        // (
+        //     hpx::execution::par, 0, SUBDOMAIN_COUNT,
+        //     [&](unsigned int subdomain)
+        //     {
+        //         for(auto it = std::get<0>(fluid_nodes[subdomain]); it <= std::get<1>(fluid_nodes[subdomain]); ++it)
+        //         {
+        //             shift_sequential::shift_stream(distribution_values, access_function, *it, read_offset, write_offset);
+        //             parallel_shift_framework::perform_collision(*it, distribution_values, access_function, velocities, densities, write_offset);
+        //         }
+        //     }
+        // );
+
+
+        for(auto subdomain = 0; subdomain < SUBDOMAIN_COUNT; ++subdomain)
+        {
+            for(auto it = std::get<0>(fluid_nodes[subdomain]); it <= std::get<1>(fluid_nodes[subdomain]); ++it)
+            {
+                shift_sequential::shift_stream(distribution_values, access_function, *it, read_offset, write_offset);
+                parallel_shift_framework::perform_collision(*it, distribution_values, access_function, velocities, densities, write_offset);
+            }
+        }
+    }
+
+    /* Update ghost nodes OFFSET ISSUE?*/
+    shift_sequential::update_velocity_input_density_output(distribution_values, access_function, write_offset);
+    
+    unsigned int update_node = 0;
+    for(auto x = 0; x < HORIZONTAL_NODES; x = x + HORIZONTAL_NODES - 1)
+    {
+        for(auto y = 1; y < VERTICAL_NODES - 1; ++y)
+        {
+            update_node = lbm_access::get_node_index(x,y);
+            std::vector<double> current_distributions = 
+                lbm_access::get_distribution_values_of(distribution_values, update_node + write_offset, access_function);
+                
+            velocities[update_node] = macroscopic::flow_velocity(current_distributions);
+            densities[update_node] = macroscopic::density(current_distributions);
+        }
+    }
+
+        unsigned int x = 0;
+        velocity v = INLET_VELOCITY;
+        // std::cout << "x = " << x << std::endl;
+        int y = 0;
+        // update_node = lbm_access::get_node_index(x,y);
+        // current_distributions = maxwell_boltzmann_distribution(v, 1);
+        // lbm_access::set_distribution_values_of(current_distributions, distribution_values, update_node + read_offset, access_function);
+        // std::cout << "Set value of node " << update_node + write_offset << " to equilibrium distribution " << std::endl;
+        
+        // y = VERTICAL_NODES - 1;
+        // update_node = lbm_access::get_node_index(x,y);
+        // current_distributions = maxwell_boltzmann_distribution(v, 1);
+        // lbm_access::set_distribution_values_of(current_distributions, distribution_values, update_node + write_offset, access_function);
+        // std::cout << "Set value of node " << update_node + write_offset << " to equilibrium distribution " << std::endl;
+
+        x = HORIZONTAL_NODES - 1;
+        v = OUTLET_VELOCITY;
+        std::cout << "x = " << x << std::endl;
+        y = 0;
+        update_node = lbm_access::get_node_index(x,y);
+        std::vector<double> current_distributions = maxwell_boltzmann_distribution(v, 1);
+        lbm_access::set_distribution_values_of(current_distributions, distribution_values, update_node + write_offset, access_function);
+        std::cout << "Set value of node " << update_node + write_offset << " to equilibrium distribution " << std::endl;
+        
+        y = VERTICAL_NODES - 1;
+        update_node = lbm_access::get_node_index(x,y);
+        current_distributions = maxwell_boltzmann_distribution(v, 1);
+        lbm_access::set_distribution_values_of(current_distributions, distribution_values, update_node + write_offset, access_function);
+        std::cout << "Set value of node " << update_node + write_offset << " to equilibrium distribution " << std::endl;
+
+    sim_data_tuple result{velocities, densities};
+    return result;
+}
+
+
 
 /**
  * @brief Performs the pre-iteration buffer initialization for the buffer with the specified boundaries.

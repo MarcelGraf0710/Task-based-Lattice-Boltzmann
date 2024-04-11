@@ -32,24 +32,17 @@ namespace shift_sequential
         const unsigned int write_offset
     )
     {
-        std::vector<double> dist_vals_debug = lbm_access::get_distribution_values_of(distribution_values, fluid_node, access_function);
-        if(fluid_node == 12 || fluid_node == 89)
-        {
-            std::cout << "Accessing shift_stream for node_index " << fluid_node << ", with read offset " << read_offset << " and write offset " << write_offset << std::endl;
-            std::cout << "Distribution values of fluid node BEFORE streaming (index is " << fluid_node << ")" << std::endl;
-            dist_vals_debug = lbm_access::get_distribution_values_of(distribution_values, fluid_node, access_function);
-            to_console::print_vector(dist_vals_debug, dist_vals_debug.size());
-        }
-
+        // std::vector<double> dist_vals_debug = lbm_access::get_distribution_values_of(distribution_values, fluid_node, access_function);
+        // std::cout << "Accessing shift_stream for node_index " << fluid_node << ", with read offset " << read_offset << " and write offset " << write_offset << std::endl;
+        // std::cout << "Distribution values of fluid node BEFORE streaming (index is " << fluid_node << ")" << std::endl;
+        // dist_vals_debug = lbm_access::get_distribution_values_of(distribution_values, fluid_node, access_function);
+        // to_console::print_vector(dist_vals_debug, dist_vals_debug.size());
 
         for (const auto direction : {0, 1, 2, 3, 4, 5, 6, 7, 8})
         {
-            if(fluid_node == 12 || fluid_node == 89)
-            {
-            std::cout << "Performing stream (idx = " << fluid_node + write_offset << ", dir = " << direction << ") [" << distribution_values[access_function(fluid_node + write_offset, direction)] << "] <- ";
-            std::cout << "(idx = " << lbm_access::get_neighbor(fluid_node + read_offset, invert_direction(direction)) << ", dir = " << direction 
-                      << ") [" << distribution_values[access_function(lbm_access::get_neighbor(fluid_node + read_offset, invert_direction(direction)), direction)] << "]" << std::endl;
-            }
+            // std::cout << "Performing stream (idx = " << fluid_node + write_offset << ", dir = " << direction << ") [" << distribution_values[access_function(fluid_node + write_offset, direction)] << "] <- ";
+            // std::cout << "(idx = " << lbm_access::get_neighbor(fluid_node + read_offset, invert_direction(direction)) << ", dir = " << direction 
+            //           << ") [" << distribution_values[access_function(lbm_access::get_neighbor(fluid_node + read_offset, invert_direction(direction)), direction)] << "]" << std::endl;
             distribution_values[access_function(fluid_node + write_offset, direction)] =
                 distribution_values[
                     access_function(
@@ -57,13 +50,10 @@ namespace shift_sequential
                         direction)];
         }
             
-        if(fluid_node == 12 || fluid_node == 89)
-        {
-            std::cout << "Distribution values of fluid node AFTER streaming (index is " << fluid_node + write_offset << ")" << std::endl;
-            dist_vals_debug = lbm_access::get_distribution_values_of(distribution_values, fluid_node + write_offset, access_function);
-            to_console::print_vector(dist_vals_debug, dist_vals_debug.size());
-            std::cout << std::endl;
-        }
+        // std::cout << "Distribution values of fluid node AFTER streaming (index is " << fluid_node + write_offset << ")" << std::endl;
+        // dist_vals_debug = lbm_access::get_distribution_values_of(distribution_values, fluid_node + write_offset, access_function);
+        // to_console::print_vector(dist_vals_debug, dist_vals_debug.size());
+        //std::cout << std::endl;
     }
 
     /**

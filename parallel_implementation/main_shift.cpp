@@ -29,7 +29,7 @@ int main(const int argc, const char** argv)
     std::vector<unsigned int> fluid_nodes(0, TOTAL_NODE_COUNT);
     std::vector<bool> phase_information(false, TOTAL_NODE_COUNT);
     border_swap_information swap_info;
-    access_function access_function = lbm_access::collision;
+    access_function access_function = lbm_access::stream;
     
     if(enable_debug)
     {

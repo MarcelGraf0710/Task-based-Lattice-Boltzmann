@@ -424,14 +424,14 @@ void shift_sequential::update_velocity_input_density_output
     velocity v = INLET_VELOCITY;
     double density = 0;
 
-    // Correction of bordering velocity
-    current_border_node = lbm_access::get_node_index(HORIZONTAL_NODES - 2,0) + offset;
-    current_dist_vals = lbm_access::get_distribution_values_of(distribution_values, lbm_access::get_neighbor(current_border_node, 7), access_function);
-    lbm_access::set_distribution_values_of(current_dist_vals, distribution_values, current_border_node, access_function);
+    // // Correction of bordering velocity
+    // current_border_node = lbm_access::get_node_index(HORIZONTAL_NODES - 2,0) + offset;
+    // current_dist_vals = lbm_access::get_distribution_values_of(distribution_values, lbm_access::get_neighbor(current_border_node, 7), access_function);
+    // lbm_access::set_distribution_values_of(current_dist_vals, distribution_values, current_border_node, access_function);
 
-    current_border_node = lbm_access::get_node_index(HORIZONTAL_NODES - 2,VERTICAL_NODES - 1) + offset;
-    current_dist_vals = lbm_access::get_distribution_values_of(distribution_values, lbm_access::get_neighbor(current_border_node, 1), access_function);
-    lbm_access::set_distribution_values_of(current_dist_vals, distribution_values, current_border_node, access_function);
+    // current_border_node = lbm_access::get_node_index(HORIZONTAL_NODES - 2,VERTICAL_NODES - 1) + offset;
+    // current_dist_vals = lbm_access::get_distribution_values_of(distribution_values, lbm_access::get_neighbor(current_border_node, 1), access_function);
+    // lbm_access::set_distribution_values_of(current_dist_vals, distribution_values, current_border_node, access_function);
 
 
     for(auto y = 0; y < VERTICAL_NODES; ++y)
