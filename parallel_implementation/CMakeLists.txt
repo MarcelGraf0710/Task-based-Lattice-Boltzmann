@@ -19,7 +19,6 @@ set(HEADER_FILES include/access.hpp
                  #include/parallel_two_step_framework.hpp
                  #include/parallel_swap_framework.hpp
                  include/parallel_shift_framework.hpp
-                 include/parallel_shift_framework_new.hpp
                  #include/two_step_sequential.hpp
                  include/utils.hpp
                  )
@@ -41,7 +40,6 @@ set(SOURCE_FILES src/access.cpp
                  #src/parallel_two_step_framework.cpp
                  #src/parallel_swap_framework.cpp
                  src/parallel_shift_framework.cpp
-                 src/parallel_shift_framework_new.cpp
                  )
                  
 # add_executable(parallel_lbm main_two_lattice.cpp ${SOURCE_FILES})
@@ -62,5 +60,5 @@ target_link_libraries(test_two_lattice HPX::hpx HPX::wrap_main HPX::iostreams_co
 # add_executable(test_shift_seq main_shift.cpp ${SOURCE_FILES})
 # target_link_libraries(test_shift_seq HPX::hpx HPX::wrap_main HPX::iostreams_component)
 
-add_executable(test_shift_experimental main_shift_framework_new.cpp ${SOURCE_FILES})
+add_executable(test_shift_experimental main_shift_framework.cpp ${SOURCE_FILES})
 target_link_libraries(test_shift_experimental HPX::hpx HPX::wrap_main HPX::iostreams_component)

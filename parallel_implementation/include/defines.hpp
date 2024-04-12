@@ -1,7 +1,7 @@
 #ifndef DEFINES_HPP
 #define DEFINES_HPP
 
-/* Include directives */
+/// Include directives ///
 
 #include <vector>
 #include <list>
@@ -11,21 +11,28 @@
 #include <valarray>
 #include <numeric>
 
-/* General definitions (NOTE: this may be outsourced to a .csv file in the future to increase modifiability.) */
+/// General definitions (NOTE: this may be outsourced to a .csv file in the future to increase modifiability.) ///
 
 #define DIMENSION_COUNT 2
 #define DIRECTION_COUNT 9
-#define VERTICAL_NODES 965 // 15, readable up to 50 in console, beyond not recommended // 14 as for parallel
-#define HORIZONTAL_NODES 965 // comfortable console limit: 9 
+#define VERTICAL_NODES 26 // 15, readable up to 50 in console, beyond not recommended // 14 as for parallel
+#define HORIZONTAL_NODES 7 // comfortable console limit: 9 
 #define TOTAL_NODE_COUNT VERTICAL_NODES * HORIZONTAL_NODES
 #define BOLTZMANN_CONSTANT 1.380649e-23
 #define RELAXATION_TIME 1.4
 #define TIME_STEPS 50
-#define SUBDOMAIN_HEIGHT 160 // 4 as for parallel
+#define SUBDOMAIN_HEIGHT 8 // 4 as for parallel
 #define SUBDOMAIN_COUNT (VERTICAL_NODES + 1) / (1 + SUBDOMAIN_HEIGHT)
 #define BUFFER_COUNT SUBDOMAIN_COUNT - 1
 
-/* Convenience and readability type definitions */
+/// Inlet and outlet behavior ///
+
+#define INLET_VELOCITY velocity{0.1,0.0}
+#define OUTLET_VELOCITY velocity{0.00,0.0}
+#define INLET_DENSITY 1
+#define OUTLET_DENSITY 1 
+
+/// Convenience and readability type definitions ///
 
 /**
  * @brief Representation of a velocity vector
@@ -57,12 +64,7 @@ typedef std::tuple<std::vector<velocity>, std::vector<double>> sim_data_tuple;
  */
 typedef std::function<unsigned int(unsigned int, unsigned int)> access_function;
 
-/* Inlet and outlet behavior */
-
-#define INLET_VELOCITY velocity{0.1,0.0}
-#define OUTLET_VELOCITY velocity{0.00,0.0}
-#define INLET_DENSITY 1
-#define OUTLET_DENSITY 1 
+/// Global constants ///
 
 /** Mapping of directions as proposed by Mattila to the corresponding velocity vectors */
 extern const std::map<unsigned int, velocity> VELOCITY_VECTORS;
@@ -75,6 +77,8 @@ extern const std::vector<unsigned int> STREAMING_DIRECTIONS;
 
 /** Vector containing all directions */
 extern const std::vector<unsigned int> ALL_DIRECTIONS;
+
+/// Methods ///
 
 /**
  * @brief Returns the inverse direction of that specified.
