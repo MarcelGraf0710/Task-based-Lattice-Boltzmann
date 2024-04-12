@@ -11,8 +11,8 @@
 #include "boundaries.hpp"
 #include "parallel_framework.hpp"
 
-extern std::set<unsigned int> inflow_instream_dirs;
-extern std::set<unsigned int> outflow_instream_dirs;
+extern std::set<unsigned int> INFLOW_INSTREAM_DIRS;
+extern std::set<unsigned int> OUTFLOW_INSTREAM_DIRS;
 
 /**
  * @brief This namespace contains all methods for the framework of the parallel swap algorithm.

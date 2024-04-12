@@ -11,9 +11,6 @@
 #include "boundaries.hpp"
 #include "parallel_framework.hpp"
 
-extern std::set<unsigned int> inflow_instream_dirs;
-extern std::set<unsigned int> outflow_instream_dirs;
-
 /**
  * @brief This namespace contains all methods for the framework of the parallel two-step algorithm.
  *        Notice that the framework itself is the same for all algorithms but the respective executions need adaptions.
@@ -50,25 +47,6 @@ namespace parallel_two_step_framework
         const start_end_it_tuple fluid_node_bounds, 
         std::vector<double> &distribution_values, 
         const access_function access_function
-    );
-
-    /**
-     * @brief Performs the collision step for all fluid nodes within the specified bounds.
-     * 
-     * @param fluid_node_bounds a tuple of the first and last element of an iterator over all fluid nodes within the respective subdomain
-     * @param distribution_values a vector containing all distribution distribution_values
-     * @param access_function the access to node values will be performed according to this access function
-     * @param velocities a vector containing the velocity values of all nodes
-     * @param densities a vector containing the density values of all nodes
-     */
-    void perform_collision
-    (
-        const start_end_it_tuple fluid_node_bounds,
-        std::vector<double> &distribution_values, 
-        const access_function &access_function, 
-        std::vector<velocity> &velocities, 
-        std::vector<double> &densities
-
     );
 
     /**

@@ -1,8 +1,12 @@
 #ifndef BOUNDARIES_HPP
 #define BOUNDARIES_HPP
+
 #include "defines.hpp"
 #include "access.hpp"
 #include <set>
+
+extern std::set<unsigned int> INFLOW_INSTREAM_DIRS;
+extern std::set<unsigned int> OUTFLOW_INSTREAM_DIRS;
 
 /**
  * @brief Returns whether the node with the specified index is located at the edge of the simulation domain.
@@ -66,21 +70,6 @@ inline bool is_non_inout_ghost_node
  */
 namespace bounce_back
 {
-    /**
-     * @brief Retrieves the border swap information for all fluid nodes within the simulation domain based on the 
-     *        phase information of all nodes. Notice that all fluid nodes on the edges of the simulation domain will 
-     *        automatically become border nodes.
-     * 
-     * @param fluid_nodes a vector containing the indices of all fluid nodes within the simulation domain
-     * @param phase_information a vector containing the phase information of ALL nodes 
-     * @return see documentation of border_swap_information
-     */
-    border_swap_information retrieve_border_swap_information
-    (
-        const std::vector<unsigned int> &fluid_nodes, 
-        const std::vector<bool> &phase_information
-    );
-
     /**
      * @brief Retrieves an improved version of the border swap information data structure.
      *        This method does not consider inlet and outlet ghost nodes when performing bounce-back

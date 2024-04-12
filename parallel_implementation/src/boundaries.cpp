@@ -9,6 +9,9 @@
 #include <hpx/execution.hpp>
 #include <hpx/iostream.hpp>
 
+std::set<unsigned int> INFLOW_INSTREAM_DIRS{2,5,8};
+std::set<unsigned int> OUTFLOW_INSTREAM_DIRS{0,3,6};
+
 /**
  * @brief Returns whether the node with the specified index is located at the edge of the simulation domain.
  *        This is the case for any of the following coordinates:
@@ -58,39 +61,7 @@ bool is_ghost_node(unsigned int node_index, const std::vector<bool> &phase_infor
 }
 
 /**
- * @brief Retrieves the border swap information for all fluid nodes within the simulation domain based on the 
- *        phase information of all nodes. Notice that all fluid nodes on the edges of the simulation domain will 
- *        automatically become border nodes.
- * 
- * @param fluid_nodes a vector containing the indices of all fluid nodes within the simulation domain
- * @param phase_information a vector containing the phase information of ALL nodes 
- * @return see documentation of border_swap_information
- */
-border_swap_information bounce_back::retrieve_border_swap_information
-(
-    const std::vector<unsigned int> &fluid_nodes, 
-    const std::vector<bool> &phase_information
-)
-{
-    border_swap_information result;
-    for(const auto node : fluid_nodes)
-    {
-        std::vector<unsigned int> current_adjacencies{node};
-        for(const auto direction : STREAMING_DIRECTIONS)
-        {
-            unsigned int current_neighbor = lbm_access::get_neighbor(node, direction);
-            if(is_ghost_node(current_neighbor, phase_information))
-            {
-                current_adjacencies.push_back(direction);
-            }
-        }
-        if(current_adjacencies.size() > 1) result.push_back(current_adjacencies);
-    }
-    return result;
-}
-
-/**
- * @brief Retrieves an improved version of the border swap information data structure.
+ * @brief Retrieves the border swap information data structure.
  *        This method does not consider inlet and outlet ghost nodes when performing bounce-back
  *        as the inserted values will be overwritten by inflow and outflow values anyways.
  * 
@@ -228,13 +199,8 @@ void bounce_back::perform_boundary_update
     int current_border_node = 0;
     for(const auto& current : bsi)
     {
-        //std::cout << "Received bsi " << std::endl;
-        //to_console::print_vector(current, current.size());
         current_border_node = current[0];
         remaining_dirs = bounce_back::determine_bounce_back_directions(current);
-        //std::cout << "Remaining dirs: " << std::endl;
-        //to_console::print_set(remaining_dirs);
-        //std::cout << std::endl;
 
         for(const auto direction : remaining_dirs)
         {
@@ -428,7 +394,7 @@ void boundary_conditions::update_velocity_input_density_output
     velocity v = INLET_VELOCITY;
     double density = 0;
 
-    for(auto y = 0; y < VERTICAL_NODES; ++y)
+    for(auto y = 1; y < VERTICAL_NODES - 1; ++y)
     {
         // Update inlets
         current_border_node = lbm_access::get_node_index(0,y);
@@ -637,15 +603,13 @@ void boundary_conditions::ghost_stream_inout
     const access_function access_function
 )
 {
-    std::set<unsigned int> inflow_instream_dirs{2,5,8};
-    std::set<unsigned int> outflow_instream_dirs{0,3,6};
     int current_border_node = 0;
 
     for(auto y = 1; y < VERTICAL_NODES - 1; ++y)
     {
         // Update inlets
         current_border_node = lbm_access::get_node_index(1,y);
-        for(const auto direction : inflow_instream_dirs)
+        for(const auto direction : INFLOW_INSTREAM_DIRS)
         {
             distribution_values[access_function(current_border_node, direction)] = 
                 distribution_values[access_function(lbm_access::get_neighbor(current_border_node, invert_direction(direction)), direction)];
@@ -653,7 +617,7 @@ void boundary_conditions::ghost_stream_inout
 
         // Update outlets
         current_border_node = lbm_access::get_node_index(HORIZONTAL_NODES - 2,y);
-        for(const auto direction : outflow_instream_dirs)
+        for(const auto direction : OUTFLOW_INSTREAM_DIRS)
         {
             distribution_values[access_function(current_border_node, direction)] = 
                 distribution_values[access_function(lbm_access::get_neighbor(current_border_node, invert_direction(direction)), direction)];

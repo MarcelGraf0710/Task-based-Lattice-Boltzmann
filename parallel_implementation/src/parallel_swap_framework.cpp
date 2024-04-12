@@ -11,8 +11,8 @@
 #include <hpx/execution.hpp>
 #include <hpx/iostream.hpp>
 
-std::set<unsigned int> inflow_instream_dirs{2,5,8};
-std::set<unsigned int> outflow_instream_dirs{0,3,6};
+std::set<unsigned int> INFLOW_INSTREAM_DIRS{2,5,8};
+std::set<unsigned int> OUTFLOW_INSTREAM_DIRS{0,3,6};
 
 /**
  * @brief Performs the parallel two-step algorithm for the specified number of iterations.

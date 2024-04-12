@@ -1,18 +1,9 @@
 #include "../include/parallel_two_lattice_framework.hpp"
-#include "../include/two_lattice_sequential.hpp"
-#include "../include/access.hpp"
-#include "../include/defines.hpp"
-#include "../include/boundaries.hpp"
-#include "../include/collision.hpp"
-#include "../include/macroscopic.hpp"
-#include "../include/utils.hpp"
+
 #include <set>
 #include <iostream>
-#include <hpx/format.hpp>
-#include <hpx/future.hpp>
+
 #include <hpx/algorithm.hpp>
-#include <hpx/execution.hpp>
-#include <hpx/iostream.hpp>
 
 /**
  * @brief Performs the framework-based parallel two-lattice algorithm for the specified number of iterations.
@@ -36,8 +27,6 @@ void parallel_two_lattice_framework::run
 {
     to_console::print_run_greeting("parallel two-lattice algorithm (framework version)", iterations);
 
-    std::vector<double> source = distribution_values_0;
-    std::vector<double> destination = distribution_values_1;
     std::vector<double> temp;
 
     // Initializations relevant for buffering
@@ -54,17 +43,14 @@ void parallel_two_lattice_framework::run
     {
         std::cout << "\033[33mIteration " << time << ":\033[0m" << std::endl;
 
-        // Framework-based parallel two-lattice: combined stream and collision
-        // result[time] = parallel_two_lattice_framework::perform_tl_stream_and_collide_parallel
-        // (fluid_nodes, boundary_nodes, source, destination, access_function, y_values, buffer_ranges);
-        result[time] = parallel_two_lattice_framework::perform_tl_stream_and_collide_debug
-        (fluid_nodes, boundary_nodes, source, destination, access_function, y_values, buffer_ranges);
+        result[time] = parallel_two_lattice_framework::stream_and_collide
+        (fluid_nodes, boundary_nodes, distribution_values_0, distribution_values_1, access_function, y_values, buffer_ranges);
         
         std::cout << "\tFinished iteration " << time << std::endl;
 
-        temp = std::move(source);
-        source = std::move(destination);
-        destination = std::move(temp);
+        temp = std::move(distribution_values_0);
+        distribution_values_0 = std::move(distribution_values_1);
+        distribution_values_1 = std::move(temp);
     }
     to_console::buffered::print_simulation_results(result);
     std::cout << "All done, exiting simulation. " << std::endl;
@@ -83,7 +69,7 @@ void parallel_two_lattice_framework::run
  * @param buffer_ranges a vector containing a tuple of the indices of the first and last node belonging to a certain buffer
  * @return see documentation of sim_data_tuple
  */
-sim_data_tuple parallel_two_lattice_framework::perform_tl_stream_and_collide_debug
+sim_data_tuple parallel_two_lattice_framework::stream_and_collide_debug
 (
     const std::vector<start_end_it_tuple> &fluid_nodes,
     const border_swap_information &bsi,
@@ -107,7 +93,7 @@ sim_data_tuple parallel_two_lattice_framework::perform_tl_stream_and_collide_deb
     std::cout << "\t TL stream and collide: initializations and declarations performed." << std::endl;
 
     // Global boundary update
-    bounce_back::emplace_bounce_back_values_parallel(bsi, source, access_function, 0);
+    parallel_framework::emplace_bounce_back_values(bsi, source, access_function);
 
     // Buffer update
     for(auto buffer_index = 0; buffer_index < BUFFER_COUNT; ++buffer_index)
@@ -143,22 +129,13 @@ sim_data_tuple parallel_two_lattice_framework::perform_tl_stream_and_collide_deb
         /* Collision step */
         for(auto it = std::get<0>(bounds); it <= std::get<1>(bounds); ++it)
         {   
-            current_distributions = 
-                lbm_access::get_distribution_values_of(destination, *it, access_function);
-
-            current_velocity = macroscopic::flow_velocity(current_distributions);    
-            velocities[*it] = current_velocity;
-
-            current_density = macroscopic::density(current_distributions);
-            densities[*it] = current_density;
-            
-            two_lattice_sequential::tl_collision(
-                destination, 
+            parallel_framework::perform_collision(
                 *it, 
-                current_distributions,
+                destination, 
                 access_function, 
-                current_velocity, 
-                current_density);
+                velocities,
+                densities 
+            );
         }
         std::cout << "\t DESTINATION after collision: " << std::endl;
         to_console::buffered::print_distribution_values(destination, access_function);
@@ -187,7 +164,7 @@ sim_data_tuple parallel_two_lattice_framework::perform_tl_stream_and_collide_deb
  * @param buffer_ranges a vector containing a tuple of the indices of the first and last node belonging to a certain buffer
  * @return see documentation of sim_data_tuple
  */
-sim_data_tuple parallel_two_lattice_framework::perform_tl_stream_and_collide_parallel
+sim_data_tuple parallel_two_lattice_framework::stream_and_collide
 (
     const std::vector<start_end_it_tuple> &fluid_nodes,
     const border_swap_information &bsi,
@@ -201,25 +178,25 @@ sim_data_tuple parallel_two_lattice_framework::perform_tl_stream_and_collide_par
     std::vector<velocity> velocities(TOTAL_NODE_COUNT, velocity{0,0});
     std::vector<double> densities(TOTAL_NODE_COUNT, -1);
 
-        // Global boundary update
-        bounce_back::emplace_bounce_back_values_parallel(bsi, source, access_function, 0);
+    // Global boundary update
+    parallel_framework::emplace_bounce_back_values(bsi, source, access_function);
 
-        // Buffer update
-        hpx::experimental::for_loop
-        (
-            hpx::execution::par, 0, BUFFER_COUNT,
-            [&](unsigned int buffer_index)
-            {
-                parallel_framework::copy_to_buffer(buffer_ranges[buffer_index], source, access_function);
-            }
-        );
+    // Buffer update
+    hpx::experimental::for_loop
+    (
+        hpx::execution::par, 0, BUFFER_COUNT,
+        [&](unsigned int buffer_index)
+        {
+            parallel_framework::copy_to_buffer(buffer_ranges[buffer_index], source, access_function);
+        }
+    );
 
     hpx::experimental::for_loop
     (
         hpx::execution::par, 0, SUBDOMAIN_COUNT, 
         [&](unsigned int subdomain)
         {
-            parallel_two_lattice_framework::tl_stream_and_collide_helper(source, destination, access_function, velocities, densities, fluid_nodes[subdomain]);
+            parallel_two_lattice_framework::stream_and_collide_helper(source, destination, access_function, velocities, densities, fluid_nodes[subdomain]);
         }
     );
 
@@ -234,7 +211,7 @@ sim_data_tuple parallel_two_lattice_framework::perform_tl_stream_and_collide_par
  * @brief This helper function of parallel_two_lattice_framework::perform_tl_stream_and_collide_parallel
  *        is used in the HPX loop. It performs the actual streaming and collision.
  */
-void parallel_two_lattice_framework::tl_stream_and_collide_helper
+void parallel_two_lattice_framework::stream_and_collide_helper
 (
     const std::vector<double> &source, 
     std::vector<double> &destination, 
@@ -244,10 +221,6 @@ void parallel_two_lattice_framework::tl_stream_and_collide_helper
     const start_end_it_tuple bounds
 )
 {
-    std::vector<double> current_distributions(DIRECTION_COUNT, 0);
-    velocity current_velocity = {0,0};
-    double current_density = 0;
-
     for(auto it = std::get<0>(bounds); it <= std::get<1>(bounds); ++it)
     {
         /* Streaming step */
@@ -258,21 +231,11 @@ void parallel_two_lattice_framework::tl_stream_and_collide_helper
             *it);
 
         /* Collision step */
-        current_distributions = 
-            lbm_access::get_distribution_values_of(destination, *it, access_function);
-
-        current_velocity = macroscopic::flow_velocity(current_distributions);    
-        velocities[*it] = current_velocity;
-
-        current_density = macroscopic::density(current_distributions);
-        densities[*it] = current_density;
-        
-        two_lattice_sequential::tl_collision(
-            destination, 
+        parallel_framework::perform_collision(
             *it, 
-            current_distributions,
+            destination, 
             access_function, 
-            current_velocity, 
-            current_density);           
+            velocities,
+            densities);          
     }
 } 
