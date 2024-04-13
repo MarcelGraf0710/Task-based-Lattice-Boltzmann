@@ -1,6 +1,5 @@
 #include "../include/collision.hpp"
-#include "../include/access.hpp"
-#include "../include/utils.hpp"
+
 #include <iostream>
 
 /**
@@ -19,32 +18,11 @@ std::vector<double> collision::collide_bgk
 )
 {
     double sum = 0;
-    // std::cout << "\033[31mAccessing collide_bgk\033[0m" << std::endl;
-    // std::cout << "distribution values: " << std::endl;
-    // to_console::print_vector(values, 10);
-    // std::cout << "velocity: (" << u[0] << ", " << u[1] << ")" << std::endl;
-    // std::cout << "Density: " << density;
-    // std::cout << std::endl;
-
-
     std::vector<double> result = maxwell_boltzmann_distribution(u, density);
-    // std::cout << "Corresponding Maxwell Boltzmann distribution is ";
-    // to_console::print_vector(result, 10);
-
     for(auto i = 0; i < DIRECTION_COUNT; ++i)
     {
         result[i] = -(1/RELAXATION_TIME) * (values[i] - result[i]) + values[i];
     }
-
-    // std::cout << "Final result is ";
-    // to_console::print_vector(result, 10);
-    // std::cout << "The density is ";
-    // for(auto current : result)
-    // {
-    //    sum += current;
-    // }
-    // std::cout << sum << std::endl;
-    // std::cout << std::endl;
     return result;
 }
 
@@ -74,3 +52,35 @@ void collision::collide_all_bgk
         lbm_access::set_distribution_values_of(new_distributions, values, fluid_node, access);
     }
 }
+
+/**
+ * @brief Performs the collision step for the specified fluid node.
+ * 
+ * @param node the index of the node for which the collision step will be performed
+ * @param distribution_values a vector containing all distribution distribution_values
+ * @param access_function the access to node values will be performed according to this access function
+ * @param velocities a vector containing the velocity values of all nodes
+ * @param densities a vector containing the density values of all nodes
+ */
+void collision::perform_collision
+(
+    const unsigned int node,
+    std::vector<double> &distribution_values, 
+    const access_function &access_function, 
+    std::vector<velocity> &velocities, 
+    std::vector<double> &densities
+)
+{
+    std::vector<double> current_distributions(DIRECTION_COUNT, 0);
+    velocity current_velocity = {0,0};
+    double current_density = 0;
+
+    current_distributions = 
+        lbm_access::get_distribution_values_of(distribution_values, node, access_function);
+    current_velocity = macroscopic::flow_velocity(current_distributions);    
+    velocities[node] = current_velocity;
+    current_density = macroscopic::density(current_distributions);
+    densities[node] = current_density;
+    current_distributions = collision::collide_bgk(current_distributions, current_velocity, current_density);
+    lbm_access::set_distribution_values_of(current_distributions, distribution_values, node, access_function);
+} 

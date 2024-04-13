@@ -1,6 +1,10 @@
 #ifndef COLLISION_HPP
 #define COLLISION_HPP
+
+#include "access.hpp"
 #include "defines.hpp"
+#include "macroscopic.hpp"
+#include "utils.hpp"
 
 /**
  * @brief This namespace contains all functions necessary for the collision step.
@@ -39,6 +43,24 @@ namespace collision
         const std::vector<velocity> &all_velocities, 
         const std::vector<double> &all_densities,
         const access_function access
+    );
+
+    /**
+     * @brief Performs the collision step for the specified fluid node.
+     * 
+     * @param node the index of the node for which the collision step will be performed
+     * @param distribution_values a vector containing all distribution distribution_values
+     * @param access_function the access to node values will be performed according to this access function
+     * @param velocities a vector containing the velocity values of all nodes
+     * @param densities a vector containing the density values of all nodes
+     */
+    void perform_collision
+    (
+        const unsigned int node,
+        std::vector<double> &distribution_values, 
+        const access_function &access_function, 
+        std::vector<velocity> &velocities, 
+        std::vector<double> &densities
     );
 }
 #endif

@@ -4,12 +4,9 @@
 /// Include directives ///
 
 #include <vector>
-#include <list>
 #include <complex>
 #include <map>
 #include <functional>
-#include <valarray>
-#include <numeric>
 
 /// General definitions (NOTE: this may be outsourced to a .csv file in the future to increase modifiability.) ///
 
@@ -17,12 +14,12 @@
 #define DIRECTION_COUNT 9
 #define VERTICAL_NODES 24 // 15, readable up to 50 in console, beyond not recommended // 14 as for parallel
 #define HORIZONTAL_NODES 7 // comfortable console limit: 9 
-#define TOTAL_NODE_COUNT VERTICAL_NODES * HORIZONTAL_NODES
+#define TOTAL_NODE_COUNT (VERTICAL_NODES * HORIZONTAL_NODES)
 #define BOLTZMANN_CONSTANT 1.380649e-23
 #define RELAXATION_TIME 1.4
 #define TIME_STEPS 50
 #define SUBDOMAIN_HEIGHT 8 // 4 as for parallel
-#define SUBDOMAIN_COUNT (VERTICAL_NODES + 1) / (1 + SUBDOMAIN_HEIGHT)
+#define SUBDOMAIN_COUNT ((VERTICAL_NODES + 1) / (1 + SUBDOMAIN_HEIGHT))
 #define BUFFER_COUNT SUBDOMAIN_COUNT - 1
 
 /// Inlet and outlet behavior ///

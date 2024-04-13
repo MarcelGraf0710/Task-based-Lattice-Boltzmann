@@ -1,15 +1,18 @@
 #ifndef TWO_LATTICE_SEQUENTIAL_HPP
 #define TWO_LATTICE_SEQUENTIAL_HPP
 
+#include "access.hpp"
+#include "boundaries.hpp"
+#include "collision.hpp"
+#include "defines.hpp"
+#include "utils.hpp"
+
 #include <vector>
 #include <set>
-#include "defines.hpp"
-#include "access.hpp"
-#include <iostream>
-#include "collision.hpp"
-#include "utils.hpp"
-#include "boundaries.hpp"
 
+/**
+ * @brief This namespace contains all methods for the sequential two-lattice algorithm.
+ */
 namespace two_lattice_sequential
 {
     /**
@@ -23,7 +26,7 @@ namespace two_lattice_sequential
      * @param access_function the function used to access the distribution values
      * @return see documentation of sim_data_tuple
      */
-    sim_data_tuple perform_tl_stream_and_collide
+    sim_data_tuple stream_and_collide
     (
         const std::vector<unsigned int> &fluid_nodes,
         const border_swap_information &bsi,
@@ -44,7 +47,7 @@ namespace two_lattice_sequential
      * @param access_function the function used to access the distribution values
      * @return see documentation of sim_data_tuple
      */
-    sim_data_tuple perform_tl_stream_and_collide_debug
+    sim_data_tuple stream_and_collide_debug
     (
         const std::vector<unsigned int> &fluid_nodes,
         const border_swap_information &bsi,
@@ -110,41 +113,6 @@ namespace two_lattice_sequential
                         lbm_access::get_neighbor(fluid_node, invert_direction(direction)), 
                         direction)];
         }
-    }
-
-    /**
-     * @brief Performs the collision step for the fluid node with the specified index.
-     * 
-     * @param destination the updated distribution values will be written to this vector
-     * @param fluid_node the index of the fluid node
-     * @param access_function the function used to access the distribution values
-     * @param velocity the velocity at the node in question
-     * @param density the density at the node in question
-     */
-    inline void tl_collision
-    (
-        std::vector<double> &destination, 
-        const unsigned int fluid_node, 
-        const std::vector<double> &distribution_values,
-        const access_function &access_function, 
-        const velocity &velocity, 
-        const double &density
-    )
-    {
-        if(fluid_node == 82)
-        {
-            std::cout << std::setprecision(8) << std::fixed;
-            std::cout << "Two-lattice: Performing collision for node 82 " << std::endl;
-            std::cout << "Got distribution values " << std::endl;
-            to_console::print_vector(distribution_values, DIRECTION_COUNT);
-            std::cout << "Got velocity (" << velocity[0] << ", " << velocity[1] << ")" << std::endl;
-            std::cout << "Got density: " << density << std::endl;
-            std::cout << "Resulting distribution is " << std::endl;
-            to_console::print_vector(collision::collide_bgk(distribution_values, velocity, density), DIRECTION_COUNT);
-            std::cout << std::setprecision(3) << std::fixed;
-        }
-        std::vector<double> vals = collision::collide_bgk(distribution_values, velocity, density);
-        lbm_access::set_distribution_values_of(vals, destination, fluid_node, access_function);
     }
 }
 

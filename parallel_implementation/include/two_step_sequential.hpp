@@ -1,10 +1,18 @@
 #ifndef TWO_STEP_SEQUENTIAL_HPP
 #define TWO_STEP_SEQUENTIAL_HPP
 
-#include <vector>
+#include "access.hpp"
+#include "boundaries.hpp"
+#include "collision.hpp"
 #include "defines.hpp"
-#include <set>
+#include "macroscopic.hpp"
 
+#include <set>
+#include <vector>
+
+/**
+ * @brief This namespace contains all methods for the sequential two-step algorithm.
+ */
 namespace two_step_sequential
 {
     /**
@@ -15,7 +23,7 @@ namespace two_step_sequential
      * @param distribution_values a vector containing all distribution distribution_values
      * @param access_function the access to node values will be performed according to this access function.
      */
-    void perform_fast_stream
+    void perform_stream
     (
         const std::vector<unsigned int> &fluid_nodes, 
         std::vector<double> &distribution_values, 
@@ -32,7 +40,7 @@ namespace two_step_sequential
      * @param access_function the access to node values will be performed according to this access function.
      * @return sim_data_tuple see documentation of sim_data_tuple
      */
-    sim_data_tuple perform_ts_stream_and_collide
+    sim_data_tuple stream_and_collide
     (
         const std::vector<unsigned int> &fluid_nodes,
         const border_swap_information &bsi,
@@ -51,7 +59,7 @@ namespace two_step_sequential
      * @param access_function the access to node values will be performed according to this access function.
      * @return sim_data_tuple see documentation of sim_data_tuple
      */
-    sim_data_tuple perform_ts_stream_and_collide_debug
+    sim_data_tuple stream_and_collide_debug
     (
         const std::vector<unsigned int> &fluid_nodes,
         const border_swap_information &bsi,

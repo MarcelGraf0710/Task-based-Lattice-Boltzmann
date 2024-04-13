@@ -1,6 +1,5 @@
 #include "../include/access.hpp"
-#include "../include/utils.hpp"
-#include <iostream>
+#include <list>
 
 /**
 * @brief Retrieves the coordinates of the node with the specified node index.

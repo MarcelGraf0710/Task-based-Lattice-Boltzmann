@@ -1,5 +1,6 @@
 #ifndef ACCESS_HPP
 #define ACCESS_HPP
+
 #include "defines.hpp"
 
 /**
@@ -125,11 +126,6 @@ namespace semi_direct_access
      * @return a vector containing the fluid segments in the explained arrangement
      */
     std::vector<unsigned int> get_fluid_segments(const std::vector<bool> &node_phases);
-}
-
-namespace buffered_access 
-{
-
 }
 
 #endif

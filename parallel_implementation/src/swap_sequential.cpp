@@ -1,10 +1,11 @@
 #include "../include/swap_sequential.hpp"
-#include "../include/access.hpp"
-#include "../include/boundaries.hpp"
-#include "../include/macroscopic.hpp"
-#include "../include/collision.hpp"
+
 #include <iostream>
 
+/**
+ * @brief This vector contains all directions in which "active" streaming happens in the shape
+ *        of a swap of values.
+ */
 const std::vector<unsigned int> swap_sequential::ACTIVE_STREAMING_DIRECTIONS = {5,6,7,8};
 
 /**
@@ -74,7 +75,7 @@ border_swap_information swap_sequential::retrieve_swap_info
  *        The border conditions are enforced through ghost nodes.
  *        This variant of the combined streaming and collision step will print several debug comments to the console.
  */
-sim_data_tuple swap_sequential::perform_swap_stream_and_collide_debug
+sim_data_tuple swap_sequential::stream_and_collide_debug
 (
     const border_swap_information &bsi,
     const std::vector<unsigned int> &fluid_nodes,
@@ -87,14 +88,7 @@ sim_data_tuple swap_sequential::perform_swap_stream_and_collide_debug
     std::cout << std::endl;
 
     std::vector<velocity> velocities(TOTAL_NODE_COUNT, velocity{0,0});
-    velocity current_velocity = {0,0};
-
     std::vector<double> densities(TOTAL_NODE_COUNT, -1);
-    double current_density = -1;
-
-    unsigned int node_index = 0;
-    std::vector<unsigned int> swap_dirs;
-    std::vector<double> current_distributions(DIRECTION_COUNT, 0);
 
     // Border node initialization
     for(const auto node : bsi)
@@ -127,19 +121,15 @@ sim_data_tuple swap_sequential::perform_swap_stream_and_collide_debug
     // Collision
     for(const auto& node : fluid_nodes)
     {
-        current_distributions = lbm_access::get_distribution_values_of(distribution_values, node, access_function);
-        current_velocity = macroscopic::flow_velocity(current_distributions);
-        current_density = macroscopic::density(current_distributions);
-        velocities[node] = current_velocity;
-        densities[node] = current_density;
-        current_distributions = collision::collide_bgk(current_distributions, current_velocity, current_density);
-        lbm_access::set_distribution_values_of(current_distributions, distribution_values, node, access_function);
+        collision::perform_collision(node, distribution_values, access_function, velocities, densities);
     }
     std::cout << "Distribution values after collision: " << std::endl;
     to_console::print_distribution_values(distribution_values, access_function);
 
     /* Update ghost nodes */
     boundary_conditions::update_velocity_input_density_output(distribution_values, velocities, densities, access_function);
+    swap_sequential::restore_inout_correctness(distribution_values, access_function);
+
     std::cout << "Distribution values after ghost node update: " << std::endl;
     to_console::print_distribution_values(distribution_values, access_function);
     std::cout << std::endl;
@@ -154,7 +144,7 @@ sim_data_tuple swap_sequential::perform_swap_stream_and_collide_debug
  *        The border conditions are enforced through ghost nodes.
  *        This variant of the combined streaming and collision step will print several debug comments to the console.
  */
-sim_data_tuple swap_sequential::perform_swap_stream_and_collide
+sim_data_tuple swap_sequential::stream_and_collide
 (
     const border_swap_information &bsi,
     const std::vector<unsigned int> &fluid_nodes,
@@ -163,11 +153,7 @@ sim_data_tuple swap_sequential::perform_swap_stream_and_collide
 )
 {
     std::vector<velocity> velocities(TOTAL_NODE_COUNT, velocity{0,0});
-    velocity current_velocity = {0,0};
-
     std::vector<double> densities(TOTAL_NODE_COUNT, -1);
-    double current_density = -1;
-
     std::vector<double> current_distributions(DIRECTION_COUNT, 0);
 
     // Border node initialization
@@ -181,24 +167,14 @@ sim_data_tuple swap_sequential::perform_swap_stream_and_collide
 
     for(const auto node : fluid_nodes)
     {
-        // Swapping step
         swap_sequential::perform_swap_step(distribution_values, node, access_function, ACTIVE_STREAMING_DIRECTIONS);
-
-        // Restore precious order in here
         swap_sequential::restore_order(distribution_values, node, access_function);
-
-        // Collision
-        current_distributions = lbm_access::get_distribution_values_of(distribution_values, node, access_function);
-        current_velocity = macroscopic::flow_velocity(current_distributions);
-        current_density = macroscopic::density(current_distributions);
-        velocities[node] = current_velocity;
-        densities[node] = current_density;
-        current_distributions = collision::collide_bgk(current_distributions, current_velocity, current_density);
-        lbm_access::set_distribution_values_of(current_distributions, distribution_values, node, access_function);
+        collision::perform_collision(node, distribution_values, access_function, velocities, densities);
     }
 
     /* Update ghost nodes */
     boundary_conditions::update_velocity_input_density_output(distribution_values, velocities, densities, access_function);
+    swap_sequential::restore_inout_correctness(distribution_values, access_function);
 
     sim_data_tuple result{velocities, densities};
 
@@ -234,10 +210,35 @@ void swap_sequential::run
     for(auto time = 0; time < iterations; ++time)
     {
         std::cout << "\033[33mIteration " << time << ":\033[0m" << std::endl;
-        result[time] = swap_sequential::perform_swap_stream_and_collide(bsi, fluid_nodes, values, access_function);
+        result[time] = swap_sequential::stream_and_collide(bsi, fluid_nodes, values, access_function);
         std::cout << "\tFinished iteration " << time << std::endl;
     }
 
     to_console::print_simulation_results(result);
     std::cout << "All done, exiting simulation. " << std::endl;
+}
+
+/**
+ * @brief Restores the correctness of the outmost inlet and outlet nodes.
+ *        Their distribution values are overwritten during the swap step.
+ * 
+ * @param distribution_values a vector containing all distribution distribution_values
+ * @param access_function the access to node values will be performed according to this access function
+ */
+void swap_sequential::restore_inout_correctness
+(
+    std::vector<double> &distribution_values,    
+    const access_function access_function
+)
+{
+    std::vector<double> inout_update_values(DIRECTION_COUNT, 0);
+    // Inlets
+    inout_update_values = maxwell_boltzmann_distribution(INLET_VELOCITY, INLET_DENSITY);
+    lbm_access::set_distribution_values_of(inout_update_values, distribution_values, lbm_access::get_node_index(0,0), access_function);
+    lbm_access::set_distribution_values_of(inout_update_values, distribution_values, lbm_access::get_node_index(0, VERTICAL_NODES - 1), access_function);
+
+    // Outlets
+    inout_update_values = maxwell_boltzmann_distribution(OUTLET_VELOCITY, OUTLET_DENSITY);
+    lbm_access::set_distribution_values_of(inout_update_values, distribution_values, lbm_access::get_node_index(HORIZONTAL_NODES - 1, 0), access_function);
+    lbm_access::set_distribution_values_of(inout_update_values, distribution_values, lbm_access::get_node_index(HORIZONTAL_NODES - 1, VERTICAL_NODES - 1), access_function);
 }

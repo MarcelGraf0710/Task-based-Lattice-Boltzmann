@@ -419,5 +419,5 @@ void shift_sequential::setup_example_domain
     }
 
     /* Set up border swap information */
-    swap_info = bounce_back::retrieve_fast_border_swap_info(fluid_nodes, phase_information);
+    swap_info = bounce_back::retrieve_border_swap_info(fluid_nodes, phase_information);
 }

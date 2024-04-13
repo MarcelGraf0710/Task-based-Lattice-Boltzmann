@@ -38,7 +38,7 @@ void parallel_two_step_framework::run
     {
         std::cout << "\033[33mIteration " << time << ":\033[0m" << std::endl;
 
-        result[time] = parallel_two_step_framework::parallel_ts_stream_and_collide
+        result[time] = parallel_two_step_framework::stream_and_collide
         (fluid_nodes, bsi, distribution_values, access_function, y_values, buffer_ranges);
 
         std::cout << "\tFinished iteration " << time << std::endl;
@@ -94,7 +94,7 @@ void parallel_two_step_framework::perform_stream
  * @param buffer_ranges a vector containing a tuple of the indices of the first and last node belonging to a certain buffer
  * @return sim_data_tuple see documentation of sim_data_tuple
  */
-sim_data_tuple parallel_two_step_framework::perform_ts_stream_and_collide_debug
+sim_data_tuple parallel_two_step_framework::stream_and_collide_debug
 (
     const std::vector<start_end_it_tuple> &fluid_nodes,
     const border_swap_information &bsi,
@@ -195,7 +195,7 @@ sim_data_tuple parallel_two_step_framework::perform_ts_stream_and_collide_debug
  * @param buffer_ranges a vector containing a tuple of the indices of the first and last node belonging to a certain buffer
  * @return sim_data_tuple see documentation of sim_data_tuple
  */
-sim_data_tuple parallel_two_step_framework::parallel_ts_stream_and_collide
+sim_data_tuple parallel_two_step_framework::stream_and_collide
 (
     const std::vector<start_end_it_tuple> &fluid_nodes,
     const border_swap_information &bsi,

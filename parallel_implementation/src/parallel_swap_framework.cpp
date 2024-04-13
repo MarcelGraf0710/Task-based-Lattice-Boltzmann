@@ -1,18 +1,9 @@
 #include "../include/parallel_swap_framework.hpp"
-#include "../include/swap_sequential.hpp"
-#include "../include/access.hpp"
-#include "../include/boundaries.hpp"
-#include "../include/macroscopic.hpp"
-#include "../include/collision.hpp"
-#include <iostream>
-#include <hpx/format.hpp>
-#include <hpx/future.hpp>
-#include <hpx/algorithm.hpp>
-#include <hpx/execution.hpp>
-#include <hpx/iostream.hpp>
 
-std::set<unsigned int> INFLOW_INSTREAM_DIRS{2,5,8};
-std::set<unsigned int> OUTFLOW_INSTREAM_DIRS{0,3,6};
+#include <iostream>
+
+#include <hpx/algorithm.hpp>
+
 
 /**
  * @brief Performs the parallel two-step algorithm for the specified number of iterations.
@@ -49,7 +40,7 @@ void parallel_swap_framework::run
         std::cout << "\033[33mIteration " << time << ":\033[0m" << std::endl;
 
         // Framework-based parallel two-step: combined stream and collision
-        result[time] = parallel_swap_framework::parallel_swap_stream_and_collide
+        result[time] = parallel_swap_framework::perform_swap_stream_and_collide_debug
         (fluid_nodes, bsi, distribution_values, access_function, y_values, buffer_ranges);
         std::cout << "\tFinished iteration " << time << std::endl;
     }
@@ -86,10 +77,6 @@ sim_data_tuple parallel_swap_framework::perform_swap_stream_and_collide_debug
 
     std::vector<velocity> velocities(TOTAL_NODE_COUNT, velocity{0,0});
     std::vector<double> densities(TOTAL_NODE_COUNT, -1);
-
-    std::vector<double> corner_values = parallel_swap_framework::extract_corner_distributions(distribution_values, access_function);
-    std::cout << "Extracted corner values " << std::endl;
-    to_console::print_vector(corner_values, 5);
 
     // Border node initialization
     for(const auto node : bsi)
@@ -145,14 +132,25 @@ sim_data_tuple parallel_swap_framework::perform_swap_stream_and_collide_debug
     to_console::buffered::print_distribution_values(distribution_values, access_function);
     std::cout << std::endl;
 
-    // Restore inout correctness
-    parallel_swap_framework::restore_corner_distributions(corner_values, distribution_values, access_function);
-
     /* Update ghost nodes */
     parallel_framework::update_velocity_input_density_output(y_values, distribution_values, velocities, densities, access_function);
     std::cout << "Distribution values after ghost node update: " << std::endl;
     to_console::buffered::print_distribution_values(distribution_values, access_function);
     std::cout << std::endl;
+
+    swap_sequential::restore_inout_correctness(distribution_values, access_function);
+
+    /* Buffer correction */
+    hpx::for_each(
+        hpx::execution::par, std::get<1>(y_values).begin(), std::get<1>(y_values).end(),
+        [&distribution_values, &velocities, &densities, access_function](int y)
+        {
+            int current_border_node = lbm_access::get_node_index(0,y);
+            parallel_framework::copy_to_buffer_node(current_border_node, distribution_values, access_function);
+
+            current_border_node = lbm_access::get_node_index(HORIZONTAL_NODES - 1,y);
+            parallel_framework::copy_to_buffer_node(current_border_node, distribution_values, access_function);
+    });
 
     sim_data_tuple result{velocities, densities};
 
@@ -184,7 +182,6 @@ sim_data_tuple parallel_swap_framework::parallel_swap_stream_and_collide
 {
     std::vector<velocity> velocities(TOTAL_NODE_COUNT, velocity{0,0});
     std::vector<double> densities(TOTAL_NODE_COUNT, -1);
-    std::vector<double> corner_values = parallel_swap_framework::extract_corner_distributions(distribution_values, access_function);
 
     /* Border node initialization */
     hpx::for_each
@@ -225,32 +222,36 @@ sim_data_tuple parallel_swap_framework::parallel_swap_stream_and_collide
             }
         });
 
-    // for(auto subdomain = 0; subdomain < SUBDOMAIN_COUNT; ++subdomain)
-    // {
-    //     for(auto node = std::get<0>(fluid_nodes[subdomain]); node <= std::get<1>(fluid_nodes[subdomain]); ++node)
-    //     {
-    //         // Swapping step
-    //         swap_sequential::perform_swap_step(distribution_values, *node, access_function, swap_sequential::ACTIVE_STREAMING_DIRECTIONS);
-
-    //         // Restore precious order in here
-    //         swap_sequential::restore_order(distribution_values, *node, access_function);
-
-    //         /* Perform collision for all fluid nodes */
-    //         parallel_framework::perform_collision(*node, distribution_values, access_function, velocities, densities);
-    //     }
-    // }
-
-    // Restore inout correctness
-    parallel_swap_framework::restore_corner_distributions(corner_values, distribution_values, access_function);
-
     /* Update ghost nodes */
     parallel_framework::update_velocity_input_density_output(y_values, distribution_values, velocities, densities, access_function);
+
+    swap_sequential::restore_inout_correctness(distribution_values, access_function);
+
+    /* Buffer correction */
+    hpx::for_each(
+        hpx::execution::par, std::get<1>(y_values).begin(), std::get<1>(y_values).end(),
+        [&distribution_values, &velocities, &densities, access_function](int y)
+        {
+            int current_border_node = lbm_access::get_node_index(0,y);
+            parallel_framework::copy_to_buffer_node(current_border_node, distribution_values, access_function);
+
+            current_border_node = lbm_access::get_node_index(HORIZONTAL_NODES - 1,y);
+            parallel_framework::copy_to_buffer_node(current_border_node, distribution_values, access_function);
+    });
 
     sim_data_tuple result{velocities, densities};
 
     return result;
 }
 
+/**
+ * @brief Performs an update for the buffer with the specified boundaries.
+ *        It prepares the subdomain-wise streaming and performs the swap step for the uppermost row of each subdomain.
+ * 
+ * @param buffer_bounds a tuple containing the indices of the first and the last node of the buffer
+ * @param distribution_values a vector containing all distribution values
+ * @param access_function the access to node values will be performed according to this access function
+ */
 void parallel_swap_framework::swap_buffer_update
 (
     const std::tuple<unsigned int, unsigned int> &buffer_bounds,
@@ -261,7 +262,7 @@ void parallel_swap_framework::swap_buffer_update
     unsigned int start = std::get<0>(buffer_bounds);
     unsigned int end = std::get<1>(buffer_bounds);
 
-    // Clone values facin southward from subdomain above
+    // Clone values facing southward from subdomain above
     for(auto buffer_node = start; buffer_node <= end; ++buffer_node)
     {
         for(auto direction : {0,1,2})
@@ -275,50 +276,8 @@ void parallel_swap_framework::swap_buffer_update
     {
         for(auto direction : {6,7,8})
         {
-            distribution_values[access_function(lbm_access::get_neighbor(buffer_node, direction), invert_direction(direction))] = distribution_values[access_function(lbm_access::get_neighbor(buffer_node, 1), direction)];
+            distribution_values[access_function(lbm_access::get_neighbor(buffer_node, direction), invert_direction(direction))] = 
+            distribution_values[access_function(lbm_access::get_neighbor(buffer_node, 1), direction)];
         }
     }
-}
-
-void parallel_swap_framework::restore_inout_correctness
-(
-    std::vector<double> &distribution_values,    
-    const access_function access_function
-)
-{
-    unsigned int restore_node = lbm_access::get_node_index(1,1);
-    distribution_values[access_function(lbm_access::get_neighbor(restore_node, 0), 8)] = distribution_values[access_function(restore_node, 0)]; 
-    restore_node = lbm_access::get_node_index(HORIZONTAL_NODES - 2, 1);
-    distribution_values[access_function(lbm_access::get_neighbor(restore_node, 2), 6)] = distribution_values[access_function(restore_node, 2)]; 
-    restore_node = lbm_access::get_node_index(1, VERTICAL_NODES - 2);
-    distribution_values[access_function(lbm_access::get_neighbor(restore_node, 6), 2)] = distribution_values[access_function(restore_node, 6)]; 
-    restore_node = lbm_access::get_node_index(HORIZONTAL_NODES - 2, VERTICAL_NODES - 2);
-    distribution_values[access_function(lbm_access::get_neighbor(restore_node, 8), 0)] = distribution_values[access_function(restore_node, 8)]; 
-}
-
-std::vector<double> parallel_swap_framework::extract_corner_distributions
-(
-    const std::vector<double> &distribution_values,    
-    const access_function access_function
-)
-{
-    std::vector<double> result(4, 0);
-    result[0] = distribution_values[access_function(lbm_access::get_node_index(0,0), 8)];
-    result[1] = distribution_values[access_function(lbm_access::get_node_index(HORIZONTAL_NODES - 1, 0), 6)];
-    result[2] = distribution_values[access_function(lbm_access::get_node_index(0, VERTICAL_NODES - 1), 2)];
-    result[3] = distribution_values[access_function(lbm_access::get_node_index(HORIZONTAL_NODES - 1, VERTICAL_NODES - 1), 0)];
-    return result;
-}
-
-void parallel_swap_framework::restore_corner_distributions
-(
-    const std::vector<double> &corner_values,  
-    std::vector<double> &distribution_values,    
-    const access_function access_function
-)
-{
-    distribution_values[access_function(lbm_access::get_node_index(0,0), 8)] = corner_values[0];
-    distribution_values[access_function(lbm_access::get_node_index(HORIZONTAL_NODES - 1, 0), 6)] = corner_values[1];
-    distribution_values[access_function(lbm_access::get_node_index(0, VERTICAL_NODES - 1), 2)] = corner_values[2];
-    distribution_values[access_function(lbm_access::get_node_index(HORIZONTAL_NODES - 1, VERTICAL_NODES - 1), 0)] = corner_values[3];
 }

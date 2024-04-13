@@ -1,15 +1,24 @@
 #ifndef UTILS_HPP
 #define UTILS_HPP
+
+#include "access.hpp"
+#include "defines.hpp"
+
 #include <array>
 #include <vector>
 #include <set>
 #include <iostream>
-#include "defines.hpp"
-#include "access.hpp"
-#include "boundaries.hpp"
 #include <iomanip>
 #include <string>
 
+/**
+ * @brief This function is used to access matrices that are stored in a row-major-order container.
+ * 
+ * @param row row of the element that is to be accessed
+ * @param column column of the element that is to be accessed
+ * @param column_count number of columns stored in the data structure
+ * @return unsigned int the index of the requested element
+ */
 inline unsigned int matrix_access
 (
     unsigned int row, 
@@ -25,6 +34,7 @@ inline unsigned int matrix_access
  */
 namespace to_console
 {
+
     /**
      * @brief Allows to print out a vector representing a data layout whose column count is HORIZONTAL_NODES.
      *        Notice that the vector is assumed to represent a matrix.
@@ -122,8 +132,6 @@ namespace to_console
         }
         std::cout << std::endl;
     } 
-
-
 
     /**
      * @brief Prints the contents of a set to the console.
@@ -238,11 +246,15 @@ namespace to_console
         std::cout << std::endl;
     }
 
-
-
+    /**
+     * @brief Prints the message to the console that explains what the colors in the console output stand for.
+     * 
+     */
     inline void print_ansi_color_message()
     {
-        std::cout << "This program utilizes ANSI color codes to output colored text. If your command line does not support those codes, your output may be corrupted." << std::endl;
+        std::cout << "This program utilizes ANSI color codes to output colored text. " 
+                  << "If your command line does not support those codes, your output may be corrupted." 
+                  << std::endl;
         std::cout << "In all following prints showing the entire simulation domain, "; 
         std::cout << "the origin will be marked in \033[31mred\033[0m and the outmost coordinate will be marked in \033[34mblue\033[0m." << std::endl;
         std::cout << "Milestones will be marked in \033[33myellow\033[0m." << std::endl;
@@ -250,6 +262,10 @@ namespace to_console
         std::cout << std::endl;
     }
 
+    /**
+     * @brief This namespace contains functions that are meant for the visualization of the parallel algorithms.
+     * 
+     */
     namespace buffered
     {
 
@@ -349,8 +365,6 @@ namespace to_console
             }
             std::cout << std::endl;
         }
-
-
 
     /**
      * @brief Prints all distribution values in to the console.
@@ -474,6 +488,11 @@ namespace math_utils
     }
 }
 
+/**
+ * @brief This debug handler determines whether or not the user wishes to enter a debug mode.
+ * 
+ * @param input user input
+ */
 inline bool debug_handler(std::string &input)
 {
     std::cout << std::endl;
@@ -491,7 +510,7 @@ inline bool debug_handler(std::string &input)
             std::cout << "The following keywords are supported: " << std::endl;
             std::cout << "\tType 'debug' to enable debug mode for this program." << std::endl;
             std::cout << "\tType 'no_debug' to disable debug mode for this program." << std::endl;
-            std::cout << "\tType 'quit' to exit this program." << std::endl;
+            std::cout << "\tType anything else to exit this program." << std::endl;
             std::cout << "Please choose one of these options. Running the program without any arguments yields a non-debug run." << std::endl;
             std::cout << std::endl;
             std::cout << "Your selection: ";

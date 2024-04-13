@@ -42,7 +42,10 @@ int main(const int argc, const char** argv)
 
 
     /* Setting up example domain */
-    setup_example_domain(distribution_values_0, nodes, fluid_nodes, phase_information, swap_info, access_function, enable_debug);
+    setup_example_domain(distribution_values_0, nodes, fluid_nodes, phase_information, access_function, enable_debug);
+
+    /* Set up border swap information */
+    swap_info = bounce_back::retrieve_border_swap_info(fluid_nodes, phase_information);
 
     if(enable_debug)
     {

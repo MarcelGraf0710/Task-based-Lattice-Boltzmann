@@ -90,7 +90,7 @@ namespace bounce_back
      * @param phase_information a vector containing the phase information for every vector (true means solid)
      * @return border_swap_information see documentation of border_swap_information
      */
-    border_swap_information retrieve_fast_border_swap_info
+    border_swap_information retrieve_border_swap_info
     (
         const std::vector<unsigned int> &fluid_nodes, 
         const std::vector<bool> &phase_information

@@ -5,6 +5,7 @@
 #include "../include/collision.hpp"
 #include "../include/macroscopic.hpp"
 #include "../include/utils.hpp"
+#include "../include/parallel_framework.hpp"
 #include <hpx/format.hpp>
 #include <hpx/future.hpp>
 #include <hpx/algorithm.hpp>
@@ -38,7 +39,7 @@ sim_data_tuple two_lattice_parallel::perform_tl_stream_and_collide
     std::vector<double> densities(TOTAL_NODE_COUNT, -1);
 
     /* Boundary node treatment */
-    bounce_back::emplace_bounce_back_values_parallel(bsi, source, access_function);
+    parallel_framework::emplace_bounce_back_values(bsi, source, access_function);
 
     /* Combined stream and collision step */
     hpx::for_each
@@ -52,7 +53,7 @@ sim_data_tuple two_lattice_parallel::perform_tl_stream_and_collide
         }
     );
 
-    boundary_conditions::update_velocity_input_density_output_parallel(destination, velocities, densities, access_function);
+    two_lattice_parallel::update_velocity_input_density_output(destination, velocities, densities, access_function);
 
     sim_data_tuple result{velocities, densities};
 
@@ -234,4 +235,61 @@ void two_lattice_parallel::run
 
     to_console::print_simulation_results(result);
     std::cout << "All done, exiting simulation. " << std::endl;
+}
+
+/**
+ * @brief Updates the ghost nodes that represent inlet and outlet edges.
+ *        When updating, a velocity border condition will be considered for the input
+ *        and a density border condition for the output.
+ *        The inlet velocity is constant throughout all inlet nodes whereas the outlet nodes
+ *        all have the specified density.
+ *        The corresponding values are constants defined in "../include/"defines.hpp".
+ * 
+ * @param distribution_values a vector containing the distribution values of all nodes
+ * @param velocities a vector containing the velocities of all nodes
+ * @param densities a vector containing the densities of all nodes
+ * @param access_function the access function used to access the distribution values
+ */
+void two_lattice_parallel::update_velocity_input_density_output
+(
+    std::vector<double> &distribution_values,
+    std::vector<velocity> &velocities,
+    std::vector<double> &densities, 
+    const access_function access_function
+)
+{
+    hpx::experimental::for_loop(
+        hpx::execution::par, 0, VERTICAL_NODES - 1,
+        [&distribution_values, &velocities, &densities, access_function](int y)
+        {
+        // Update inlets
+        int current_border_node = lbm_access::get_node_index(0,y);
+        velocity v = INLET_VELOCITY;
+        double density = INLET_DENSITY;
+        std::vector<double> current_dist_vals = maxwell_boltzmann_distribution(v, density);
+        lbm_access::set_distribution_values_of
+        (
+            current_dist_vals,
+            distribution_values,
+            current_border_node,
+            access_function
+        );
+        velocities[current_border_node] = v;
+        densities[current_border_node] = density;
+
+        // Update outlets
+        current_border_node = lbm_access::get_node_index(HORIZONTAL_NODES - 1,y);
+        v = macroscopic::flow_velocity(lbm_access::get_distribution_values_of(distribution_values, lbm_access::get_neighbor(current_border_node, 3), access_function));
+        density = OUTLET_DENSITY;
+        current_dist_vals = maxwell_boltzmann_distribution(v, density);
+        lbm_access::set_distribution_values_of
+        (
+            current_dist_vals,
+            distribution_values,
+            current_border_node,
+            access_function
+        );
+        velocities[current_border_node] = v;
+        densities[current_border_node] = density;
+        });
 }
