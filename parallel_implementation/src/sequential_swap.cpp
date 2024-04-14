@@ -1,4 +1,4 @@
-#include "../include/swap_sequential.hpp"
+#include "../include/sequential_swap.hpp"
 
 #include <iostream>
 
@@ -6,7 +6,7 @@
  * @brief This vector contains all directions in which "active" streaming happens in the shape
  *        of a swap of values.
  */
-const std::vector<unsigned int> swap_sequential::ACTIVE_STREAMING_DIRECTIONS = {5,6,7,8};
+const std::vector<unsigned int> sequential_swap::ACTIVE_STREAMING_DIRECTIONS = {5,6,7,8};
 
 /**
  * @brief Retrieves an improved version of the border swap information data structure.
@@ -17,7 +17,7 @@ const std::vector<unsigned int> swap_sequential::ACTIVE_STREAMING_DIRECTIONS = {
  * @param phase_information a vector containing the phase information for every vector (true means solid)
  * @return border_swap_information see documentation of border_swap_information
  */
-border_swap_information swap_sequential::retrieve_swap_info
+border_swap_information sequential_swap::retrieve_swap_info
 (
     const std::vector<unsigned int> &fluid_nodes, 
     const std::vector<bool> &phase_information
@@ -75,7 +75,49 @@ border_swap_information swap_sequential::retrieve_swap_info
  *        The border conditions are enforced through ghost nodes.
  *        This variant of the combined streaming and collision step will print several debug comments to the console.
  */
-sim_data_tuple swap_sequential::stream_and_collide_debug
+sim_data_tuple sequential_swap::stream_and_collide
+(
+    const border_swap_information &bsi,
+    const std::vector<unsigned int> &fluid_nodes,
+    std::vector<double> &distribution_values,    
+    const access_function access_function
+)
+{
+    std::vector<velocity> velocities(TOTAL_NODE_COUNT, velocity{0,0});
+    std::vector<double> densities(TOTAL_NODE_COUNT, -1);
+    std::vector<double> current_distributions(DIRECTION_COUNT, 0);
+
+    // Border node initialization
+    for(const auto node : bsi)
+    {
+        for(auto it = node.begin() + 1; it < node.end(); ++it)
+        {
+            sequential_swap::perform_swap_step(distribution_values, node[0], access_function, *it);
+        }
+    }
+
+    for(const auto node : fluid_nodes)
+    {
+        sequential_swap::perform_swap_step(distribution_values, node, access_function, ACTIVE_STREAMING_DIRECTIONS);
+        sequential_swap::restore_order(distribution_values, node, access_function);
+        collision::perform_collision(node, distribution_values, access_function, velocities, densities);
+    }
+
+    /* Update ghost nodes */
+    boundary_conditions::update_velocity_input_density_output(distribution_values, velocities, densities, access_function);
+    sequential_swap::restore_inout_correctness(distribution_values, access_function);
+
+    sim_data_tuple result{velocities, densities};
+
+    return result;
+}
+
+/**
+ * @brief Performs the combined streaming and collision step for all fluid nodes within the simulation domain.
+ *        The border conditions are enforced through ghost nodes.
+ *        This variant of the combined streaming and collision step will print several debug comments to the console.
+ */
+sim_data_tuple sequential_swap::stream_and_collide_debug
 (
     const border_swap_information &bsi,
     const std::vector<unsigned int> &fluid_nodes,
@@ -95,7 +137,7 @@ sim_data_tuple swap_sequential::stream_and_collide_debug
     {
         for(auto it = node.begin() + 1; it < node.end(); ++it)
         {
-            swap_sequential::perform_swap_step(distribution_values, node[0], access_function, *it);
+            sequential_swap::perform_swap_step(distribution_values, node[0], access_function, *it);
         }
     }
     std::cout << "Distribution values after border node initialization: " << std::endl;
@@ -104,7 +146,7 @@ sim_data_tuple swap_sequential::stream_and_collide_debug
     // Swapping step
     for(const auto node : fluid_nodes)
     {
-        swap_sequential::perform_swap_step(distribution_values, node, access_function, ACTIVE_STREAMING_DIRECTIONS);
+        sequential_swap::perform_swap_step(distribution_values, node, access_function, ACTIVE_STREAMING_DIRECTIONS);
     }
     std::cout << "Distribution values after swap for every node: " << std::endl;
     to_console::print_distribution_values(distribution_values, access_function);
@@ -112,7 +154,7 @@ sim_data_tuple swap_sequential::stream_and_collide_debug
     // Restore precious order in here
     for(const auto node : fluid_nodes)
     {
-        swap_sequential::restore_order(distribution_values, node, access_function);
+        sequential_swap::restore_order(distribution_values, node, access_function);
     }
     std::cout << "Distribution values after ORDER has been restored for every node: " << std::endl;
     to_console::print_distribution_values(distribution_values, access_function);
@@ -128,53 +170,11 @@ sim_data_tuple swap_sequential::stream_and_collide_debug
 
     /* Update ghost nodes */
     boundary_conditions::update_velocity_input_density_output(distribution_values, velocities, densities, access_function);
-    swap_sequential::restore_inout_correctness(distribution_values, access_function);
+    sequential_swap::restore_inout_correctness(distribution_values, access_function);
 
     std::cout << "Distribution values after ghost node update: " << std::endl;
     to_console::print_distribution_values(distribution_values, access_function);
     std::cout << std::endl;
-
-    sim_data_tuple result{velocities, densities};
-
-    return result;
-}
-
-/**
- * @brief Performs the combined streaming and collision step for all fluid nodes within the simulation domain.
- *        The border conditions are enforced through ghost nodes.
- *        This variant of the combined streaming and collision step will print several debug comments to the console.
- */
-sim_data_tuple swap_sequential::stream_and_collide
-(
-    const border_swap_information &bsi,
-    const std::vector<unsigned int> &fluid_nodes,
-    std::vector<double> &distribution_values,    
-    const access_function access_function
-)
-{
-    std::vector<velocity> velocities(TOTAL_NODE_COUNT, velocity{0,0});
-    std::vector<double> densities(TOTAL_NODE_COUNT, -1);
-    std::vector<double> current_distributions(DIRECTION_COUNT, 0);
-
-    // Border node initialization
-    for(const auto node : bsi)
-    {
-        for(auto it = node.begin() + 1; it < node.end(); ++it)
-        {
-            swap_sequential::perform_swap_step(distribution_values, node[0], access_function, *it);
-        }
-    }
-
-    for(const auto node : fluid_nodes)
-    {
-        swap_sequential::perform_swap_step(distribution_values, node, access_function, ACTIVE_STREAMING_DIRECTIONS);
-        swap_sequential::restore_order(distribution_values, node, access_function);
-        collision::perform_collision(node, distribution_values, access_function, velocities, densities);
-    }
-
-    /* Update ghost nodes */
-    boundary_conditions::update_velocity_input_density_output(distribution_values, velocities, densities, access_function);
-    swap_sequential::restore_inout_correctness(distribution_values, access_function);
 
     sim_data_tuple result{velocities, densities};
 
@@ -189,7 +189,7 @@ sim_data_tuple swap_sequential::stream_and_collide
  * @param access_function the access function according to which the values are to be accessed
  * @param iterations this many iterations will be performed
  */
-void swap_sequential::run
+void sequential_swap::run
 (  
     const std::vector<unsigned int> &fluid_nodes,
     const std::vector<bool> &phase_information,       
@@ -205,12 +205,12 @@ void swap_sequential::run
         std::make_tuple(std::vector<velocity>(TOTAL_NODE_COUNT, {0,0}), std::vector<double>(TOTAL_NODE_COUNT, 0)));
 
     std::cout << "Retrieving swap info" << std::endl;
-    border_swap_information bsi = swap_sequential::retrieve_swap_info(fluid_nodes, phase_information);
+    border_swap_information bsi = sequential_swap::retrieve_swap_info(fluid_nodes, phase_information);
 
     for(auto time = 0; time < iterations; ++time)
     {
         std::cout << "\033[33mIteration " << time << ":\033[0m" << std::endl;
-        result[time] = swap_sequential::stream_and_collide(bsi, fluid_nodes, values, access_function);
+        result[time] = sequential_swap::stream_and_collide(bsi, fluid_nodes, values, access_function);
         std::cout << "\tFinished iteration " << time << std::endl;
     }
 
@@ -225,7 +225,7 @@ void swap_sequential::run
  * @param distribution_values a vector containing all distribution distribution_values
  * @param access_function the access to node values will be performed according to this access function
  */
-void swap_sequential::restore_inout_correctness
+void sequential_swap::restore_inout_correctness
 (
     std::vector<double> &distribution_values,    
     const access_function access_function

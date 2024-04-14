@@ -1,7 +1,5 @@
-#include "include/access.hpp"
+#include "include/sequential_two_lattice.hpp"
 #include "include/simulation.hpp"
-#include "include/utils.hpp"
-#include "include/two_lattice_sequential.hpp"
 
 int main(const int argc, const char** argv)
 {
@@ -76,7 +74,7 @@ int main(const int argc, const char** argv)
     std::vector<double> distribution_values_1 = distribution_values_0;
 
     /* Run simulation */
-    two_lattice_sequential::run
+    sequential_two_lattice::run
     (
         fluid_nodes, 
         swap_info, 

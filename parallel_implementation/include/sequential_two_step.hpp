@@ -1,5 +1,5 @@
-#ifndef TWO_STEP_SEQUENTIAL_HPP
-#define TWO_STEP_SEQUENTIAL_HPP
+#ifndef SEQUENTIAL_TWO_STEP_HPP
+#define SEQUENTIAL_TWO_STEP_HPP
 
 #include "access.hpp"
 #include "boundaries.hpp"
@@ -13,7 +13,7 @@
 /**
  * @brief This namespace contains all methods for the sequential two-step algorithm.
  */
-namespace two_step_sequential
+namespace sequential_two_step
 {
     /**
      * @brief Performs the streaming step for all fluid nodes within the simulation domain.

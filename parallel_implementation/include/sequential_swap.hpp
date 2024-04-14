@@ -1,5 +1,5 @@
-#ifndef TWO_SWAP_SEQUENTIAL_HPP
-#define TWO_SWAP_SEQUENTIAL_HPP
+#ifndef TWO_SEQUENTIAL_SWAP_HPP
+#define TWO_SEQUENTIAL_SWAP_HPP
 
 #include "access.hpp"
 #include "boundaries.hpp"
@@ -15,7 +15,7 @@
 /**
  * @brief This namespace contains all methods for the sequential swap algorithm.
  */
-namespace swap_sequential
+namespace sequential_swap
 {
     /**
      * @brief This vector contains all directions in which "active" streaming happens in the shape

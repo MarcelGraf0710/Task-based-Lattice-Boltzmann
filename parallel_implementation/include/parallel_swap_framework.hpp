@@ -6,7 +6,7 @@
 #include "collision.hpp"
 #include "defines.hpp"
 #include "parallel_framework.hpp"
-#include "swap_sequential.hpp"
+#include "sequential_swap.hpp"
 #include "utils.hpp"
 
 #include <vector>

@@ -1,4 +1,4 @@
-#include "../include/two_step_sequential.hpp"
+#include "../include/sequential_two_step.hpp"
 
 #include <iostream>
 
@@ -10,7 +10,7 @@
  * @param distribution_values a vector containing all distribution values
  * @param access_function the access to node values will be performed according to this access function.
  */
-void two_step_sequential::perform_stream
+void sequential_two_step::perform_stream
 (
     const std::vector<unsigned int> &fluid_nodes, 
     std::vector<double> &distribution_values, 
@@ -46,7 +46,7 @@ void two_step_sequential::perform_stream
  * @param access_function the access to node values will be performed according to this access function.
  * @return sim_data_tuple see documentation of sim_data_tuple
  */
-sim_data_tuple two_step_sequential::stream_and_collide
+sim_data_tuple sequential_two_step::stream_and_collide
 (
     const std::vector<unsigned int> &fluid_nodes,
     const border_swap_information &bsi,
@@ -58,7 +58,7 @@ sim_data_tuple two_step_sequential::stream_and_collide
     std::vector<double> densities(TOTAL_NODE_COUNT, -1);
 
     /* Streaming */
-    two_step_sequential::perform_stream(fluid_nodes, distribution_values, access_function);
+    sequential_two_step::perform_stream(fluid_nodes, distribution_values, access_function);
 
     /* Perform bounce-back using ghost nodes */
     bounce_back::perform_boundary_update(bsi, distribution_values, access_function);
@@ -96,7 +96,7 @@ sim_data_tuple two_step_sequential::stream_and_collide
  * @param access_function the access to node values will be performed according to this access function.
  * @return sim_data_tuple see documentation of sim_data_tuple
  */
-sim_data_tuple two_step_sequential::stream_and_collide_debug
+sim_data_tuple sequential_two_step::stream_and_collide_debug
 (
     const std::vector<unsigned int> &fluid_nodes,
     const border_swap_information &bsi,
@@ -112,7 +112,7 @@ sim_data_tuple two_step_sequential::stream_and_collide_debug
     std::vector<double> densities(TOTAL_NODE_COUNT, -1);
 
     /* Streaming */
-    two_step_sequential::perform_stream(fluid_nodes, distribution_values, access_function);
+    sequential_two_step::perform_stream(fluid_nodes, distribution_values, access_function);
     std::cout << "\t Distribution values after streaming:" << std::endl;
     to_console::print_distribution_values(distribution_values, access_function);
     std::cout << std::endl;
@@ -164,7 +164,7 @@ sim_data_tuple two_step_sequential::stream_and_collide_debug
  * @param access_function the access function according to which the values are to be accessed
  * @param iterations this many iterations will be performed
  */
-void two_step_sequential::run
+void sequential_two_step::run
 (  
     std::vector<unsigned int> &fluid_nodes,       
     std::vector<double> &distribution_values, 
@@ -182,7 +182,7 @@ void two_step_sequential::run
     for(auto time = 0; time < iterations; ++time)
     {
         std::cout << "\033[33mIteration " << time << ":\033[0m" << std::endl;
-        result[time] = two_step_sequential::stream_and_collide
+        result[time] = sequential_two_step::stream_and_collide
         (
             fluid_nodes, 
             bsi, 

@@ -73,7 +73,7 @@ int main(const int argc, const char** argv)
     std::vector<double> distribution_values_1 = distribution_values_0;
 
     /* Run simulation */
-    two_lattice_sequential::run
+    sequential_two_lattice::run
     (
         fluid_nodes, 
         swap_info, 

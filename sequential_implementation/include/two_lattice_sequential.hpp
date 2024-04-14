@@ -10,7 +10,7 @@
 #include "utils.hpp"
 #include "boundaries.hpp"
 
-namespace two_lattice_sequential
+namespace sequential_two_lattice
 {
     /**
      * @brief Performs the combined streaming and collision step for all fluid nodes within the simulation domain.

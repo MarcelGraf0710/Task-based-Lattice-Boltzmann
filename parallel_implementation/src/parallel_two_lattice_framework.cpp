@@ -117,7 +117,7 @@ sim_data_tuple parallel_two_lattice_framework::stream_and_collide_debug
         /* Streaming step */
         for(auto it = std::get<0>(bounds); it <= std::get<1>(bounds); ++it)
         {
-            two_lattice_sequential::tl_stream(
+            sequential_two_lattice::tl_stream(
                 source, 
                 destination, 
                 access_function, 
@@ -224,7 +224,7 @@ void parallel_two_lattice_framework::stream_and_collide_helper
     for(auto it = std::get<0>(bounds); it <= std::get<1>(bounds); ++it)
     {
         /* Streaming step */
-        two_lattice_sequential::tl_stream(
+        sequential_two_lattice::tl_stream(
             source, 
             destination, 
             access_function, 

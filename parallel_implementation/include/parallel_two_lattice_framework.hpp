@@ -8,7 +8,7 @@
 #include "utils.hpp"
 #include "boundaries.hpp"
 #include "parallel_framework.hpp"
-#include "two_lattice_sequential.hpp"
+#include "sequential_two_lattice.hpp"
 #include "utils.hpp"
 
 /**

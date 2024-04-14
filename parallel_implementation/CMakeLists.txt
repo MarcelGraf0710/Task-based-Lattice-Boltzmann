@@ -13,10 +13,10 @@ set(HEADER_FILES ### General
                  include/utils.hpp
                  ### Sequential implementations
                  include/simulation.hpp
-                 include/two_lattice_sequential.hpp
-                 include/two_step_sequential.hpp
-                 include/swap_sequential.hpp
+                 include/sequential_swap.hpp
                  include/sequential_shift.hpp
+                 include/sequential_two_lattice.hpp
+                 include/sequential_two_step.hpp
                  ### Parallel implementations
                 #  include/parallel_framework.hpp
                 #  include/two_lattice_parallel.hpp
@@ -35,9 +35,9 @@ set(SOURCE_FILES ###General
                  ### Sequential implementations
                  src/simulation.cpp
                  src/sequential_shift.cpp
-                 src/two_lattice_sequential.cpp
-                 src/swap_sequential.cpp
-                 src/two_step_sequential.cpp
+                 src/sequential_swap.cpp
+                 src/sequential_two_lattice.cpp
+                 src/sequential_two_step.cpp
                  ### Parallel implementations
                 #  src/parallel_framework.cpp
                 #  src/two_lattice_parallel.cpp
@@ -49,7 +49,7 @@ set(SOURCE_FILES ###General
 
 ### Two-lattice algorithms
 
-# add_executable(sequential_two_lattice main_two_lattice.cpp ${SOURCE_FILES})
+add_executable(sequential_two_lattice main_two_lattice.cpp ${SOURCE_FILES})
 
 # add_executable(parallel_two_lattice main_two_lattice_framework.cpp ${SOURCE_FILES})
 # target_link_libraries(parallel_two_lattice HPX::hpx HPX::wrap_main)
@@ -70,7 +70,7 @@ set(SOURCE_FILES ###General
 
 ### Shift algorithms
 
-add_executable(sequential_shift main_shift.cpp ${SOURCE_FILES})
+# add_executable(sequential_shift main_shift.cpp ${SOURCE_FILES})
 
 # add_executable(parallel_shift main_shift_framework.cpp ${SOURCE_FILES})
 # target_link_libraries(parallel_shift HPX::hpx HPX::wrap_main HPX::iostreams_component)

@@ -1,7 +1,7 @@
 #include "include/access.hpp"
 #include "include/simulation.hpp"
 #include "include/utils.hpp"
-#include "include/two_lattice_sequential.hpp"
+#include "include/sequential_two_lattice.hpp"
 #include <hpx/hpx_init.hpp>
 
 int hpx_main()
@@ -43,7 +43,9 @@ int hpx_main()
 
 
     /* Setting up example domain */
-    setup_example_domain(distribution_values_0, nodes, fluid_nodes, phase_information, swap_info, access_function, enable_debug);
+    setup_example_domain(distribution_values_0, nodes, fluid_nodes, phase_information, access_function, enable_debug);
+
+    swap_info = bounce_back::retrieve_border_swap_info(fluid_nodes, phase_information);
 
     if(enable_debug)
     {
@@ -74,7 +76,7 @@ int hpx_main()
     std::vector<double> distribution_values_1 = distribution_values_0;
 
     /* Run simulation */
-    two_lattice_sequential::run
+    sequential_two_lattice::run
     (
         fluid_nodes, 
         swap_info, 

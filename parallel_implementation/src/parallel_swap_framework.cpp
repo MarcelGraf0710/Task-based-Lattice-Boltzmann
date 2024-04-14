@@ -83,7 +83,7 @@ sim_data_tuple parallel_swap_framework::perform_swap_stream_and_collide_debug
     {
         for(auto it = node.begin() + 1; it < node.end(); ++it)
         {
-            swap_sequential::perform_swap_step(distribution_values, node[0], access_function, *it);
+            sequential_swap::perform_swap_step(distribution_values, node[0], access_function, *it);
         }
     }
     std::cout << "Distribution values after border node initialization: " << std::endl;
@@ -103,7 +103,7 @@ sim_data_tuple parallel_swap_framework::perform_swap_stream_and_collide_debug
     {
         for(auto node = std::get<0>(fluid_nodes[subdomain]); node <= std::get<1>(fluid_nodes[subdomain]); ++node)
         {
-            swap_sequential::perform_swap_step(distribution_values, *node, access_function, swap_sequential::ACTIVE_STREAMING_DIRECTIONS);
+            sequential_swap::perform_swap_step(distribution_values, *node, access_function, sequential_swap::ACTIVE_STREAMING_DIRECTIONS);
         }
     }
 
@@ -116,7 +116,7 @@ sim_data_tuple parallel_swap_framework::perform_swap_stream_and_collide_debug
     {
         for(auto node = std::get<0>(fluid_nodes[subdomain]); node <= std::get<1>(fluid_nodes[subdomain]); ++node)
         {
-            swap_sequential::restore_order(distribution_values, *node, access_function);
+            sequential_swap::restore_order(distribution_values, *node, access_function);
         }
     }
 
@@ -138,7 +138,7 @@ sim_data_tuple parallel_swap_framework::perform_swap_stream_and_collide_debug
     to_console::buffered::print_distribution_values(distribution_values, access_function);
     std::cout << std::endl;
 
-    swap_sequential::restore_inout_correctness(distribution_values, access_function);
+    sequential_swap::restore_inout_correctness(distribution_values, access_function);
 
     /* Buffer correction */
     hpx::for_each(
@@ -193,7 +193,7 @@ sim_data_tuple parallel_swap_framework::parallel_swap_stream_and_collide
         {
         for(auto it = node.begin() + 1; it < node.end(); ++it)
             {
-                swap_sequential::perform_swap_step(distribution_values, node[0], access_function, *it);
+                sequential_swap::perform_swap_step(distribution_values, node[0], access_function, *it);
             }
         });
 
@@ -212,10 +212,10 @@ sim_data_tuple parallel_swap_framework::parallel_swap_stream_and_collide
             for(auto node = std::get<0>(fluid_nodes[subdomain]); node <= std::get<1>(fluid_nodes[subdomain]); ++node)
             {
                 // Swapping step
-                swap_sequential::perform_swap_step(distribution_values, *node, access_function, swap_sequential::ACTIVE_STREAMING_DIRECTIONS);
+                sequential_swap::perform_swap_step(distribution_values, *node, access_function, sequential_swap::ACTIVE_STREAMING_DIRECTIONS);
 
                 // Restore precious order in here
-                swap_sequential::restore_order(distribution_values, *node, access_function);
+                sequential_swap::restore_order(distribution_values, *node, access_function);
 
                 /* Perform collision for all fluid nodes */
                 parallel_framework::perform_collision(*node, distribution_values, access_function, velocities, densities);
@@ -225,7 +225,7 @@ sim_data_tuple parallel_swap_framework::parallel_swap_stream_and_collide
     /* Update ghost nodes */
     parallel_framework::update_velocity_input_density_output(y_values, distribution_values, velocities, densities, access_function);
 
-    swap_sequential::restore_inout_correctness(distribution_values, access_function);
+    sequential_swap::restore_inout_correctness(distribution_values, access_function);
 
     /* Buffer correction */
     hpx::for_each(

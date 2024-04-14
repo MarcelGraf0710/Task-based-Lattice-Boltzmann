@@ -20,7 +20,7 @@
  * @param access_function the function used to access the distribution values
  * @return see documentation of sim_data_tuple
  */
-sim_data_tuple two_lattice_sequential::perform_tl_stream_and_collide
+sim_data_tuple sequential_two_lattice::perform_tl_stream_and_collide
 (
     const std::vector<unsigned int> &fluid_nodes,
     const border_swap_information &bsi,
@@ -43,7 +43,7 @@ sim_data_tuple two_lattice_sequential::perform_tl_stream_and_collide
     /* Combined stream and collision step */
     for(const auto fluid_node : fluid_nodes)
     {
-        two_lattice_sequential::tl_stream(
+        sequential_two_lattice::tl_stream(
             source, 
             destination, 
             access_function, 
@@ -58,7 +58,7 @@ sim_data_tuple two_lattice_sequential::perform_tl_stream_and_collide
         current_density = macroscopic::density(current_distributions);
         densities[fluid_node] = current_density;
         
-        two_lattice_sequential::tl_collision(
+        sequential_two_lattice::tl_collision(
             destination, 
             fluid_node, 
             current_distributions,
@@ -86,7 +86,7 @@ sim_data_tuple two_lattice_sequential::perform_tl_stream_and_collide
  * @param access_function the function used to access the distribution values
  * @return see documentation of sim_data_tuple
  */
-sim_data_tuple two_lattice_sequential::perform_tl_stream_and_collide_debug
+sim_data_tuple sequential_two_lattice::perform_tl_stream_and_collide_debug
 (
     const std::vector<unsigned int> &fluid_nodes,
     const border_swap_information &bsi,
@@ -119,7 +119,7 @@ sim_data_tuple two_lattice_sequential::perform_tl_stream_and_collide_debug
     /* Streaming step */
     for(const auto fluid_node : fluid_nodes)
     {
-        two_lattice_sequential::tl_stream(
+        sequential_two_lattice::tl_stream(
             source, 
             destination, 
             access_function, 
@@ -140,7 +140,7 @@ sim_data_tuple two_lattice_sequential::perform_tl_stream_and_collide_debug
         current_density = macroscopic::density(current_distributions);
         densities[fluid_node] = current_density;
         
-        two_lattice_sequential::tl_collision(
+        sequential_two_lattice::tl_collision(
             destination, 
             fluid_node, 
             current_distributions,
@@ -170,7 +170,7 @@ sim_data_tuple two_lattice_sequential::perform_tl_stream_and_collide_debug
  * @param access_function the access function according to which distribution values are to be accessed
  * @param iterations this many iterations will be performed
  */
-void two_lattice_sequential::run
+void sequential_two_lattice::run
 (  
     const std::vector<unsigned int> &fluid_nodes,       
     const border_swap_information &boundary_nodes,
@@ -192,7 +192,7 @@ void two_lattice_sequential::run
     for(auto time = 0; time < iterations; ++time)
     {
         std::cout << "\033[33mIteration " << time << ":\033[0m" << std::endl;
-        result[time] = two_lattice_sequential::perform_tl_stream_and_collide
+        result[time] = sequential_two_lattice::perform_tl_stream_and_collide
         (
             fluid_nodes, 
             boundary_nodes, 
@@ -215,7 +215,7 @@ void two_lattice_sequential::run
  * @param current_border_info an entry of a border_swap_information object
  * @return a set containing all remaining streaming directions
  */
-std::set<unsigned int> two_lattice_sequential::determine_streaming_directions
+std::set<unsigned int> sequential_two_lattice::determine_streaming_directions
 (
     const std::vector<unsigned int> &current_border_info
 )

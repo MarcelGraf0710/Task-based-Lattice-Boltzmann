@@ -1,9 +1,7 @@
-#include <iostream>
-#include "include/access.hpp"
+#include "include/sequential_swap.hpp"
 #include "include/simulation.hpp"
-#include "include/utils.hpp"
-#include "include/swap_sequential.hpp"
 
+#include <iostream>
 
 int main(const int argc, const char** argv)
 {
@@ -65,5 +63,5 @@ int main(const int argc, const char** argv)
     }
 
     /* Run simulation */
-    swap_sequential::run(fluid_nodes, phase_information, distribution_values, access_function, TIME_STEPS);
+    sequential_swap::run(fluid_nodes, phase_information, distribution_values, access_function, TIME_STEPS);
 }

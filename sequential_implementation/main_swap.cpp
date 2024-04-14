@@ -65,5 +65,5 @@ int main(const int argc, const char** argv)
     }
 
     /* Run simulation */
-    swap_sequential::run(fluid_nodes, phase_information, distribution_values, access_function, TIME_STEPS);
+    sequential_swap::run(fluid_nodes, phase_information, distribution_values, access_function, TIME_STEPS);
 }

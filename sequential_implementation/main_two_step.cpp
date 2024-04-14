@@ -71,7 +71,7 @@ int main(const int argc, const char** argv)
     }
 
     /* Run simulation */
-    two_step_sequential::run
+    sequential_two_step::run
     (
         fluid_nodes, 
         distribution_values, 

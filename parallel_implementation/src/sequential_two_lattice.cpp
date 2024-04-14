@@ -1,4 +1,4 @@
-#include "../include/two_lattice_sequential.hpp"
+#include "../include/sequential_two_lattice.hpp"
 
 #include <iostream>
 
@@ -13,7 +13,7 @@
  * @param access_function the function used to access the distribution values
  * @return see documentation of sim_data_tuple
  */
-sim_data_tuple two_lattice_sequential::stream_and_collide
+sim_data_tuple sequential_two_lattice::stream_and_collide
 (
     const std::vector<unsigned int> &fluid_nodes,
     const border_swap_information &bsi,
@@ -31,7 +31,7 @@ sim_data_tuple two_lattice_sequential::stream_and_collide
     /* Combined stream and collision step */
     for(const auto fluid_node : fluid_nodes)
     {
-        two_lattice_sequential::tl_stream(
+        sequential_two_lattice::tl_stream(
             source, 
             destination, 
             access_function, 
@@ -64,7 +64,7 @@ sim_data_tuple two_lattice_sequential::stream_and_collide
  * @param access_function the function used to access the distribution values
  * @return see documentation of sim_data_tuple
  */
-sim_data_tuple two_lattice_sequential::stream_and_collide_debug
+sim_data_tuple sequential_two_lattice::stream_and_collide_debug
 (
     const std::vector<unsigned int> &fluid_nodes,
     const border_swap_information &bsi,
@@ -92,7 +92,7 @@ sim_data_tuple two_lattice_sequential::stream_and_collide_debug
     /* Streaming step */
     for(const auto fluid_node : fluid_nodes)
     {
-        two_lattice_sequential::tl_stream(
+        sequential_two_lattice::tl_stream(
             source, 
             destination, 
             access_function, 
@@ -133,7 +133,7 @@ sim_data_tuple two_lattice_sequential::stream_and_collide_debug
  * @param access_function the access function according to which distribution values are to be accessed
  * @param iterations this many iterations will be performed
  */
-void two_lattice_sequential::run
+void sequential_two_lattice::run
 (  
     const std::vector<unsigned int> &fluid_nodes,       
     const border_swap_information &boundary_nodes,
@@ -153,7 +153,7 @@ void two_lattice_sequential::run
     for(auto time = 0; time < iterations; ++time)
     {
         std::cout << "\033[33mIteration " << time << ":\033[0m" << std::endl;
-        result[time] = two_lattice_sequential::stream_and_collide
+        result[time] = sequential_two_lattice::stream_and_collide
         (
             fluid_nodes, 
             boundary_nodes, 

@@ -1,9 +1,7 @@
-#include <iostream>
-#include "include/access.hpp"
+#include "include/sequential_two_step.hpp"
 #include "include/simulation.hpp"
-#include "include/utils.hpp"
-#include "include/two_step_sequential.hpp"
 
+#include <iostream>
 
 int main(const int argc, const char** argv)
 {
@@ -74,7 +72,7 @@ int main(const int argc, const char** argv)
     }
 
     /* Run simulation */
-    two_step_sequential::run
+    sequential_two_step::run
     (
         fluid_nodes, 
         distribution_values, 

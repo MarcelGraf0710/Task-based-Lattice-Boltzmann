@@ -5,7 +5,7 @@
 #include "defines.hpp"
 #include <set>
 
-namespace two_step_sequential
+namespace sequential_two_step
 {
     /**
      * @brief Performs the streaming step for all fluid nodes within the simulation domain.

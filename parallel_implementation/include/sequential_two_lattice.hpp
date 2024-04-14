@@ -1,5 +1,5 @@
-#ifndef TWO_LATTICE_SEQUENTIAL_HPP
-#define TWO_LATTICE_SEQUENTIAL_HPP
+#ifndef SEQUENTIAL_TWO_LATTICE_HPP
+#define SEQUENTIAL_TWO_LATTICE_HPP
 
 #include "access.hpp"
 #include "boundaries.hpp"
@@ -13,7 +13,7 @@
 /**
  * @brief This namespace contains all methods for the sequential two-lattice algorithm.
  */
-namespace two_lattice_sequential
+namespace sequential_two_lattice
 {
     /**
      * @brief Performs the combined streaming and collision step for all fluid nodes within the simulation domain.

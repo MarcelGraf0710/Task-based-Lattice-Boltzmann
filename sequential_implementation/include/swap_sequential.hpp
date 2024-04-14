@@ -15,7 +15,7 @@
  */
 typedef std::vector<std::tuple<unsigned int, std::set<unsigned int>>> swap_information;
 
-namespace swap_sequential
+namespace sequential_swap
 {
     extern const std::vector<unsigned int> ACTIVE_STREAMING_DIRECTIONS;
 

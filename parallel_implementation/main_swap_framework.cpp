@@ -38,7 +38,7 @@ int hpx_main()
         subdomain_fluid_bounds.push_back(parallel_framework::get_subdomain_fluid_node_pointers(subdomain, fluid_nodes));
     }
 
-    swap_info = swap_sequential::retrieve_swap_info(fluid_nodes, phase_information);
+    swap_info = sequential_swap::retrieve_swap_info(fluid_nodes, phase_information);
 
     /* Illustration of the phase information */
     std::cout << "Illustration of lattice: " << std::endl;
