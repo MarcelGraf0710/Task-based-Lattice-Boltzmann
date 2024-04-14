@@ -49,28 +49,28 @@ set(SOURCE_FILES ###General
 
 ### Two-lattice algorithms
 
-add_executable(sequential_two_lattice main_two_lattice.cpp ${SOURCE_FILES})
+add_executable(sequential_two_lattice sequential_two_lattice_main.cpp ${SOURCE_FILES})
 
 # add_executable(parallel_two_lattice main_two_lattice_framework.cpp ${SOURCE_FILES})
 # target_link_libraries(parallel_two_lattice HPX::hpx HPX::wrap_main)
 
 ### Two-step algorithms
 
-# add_executable(sequential_two_step main_two_step.cpp ${SOURCE_FILES})
+add_executable(sequential_two_step sequential_two_step_main.cpp ${SOURCE_FILES})
 
 # add_executable(parallel_two_step main_two_step_framework.cpp ${SOURCE_FILES})
 # target_link_libraries(parallel_two_step HPX::hpx HPX::wrap_main HPX::iostreams_component)
 
 ### Swap algorithms
 
-# add_executable(sequential_swap main_swap.cpp ${SOURCE_FILES})
+add_executable(sequential_swap sequential_swap_main.cpp ${SOURCE_FILES})
 
 # add_executable(parallel_swap main_swap_framework.cpp ${SOURCE_FILES})
 # target_link_libraries(parallel_swap HPX::hpx HPX::wrap_main)
 
 ### Shift algorithms
 
-# add_executable(sequential_shift main_shift.cpp ${SOURCE_FILES})
+add_executable(sequential_shift sequential_shift_main.cpp ${SOURCE_FILES})
 
 # add_executable(parallel_shift main_shift_framework.cpp ${SOURCE_FILES})
 # target_link_libraries(parallel_shift HPX::hpx HPX::wrap_main HPX::iostreams_component)

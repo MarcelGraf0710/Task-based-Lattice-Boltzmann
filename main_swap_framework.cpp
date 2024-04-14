@@ -3,7 +3,7 @@
 #include "include/utils.hpp"
 #include "include/parallel_swap_framework.hpp"
 #include "include/parallel_framework.hpp"
-#include "include/swap_sequential.hpp"
+#include "include/sequential_swap.hpp"
 #include <hpx/hpx_init.hpp>
 
 int hpx_main()
