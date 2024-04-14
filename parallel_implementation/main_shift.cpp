@@ -1,8 +1,6 @@
+#include "include/sequential_shift.hpp"
+
 #include <iostream>
-#include "include/access.hpp"
-#include "include/simulation.hpp"
-#include "include/utils.hpp"
-#include "include/shift_sequential.hpp"
 
 int main(const int argc, const char** argv)
 {
@@ -29,7 +27,7 @@ int main(const int argc, const char** argv)
     std::vector<unsigned int> fluid_nodes(0, TOTAL_NODE_COUNT);
     std::vector<bool> phase_information(false, TOTAL_NODE_COUNT);
     border_swap_information swap_info;
-    access_function access_function = lbm_access::stream;
+    access_function access_function = sequential_shift::access_functions::collision;
     
     if(enable_debug)
     {
@@ -38,7 +36,10 @@ int main(const int argc, const char** argv)
     }
 
     /* Setting up example domain */
-    shift_sequential::setup_example_domain(distribution_values, nodes, fluid_nodes, phase_information, swap_info, access_function);
+    sequential_shift::setup_example_domain(distribution_values, nodes, fluid_nodes, phase_information, access_function);
+
+    /* Set up border swap information */
+    swap_info = bounce_back::retrieve_border_swap_info(fluid_nodes, phase_information);
 
     if(enable_debug)
     {
@@ -67,5 +68,5 @@ int main(const int argc, const char** argv)
     }
 
     /* Run simulation */
-    shift_sequential::run(fluid_nodes, distribution_values, swap_info, access_function, TIME_STEPS);
+    sequential_shift::run(fluid_nodes, distribution_values, swap_info, access_function, TIME_STEPS);
 }

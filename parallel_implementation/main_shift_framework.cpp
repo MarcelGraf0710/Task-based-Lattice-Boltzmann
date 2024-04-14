@@ -1,7 +1,7 @@
 #include "include/access.hpp"
 #include "include/simulation.hpp"
 #include "include/utils.hpp"
-#include "include/shift_sequential.hpp"
+#include "include/sequential_shift.hpp"
 #include "include/parallel_shift_framework.hpp"
 #include "include/parallel_framework.hpp"
 #include <hpx/hpx_init.hpp>

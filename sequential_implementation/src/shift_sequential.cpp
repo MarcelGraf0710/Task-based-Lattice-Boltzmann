@@ -18,7 +18,7 @@
  * @param phase_information a vector containing the phase information for every vector (true means solid)
  * @return border_swap_information see documentation of border_swap_information
  */
-border_swap_information shift_sequential::retrieve_fast_border_swap_info
+border_swap_information sequential_shift::retrieve_fast_border_swap_info
 (
     const std::vector<unsigned int> &fluid_nodes, 
     const std::vector<bool> &phase_information
@@ -50,7 +50,7 @@ border_swap_information shift_sequential::retrieve_fast_border_swap_info
  * @param distribution_values 
  * @param access_function 
  */
-void shift_sequential::emplace_bounce_back_values
+void sequential_shift::emplace_bounce_back_values
 (
     const border_swap_information &bsi,
     std::vector<double> &distribution_values,
@@ -85,7 +85,7 @@ void shift_sequential::emplace_bounce_back_values
  */
 
 
-sim_data_tuple shift_sequential::perform_shift_stream_and_collide
+sim_data_tuple sequential_shift::perform_shift_stream_and_collide
 (
     std::vector<double> &distribution_values, 
     const std::vector<unsigned int> &fluid_nodes,
@@ -111,7 +111,7 @@ sim_data_tuple shift_sequential::perform_shift_stream_and_collide
         // Emplace bounce-back values
         for(const auto& border_node : bsi)
         {
-            shift_sequential::emplace_bounce_back_values(bsi, distribution_values, access_function, read_offset);
+            sequential_shift::emplace_bounce_back_values(bsi, distribution_values, access_function, read_offset);
         }
 
         
@@ -119,7 +119,7 @@ sim_data_tuple shift_sequential::perform_shift_stream_and_collide
         {
             // Streaming
             current_node = fluid_nodes[i];
-            shift_sequential::shift_stream(distribution_values, access_function, current_node, read_offset, write_offset);
+            sequential_shift::shift_stream(distribution_values, access_function, current_node, read_offset, write_offset);
 
             // Collision
             current_node = fluid_nodes[i];
@@ -138,14 +138,14 @@ sim_data_tuple shift_sequential::perform_shift_stream_and_collide
         // Emplace bounce-back values
         for(const auto& border_node : bsi)
         {
-            shift_sequential::emplace_bounce_back_values(bsi, distribution_values, access_function, read_offset);
+            sequential_shift::emplace_bounce_back_values(bsi, distribution_values, access_function, read_offset);
         }
 
         for(int i = 0; i < fluid_nodes.size(); ++i)
         {
             // Streaming
             current_node = fluid_nodes[i];
-            shift_sequential::shift_stream(distribution_values, access_function, current_node, read_offset, write_offset);
+            sequential_shift::shift_stream(distribution_values, access_function, current_node, read_offset, write_offset);
 
             // Collision
             current_node = fluid_nodes[i];
@@ -158,7 +158,7 @@ sim_data_tuple shift_sequential::perform_shift_stream_and_collide
     }
 
     /* Update ghost nodes OFFSET ISSUE?*/
-    shift_sequential::update_velocity_input_density_output(distribution_values, access_function, write_offset);
+    sequential_shift::update_velocity_input_density_output(distribution_values, access_function, write_offset);
     
     unsigned int update_node = 0;
     for(auto x = 0; x < HORIZONTAL_NODES; x = x + HORIZONTAL_NODES - 1)
@@ -189,7 +189,7 @@ sim_data_tuple shift_sequential::perform_shift_stream_and_collide
  */
 
 
-sim_data_tuple shift_sequential::perform_shift_stream_and_collide_debug
+sim_data_tuple sequential_shift::perform_shift_stream_and_collide_debug
 (
     std::vector<double> &distribution_values, 
     const std::vector<unsigned int> &fluid_nodes,
@@ -222,7 +222,7 @@ sim_data_tuple shift_sequential::perform_shift_stream_and_collide_debug
         // Emplace bounce-back values
         for(const auto& border_node : bsi)
         {
-            shift_sequential::emplace_bounce_back_values(bsi, distribution_values, access_function, read_offset);
+            sequential_shift::emplace_bounce_back_values(bsi, distribution_values, access_function, read_offset);
         }
 
         std::cout << "Distribution values after emplace bounce-back: " << std::endl;
@@ -253,7 +253,7 @@ sim_data_tuple shift_sequential::perform_shift_stream_and_collide_debug
         for(int i = fluid_nodes.size() - 1; i >= 0; i--)
         {
             current_node = fluid_nodes[i];
-            shift_sequential::shift_stream(distribution_values, access_function, current_node, read_offset, write_offset);
+            sequential_shift::shift_stream(distribution_values, access_function, current_node, read_offset, write_offset);
         }
 
         std::cout << "Distribution values after streaming (properly shifted): " << std::endl;
@@ -306,7 +306,7 @@ sim_data_tuple shift_sequential::perform_shift_stream_and_collide_debug
         // Emplace bounce-back values
         for(const auto& border_node : bsi)
         {
-            shift_sequential::emplace_bounce_back_values(bsi, distribution_values, access_function, read_offset);
+            sequential_shift::emplace_bounce_back_values(bsi, distribution_values, access_function, read_offset);
         }
 
         std::cout << "Distribution values after emplace bounce-back: " << std::endl;
@@ -337,7 +337,7 @@ sim_data_tuple shift_sequential::perform_shift_stream_and_collide_debug
         for(int i = 0; i < fluid_nodes.size(); ++i)
         {
             current_node = fluid_nodes[i];
-            shift_sequential::shift_stream(distribution_values, access_function, current_node, read_offset, write_offset);
+            sequential_shift::shift_stream(distribution_values, access_function, current_node, read_offset, write_offset);
         }
 
         std::cout << "Distribution values after streaming (properly shifted): " << std::endl;
@@ -377,7 +377,7 @@ sim_data_tuple shift_sequential::perform_shift_stream_and_collide_debug
     }
 
     /* Update ghost nodes OFFSET ISSUE?*/
-    shift_sequential::update_velocity_input_density_output(distribution_values, access_function, write_offset);
+    sequential_shift::update_velocity_input_density_output(distribution_values, access_function, write_offset);
     
     std::cout << "Distribution values after inout update: " << std::endl;
     debug_distributions = {distribution_values.begin() + write_offset * DIRECTION_COUNT, distribution_values.end() - (SHIFT_OFFSET - write_offset) * DIRECTION_COUNT};
@@ -410,7 +410,7 @@ sim_data_tuple shift_sequential::perform_shift_stream_and_collide_debug
  * @param distribution_values a vector containing the distribution values of all nodes
  * @param access_function the access function used to access the distribution values
  */
-void shift_sequential::update_velocity_input_density_output
+void sequential_shift::update_velocity_input_density_output
 (
     std::vector<double> &distribution_values, 
     const access_function access_function,
@@ -491,7 +491,7 @@ void shift_sequential::update_velocity_input_density_output
  * @param access_function the access function according to which the values are to be accessed
  * @param iterations this many iterations will be performed
  */
-void shift_sequential::run
+void sequential_shift::run
 (  
     std::vector<unsigned int> &fluid_nodes,       
     std::vector<double> &values, 
@@ -511,7 +511,7 @@ void shift_sequential::run
     for(auto time = 0; time < iterations; ++time)
     {
         std::cout << "\033[33mIteration " << time << ":\033[0m" << std::endl;
-        result[time] = shift_sequential::perform_shift_stream_and_collide(values, fluid_nodes, bsi, access_function, time);
+        result[time] = sequential_shift::perform_shift_stream_and_collide(values, fluid_nodes, bsi, access_function, time);
         std::cout << "Finished iteration " << time << std::endl;
     }
 
@@ -557,7 +557,7 @@ void shift_sequential::run
  * @param phase_information a vector containing the phase information of all nodes where true means solid.
  * @param access_function the domain will be prepared for access with this access function.
  */
-void shift_sequential::setup_example_domain
+void sequential_shift::setup_example_domain
 (
     std::vector<double> &distribution_values,
     std::vector<unsigned int> &nodes,
@@ -614,5 +614,5 @@ void shift_sequential::setup_example_domain
     }
 
     /* Set up border swap information */
-    swap_info = shift_sequential::retrieve_fast_border_swap_info(fluid_nodes, phase_information);
+    swap_info = sequential_shift::retrieve_fast_border_swap_info(fluid_nodes, phase_information);
 }

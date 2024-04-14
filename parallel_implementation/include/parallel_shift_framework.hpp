@@ -10,7 +10,7 @@
 #include "defines.hpp"
 #include "macroscopic.hpp"
 #include "parallel_framework.hpp"
-#include "shift_sequential.hpp"
+#include "sequential_shift.hpp"
 
 #define SHIFT_DISTRIBUTION_VALUE_COUNT (TOTAL_NODE_COUNT + (BUFFER_COUNT) * (HORIZONTAL_NODES) + (SUBDOMAIN_COUNT) * (SHIFT_OFFSET))
 

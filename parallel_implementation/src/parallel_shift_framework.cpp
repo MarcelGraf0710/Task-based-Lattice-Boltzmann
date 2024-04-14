@@ -125,7 +125,7 @@ sim_data_tuple parallel_shift_framework::shift_stream_and_collide_debug
             unsigned int subdomain_offset = subdomain * (SHIFT_OFFSET);
             for(auto it = std::get<1>(fluid_nodes[subdomain]); it >= std::get<0>(fluid_nodes[subdomain]); --it)
             {
-                shift_sequential::shift_stream(distribution_values, access_function, *it, read_offset + subdomain_offset, write_offset + subdomain_offset);
+                sequential_shift::shift_stream(distribution_values, access_function, *it, read_offset + subdomain_offset, write_offset + subdomain_offset);
             }
         }
 
@@ -182,7 +182,7 @@ sim_data_tuple parallel_shift_framework::shift_stream_and_collide_debug
             unsigned int subdomain_offset = subdomain * (SHIFT_OFFSET);
             for(auto it = std::get<0>(fluid_nodes[subdomain]); it <= std::get<1>(fluid_nodes[subdomain]); ++it)
             {
-                shift_sequential::shift_stream(distribution_values, access_function, *it, read_offset + subdomain_offset, write_offset + subdomain_offset);
+                sequential_shift::shift_stream(distribution_values, access_function, *it, read_offset + subdomain_offset, write_offset + subdomain_offset);
             }
         }
 
@@ -274,7 +274,7 @@ sim_data_tuple parallel_shift_framework::shift_stream_and_collide
                 unsigned int subdomain_offset = subdomain * (SHIFT_OFFSET);
                 for(auto it = std::get<1>(fluid_nodes[subdomain]); it >= std::get<0>(fluid_nodes[subdomain]); --it)
                 {
-                    shift_sequential::shift_stream(distribution_values, access_function, *it, read_offset + subdomain_offset, write_offset + subdomain_offset);
+                    sequential_shift::shift_stream(distribution_values, access_function, *it, read_offset + subdomain_offset, write_offset + subdomain_offset);
                     parallel_shift_framework::perform_collision(*it, distribution_values, access_function, velocities, densities, write_offset + subdomain_offset);
                 }
             }
@@ -315,7 +315,7 @@ sim_data_tuple parallel_shift_framework::shift_stream_and_collide
                 unsigned int subdomain_offset = subdomain * (SHIFT_OFFSET);
                 for(auto it = std::get<0>(fluid_nodes[subdomain]); it <= std::get<1>(fluid_nodes[subdomain]); ++it)
                 {
-                    shift_sequential::shift_stream(distribution_values, access_function, *it, read_offset + subdomain_offset, write_offset + subdomain_offset);
+                    sequential_shift::shift_stream(distribution_values, access_function, *it, read_offset + subdomain_offset, write_offset + subdomain_offset);
                     parallel_shift_framework::perform_collision(*it, distribution_values, access_function, velocities, densities, write_offset + subdomain_offset);
                 }
             }

@@ -38,7 +38,7 @@ int main(const int argc, const char** argv)
     }
 
     /* Setting up example domain */
-    shift_sequential::setup_example_domain(distribution_values, nodes, fluid_nodes, phase_information, swap_info, access_function, enable_debug);
+    sequential_shift::setup_example_domain(distribution_values, nodes, fluid_nodes, phase_information, swap_info, access_function, enable_debug);
 
     if(enable_debug)
     {
@@ -67,5 +67,5 @@ int main(const int argc, const char** argv)
     }
 
     /* Run simulation */
-    shift_sequential::run(fluid_nodes, distribution_values, swap_info, access_function, TIME_STEPS);
+    sequential_shift::run(fluid_nodes, distribution_values, swap_info, access_function, TIME_STEPS);
 }

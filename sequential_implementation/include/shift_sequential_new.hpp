@@ -12,7 +12,7 @@
 
 #define SHIFT_OFFSET HORIZONTAL_NODES + 1
 
-namespace shift_sequential
+namespace sequential_shift
 {
     /**
      * @brief Performs the steaming step in all directions for the fluid node with 
