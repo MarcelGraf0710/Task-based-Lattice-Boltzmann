@@ -1,13 +1,7 @@
 #include "../include/parallel_framework.hpp"
-#include "../include/boundaries.hpp"
-#include "../include/macroscopic.hpp"
-#include <iostream>
-#include <hpx/format.hpp>
-#include <hpx/future.hpp>
+
 #include <hpx/algorithm.hpp>
-#include <hpx/execution.hpp>
-#include <hpx/iostream.hpp>
-    
+
 /**
  * @brief This function is used to determine the fluid nodes belonging to a certain subdomain.
  * 
@@ -21,14 +15,8 @@ start_end_it_tuple parallel_framework::get_subdomain_fluid_node_pointers
     const std::vector<unsigned int> &fluid_nodes
 )
 {
-    // std::cout << "Accessing parallel_framework::get_subdomain_fluid_node_pointers for subdomain " << subdomain << std::endl;
-    //to_console::print_vector(fluid_nodes, HORIZONTAL_NODES - 2);
-
     unsigned int min_node_in_question = (SUBDOMAIN_HEIGHT + 1) * HORIZONTAL_NODES * subdomain;
-    // std::cout << "Minimum node in question for subdomain " << subdomain << ": " << min_node_in_question << std::endl;
-
     unsigned int max_node_in_question = min_node_in_question + SUBDOMAIN_HEIGHT * HORIZONTAL_NODES - 1;
-    // std::cout << "Maximum node in question for subdomain " << subdomain << ": " << max_node_in_question << std::endl;
 
     std::vector<unsigned int>::const_iterator first = fluid_nodes.begin();
     std::vector<unsigned int>::const_iterator end = fluid_nodes.end() - 1;
@@ -48,12 +36,6 @@ start_end_it_tuple parallel_framework::get_subdomain_fluid_node_pointers
         --end;
         current_value = *end;
     }
-
-    // std::cout << "Got node limits (";
-    // std::cout << *(first);
-    // std::cout << ", ";
-    // std::cout << *(end);
-    // std::cout << ")" << std::endl;
 
     return std::make_tuple(first, end);
 }
@@ -118,7 +100,7 @@ void parallel_framework::setup_parallel_domain
  * @param phase_information a vector containing the phase information for every vector (true means solid)
  * @return border_swap_information see documentation of border_swap_information
  */
-border_swap_information parallel_framework::retrieve_fast_border_swap_info
+border_swap_information parallel_framework::retrieve_border_swap_info
 (
     const std::vector<start_end_it_tuple> &fluid_node_bounds,
     const std::vector<unsigned int> &fluid_nodes,  
@@ -157,7 +139,7 @@ border_swap_information parallel_framework::retrieve_fast_border_swap_info
  * 
  * @param fluid_nodes a vector containing the indices of all fluid nodes within the simulation domain
  * @param phase_information a vector containing the phase information for every vector (true means solid)
- * @return border_swap_information see documentation of border_swap_information
+     * @return a vector of border_swap_information, one for each subdomain
  */
 std::vector<border_swap_information> parallel_framework::subdomain_wise_border_swap_info
 (
@@ -171,20 +153,6 @@ std::vector<border_swap_information> parallel_framework::subdomain_wise_border_s
     std::vector<unsigned int>::const_iterator start;
     std::vector<unsigned int>::const_iterator end;
     std::vector<border_swap_information> result;
-
-    // std::cout << "Accessing parallel_framework::retrieve_fast_border_swap_info " << std::endl;
-    // std::cout << "Received fluid node bounds " << std::endl;
-
-    // for(auto subdomain = 0; subdomain < SUBDOMAIN_COUNT; ++subdomain)
-    // {
-    //     std::cout << "(";
-    //     std::cout << *(std::get<0>(fluid_node_bounds[subdomain]));
-    //     std::cout << ", ";
-    //     std::cout << *(std::get<1>(fluid_node_bounds[subdomain]));
-    //     std::cout << ")" << std::endl;
-    // }
-
-    // std::cout << std::endl;
 
     for(auto subdomain = 0; subdomain < SUBDOMAIN_COUNT; ++subdomain)
     {
@@ -241,27 +209,21 @@ void parallel_framework::copy_to_buffer
 {
     unsigned int start = std::get<0>(buffer_bounds);
     unsigned int end = std::get<1>(buffer_bounds);
-    // std::vector<double> current(DIRECTION_COUNT, 0);
-    // unsigned int current_neighbor = 0;
 
     for(auto buffer_node = start; buffer_node <= end; ++buffer_node)
     {
-        // std::cout << "Currently dealing with buffer node " << buffer_node << std::endl;
-        // current_neighbor = lbm_access::get_neighbor(buffer_node, 1);
-        // for(auto direction : {6,7,8})
-        // {
-        //     distribution_values[access_function(buffer_node, direction)] = distribution_values[access_function(current_neighbor, direction)];
-        // }
-
-        // current_neighbor = lbm_access::get_neighbor(buffer_node, 7);
-        // for(auto direction : {0,1,2})
-        // {
-        //     distribution_values[access_function(buffer_node, direction)] = distribution_values[access_function(current_neighbor, direction)];
-        // }
         copy_to_buffer_node(buffer_node, distribution_values, access_function);
     }
 }
 
+/**
+ * @brief For the buffer node with the specified index, the directions pointing up will be copied from 
+ *        the nodes below and the directions pointing down will be copied from the nodes above.
+ * 
+ * @param buffer_node the index of the buffer node that is to be updated
+ * @param distribution_values a vector containing all distribution values
+ * @param access_function this function will be used to access the distribution values
+ */
 void parallel_framework::copy_to_buffer_node
 (   
     unsigned int buffer_node, 
@@ -302,7 +264,6 @@ void parallel_framework::copy_from_buffer
 
     for(auto buffer_node = start; buffer_node <= end; ++buffer_node)
     {
-        // std::cout << "Currently dealing with buffer node " << buffer_node << std::endl;
         current_neighbor = lbm_access::get_neighbor(buffer_node, 7);
         for(auto direction : {6,7,8})
         {
@@ -373,18 +334,6 @@ void parallel_framework::update_velocity_input_density_output
         velocities[current_border_node] = v;
         densities[current_border_node] = density;
         });
-
-    // // Nicht für two-lattice benötigt:
-    // hpx::for_each(
-    //     hpx::execution::par, std::get<1>(y_values).begin(), std::get<1>(y_values).end(),
-    //     [&distribution_values, &velocities, &densities, access_function](int y)
-    //     {
-    //         int current_border_node = lbm_access::get_node_index(0,y);
-    //         parallel_framework::copy_to_buffer_node(current_border_node, distribution_values, access_function);
-
-    //         current_border_node = lbm_access::get_node_index(HORIZONTAL_NODES - 1,y);
-    //         parallel_framework::copy_to_buffer_node(current_border_node, distribution_values, access_function);
-    // });
 }
 
 /**
@@ -424,78 +373,11 @@ void parallel_framework::buffer_dimension_initializations
 }
 
 /**
- * @brief Performs the collision step for all fluid nodes within the specified bounds.
- * 
- * @param fluid_node_bounds a tuple of the first and last element of an iterator over all fluid nodes within the respective subdomain
- * @param distribution_values a vector containing all distribution distribution_values
- * @param access_function the access to node values will be performed according to this access function
- * @param velocities a vector containing the velocity values of all nodes
- * @param densities a vector containing the density values of all nodes
- */
-void parallel_framework::perform_collision
-(
-    const start_end_it_tuple fluid_node_bounds,
-    std::vector<double> &distribution_values, 
-    const access_function &access_function, 
-    std::vector<velocity> &velocities, 
-    std::vector<double> &densities
-)
-{
-    std::vector<double> current_distributions(DIRECTION_COUNT, 0);
-    velocity current_velocity = {0,0};
-    double current_density = 0;
-
-    for(auto it = std::get<0>(fluid_node_bounds); it <= std::get<1>(fluid_node_bounds); ++it)
-    {
-        current_distributions = 
-            lbm_access::get_distribution_values_of(distribution_values, *it, access_function);
-        current_velocity = macroscopic::flow_velocity(current_distributions);    
-        velocities[*it] = current_velocity;
-        current_density = macroscopic::density(current_distributions);
-        densities[*it] = current_density;
-        current_distributions = collision::collide_bgk(current_distributions, current_velocity, current_density);
-        lbm_access::set_distribution_values_of(current_distributions, distribution_values, *it, access_function);
-    }
-} 
-
-/**
- * @brief Performs the collision step for the specified fluid node.
- * 
- * @param node the index of the node for which the collision step will be performed
- * @param distribution_values a vector containing all distribution distribution_values
- * @param access_function the access to node values will be performed according to this access function
- * @param velocities a vector containing the velocity values of all nodes
- * @param densities a vector containing the density values of all nodes
- */
-void parallel_framework::perform_collision
-(
-    const unsigned int node,
-    std::vector<double> &distribution_values, 
-    const access_function &access_function, 
-    std::vector<velocity> &velocities, 
-    std::vector<double> &densities
-)
-{
-    std::vector<double> current_distributions(DIRECTION_COUNT, 0);
-    velocity current_velocity = {0,0};
-    double current_density = 0;
-
-    current_distributions = 
-        lbm_access::get_distribution_values_of(distribution_values, node, access_function);
-    current_velocity = macroscopic::flow_velocity(current_distributions);    
-    velocities[node] = current_velocity;
-    current_density = macroscopic::density(current_distributions);
-    densities[node] = current_density;
-    current_distributions = collision::collide_bgk(current_distributions, current_velocity, current_density);
-    lbm_access::set_distribution_values_of(current_distributions, distribution_values, node, access_function);
-} 
-
-/**
  * @brief Performs an outstream step for all border nodes in the directions where they border non-inout ghost nodes.
  *        The distribution values will be stored in the ghost nodes in inverted order such that
  *        after this method is executed, the border nodes can be treated like regular nodes when performing an instream.
  * 
- * @param bsi a border_swap_information generated by retrieve_fast_border_swap_info
+ * @param bsi a border_swap_information generated by retrieve_border_swap_info
  * @param distribution_values a vector containing the distribution values of all nodes
  * @param access_function the access function used to access the distribution values
  */
@@ -521,4 +403,31 @@ void parallel_framework::emplace_bounce_back_values
             }
         }
     );
+}
+
+/**
+ * @brief Performs the buffer update that is necessary to keep inlets and outlets up to date in the case of 
+ *        parallel outstream algorithms.
+ * 
+ * @param distribution_values a vector containing all distribution values
+ * @param y_values a tuple containing the y values of all regular layers (0) and all buffer layers (1)
+ * @param access_function the access to node values will be performed according to this access function
+ */
+void parallel_framework::outstream_buffer_update
+(
+    std::vector<double> &distribution_values,    
+    const std::tuple<std::vector<unsigned int>, std::vector<unsigned int>> &y_values,
+    const access_function access_function
+)
+{
+    hpx::for_each(
+    hpx::execution::par, std::get<1>(y_values).begin(), std::get<1>(y_values).end(),
+    [&](int y)
+    {
+        int current_border_node = lbm_access::get_node_index(0,y);
+        parallel_framework::copy_to_buffer_node(current_border_node, distribution_values, access_function);
+
+        current_border_node = lbm_access::get_node_index(HORIZONTAL_NODES - 1,y);
+        parallel_framework::copy_to_buffer_node(current_border_node, distribution_values, access_function);
+    });
 }

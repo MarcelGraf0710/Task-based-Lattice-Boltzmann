@@ -1,19 +1,8 @@
-#include "../include/two_lattice_parallel.hpp"
-#include "../include/access.hpp"
-#include "../include/defines.hpp"
-#include "../include/boundaries.hpp"
-#include "../include/collision.hpp"
-#include "../include/macroscopic.hpp"
-#include "../include/utils.hpp"
-#include "../include/parallel_framework.hpp"
-#include <hpx/format.hpp>
-#include <hpx/future.hpp>
+#include "../include/parallel_two_lattice.hpp"
+
 #include <hpx/algorithm.hpp>
-#include <hpx/execution.hpp>
-#include <hpx/iostream.hpp>
-#include <set>
+
 #include <iostream>
-#include <functional>
 
 /**
  * @brief Performs the combined streaming and collision step for all fluid nodes within the simulation domain.
@@ -26,7 +15,7 @@
  * @param access_function the function used to access the distribution values
  * @return see documentation of sim_data_tuple
  */
-sim_data_tuple two_lattice_parallel::perform_tl_stream_and_collide
+sim_data_tuple parallel_two_lattice::stream_and_collide
 (
     const std::vector<unsigned int> &fluid_nodes,
     const border_swap_information &bsi,
@@ -47,51 +36,18 @@ sim_data_tuple two_lattice_parallel::perform_tl_stream_and_collide
         hpx::execution::par, 
         fluid_nodes.begin(), 
         fluid_nodes.end(), 
-        [&source, &destination, access_function, &velocities, &densities](unsigned int fluid_node)
+        [&](unsigned int fluid_node)
         {
-            tl_stream_and_collide_helper(source, destination, access_function, fluid_node, velocities, densities);
+            sequential_two_lattice::tl_stream(source, destination, access_function,fluid_node);
+            collision::perform_collision(fluid_node, destination, access_function, velocities, densities);
         }
     );
 
-    two_lattice_parallel::update_velocity_input_density_output(destination, velocities, densities, access_function);
+    parallel_two_lattice::update_velocity_input_density_output(destination, velocities, densities, access_function);
 
     sim_data_tuple result{velocities, densities};
 
     return result;
-}
-
-void two_lattice_parallel::tl_stream_and_collide_helper
-(
-    std::vector<double> &source, 
-    std::vector<double> &destination, 
-    const access_function &access_function, 
-    const unsigned int fluid_node, 
-    std::vector<velocity> &velocities, 
-    std::vector<double> &densities
-)
-{
-    two_lattice_parallel::tl_stream(
-        source,
-        destination,
-        access_function,
-        fluid_node);
-
-    std::vector<double> current_distributions =
-        lbm_access::get_distribution_values_of(destination, fluid_node, access_function);
-
-    velocity current_velocity = macroscopic::flow_velocity(current_distributions);
-    velocities[fluid_node] = current_velocity;
-
-    double current_density = macroscopic::density(current_distributions);
-    densities[fluid_node] = current_density;
-
-    two_lattice_parallel::tl_collision(
-        destination,
-        fluid_node,
-        current_distributions,
-        access_function,
-        current_velocity,
-        current_density);
 } 
 
 /**
@@ -106,7 +62,7 @@ void two_lattice_parallel::tl_stream_and_collide_helper
  * @param access_function the function used to access the distribution values
  * @return see documentation of sim_data_tuple
  */
-sim_data_tuple two_lattice_parallel::perform_tl_stream_and_collide_debug
+sim_data_tuple parallel_two_lattice::stream_and_collide_debug
 (
     const std::vector<unsigned int> &fluid_nodes,
     const border_swap_information &bsi,
@@ -137,13 +93,9 @@ sim_data_tuple two_lattice_parallel::perform_tl_stream_and_collide_debug
         hpx::execution::par, 
         fluid_nodes.begin(), 
         fluid_nodes.end(), 
-        [&source, &destination, access_function](unsigned int fluid_node)
+        [&](unsigned int fluid_node)
         {
-            two_lattice_parallel::tl_stream(
-            source, 
-            destination, 
-            access_function, 
-            fluid_node);
+            sequential_two_lattice::tl_stream(source, destination, access_function,fluid_node);
         }
     );
 
@@ -156,24 +108,9 @@ sim_data_tuple two_lattice_parallel::perform_tl_stream_and_collide_debug
         hpx::execution::par, 
         fluid_nodes.begin(), 
         fluid_nodes.end(), 
-        [&velocities, &densities, &source, &destination, access_function](unsigned int fluid_node)
+        [&](unsigned int fluid_node)
         {
-            std::vector<double> current_distributions = 
-                lbm_access::get_distribution_values_of(destination, fluid_node, access_function);
-
-            velocity current_velocity = macroscopic::flow_velocity(current_distributions);    
-            velocities[fluid_node] = current_velocity;
-
-            double current_density = macroscopic::density(current_distributions);
-            densities[fluid_node] = current_density;
-            
-            two_lattice_parallel::tl_collision(
-                destination, 
-                fluid_node, 
-                current_distributions,
-                access_function, 
-                current_velocity, 
-                current_density);
+            collision::perform_collision(fluid_node, destination, access_function, velocities, densities);
         }
     );
 
@@ -199,7 +136,7 @@ sim_data_tuple two_lattice_parallel::perform_tl_stream_and_collide_debug
  * @param access_function the access function according to which distribution values are to be accessed
  * @param iterations this many iterations will be performed
  */
-void two_lattice_parallel::run
+void parallel_two_lattice::run
 (  
     const std::vector<unsigned int> &fluid_nodes,       
     const border_swap_information &boundary_nodes,
@@ -211,9 +148,7 @@ void two_lattice_parallel::run
 {
     to_console::print_run_greeting("sequential two-lattice algorithm", iterations);
 
-    std::vector<double> &source = distribution_values_0;
-    std::vector<double> &destination = distribution_values_1;
-    std::vector<double> &temp = distribution_values_1;
+    std::vector<double> temp;
     std::vector<sim_data_tuple>result(
         iterations, 
         std::make_tuple(std::vector<velocity>(TOTAL_NODE_COUNT, {0,0}), std::vector<double>(TOTAL_NODE_COUNT, 0)));
@@ -221,16 +156,18 @@ void two_lattice_parallel::run
     for(auto time = 0; time < iterations; ++time)
     {
         std::cout << "\033[33mIteration " << time << ":\033[0m" << std::endl;
-        result[time] = two_lattice_parallel::perform_tl_stream_and_collide
+        result[time] = parallel_two_lattice::stream_and_collide
         (
             fluid_nodes, 
             boundary_nodes, 
-            source, 
-            destination, 
+            distribution_values_0, 
+            distribution_values_1, 
             access_function
         );     
         std::cout << "\tFinished iteration " << time << std::endl;
-        std::swap(source, destination);
+        temp = std::move(distribution_values_0);
+        distribution_values_0 = std::move(distribution_values_1);
+        distribution_values_1 = std::move(temp);
     }
 
     to_console::print_simulation_results(result);
@@ -250,7 +187,7 @@ void two_lattice_parallel::run
  * @param densities a vector containing the densities of all nodes
  * @param access_function the access function used to access the distribution values
  */
-void two_lattice_parallel::update_velocity_input_density_output
+void parallel_two_lattice::update_velocity_input_density_output
 (
     std::vector<double> &distribution_values,
     std::vector<velocity> &velocities,
@@ -259,37 +196,39 @@ void two_lattice_parallel::update_velocity_input_density_output
 )
 {
     hpx::experimental::for_loop(
-        hpx::execution::par, 0, VERTICAL_NODES - 1,
+        hpx::execution::par, 1, VERTICAL_NODES - 1,
         [&distribution_values, &velocities, &densities, access_function](int y)
         {
-        // Update inlets
-        int current_border_node = lbm_access::get_node_index(0,y);
-        velocity v = INLET_VELOCITY;
-        double density = INLET_DENSITY;
-        std::vector<double> current_dist_vals = maxwell_boltzmann_distribution(v, density);
-        lbm_access::set_distribution_values_of
-        (
-            current_dist_vals,
-            distribution_values,
-            current_border_node,
-            access_function
-        );
-        velocities[current_border_node] = v;
-        densities[current_border_node] = density;
+            // Update inlets
+            int current_border_node = lbm_access::get_node_index(0,y);
+            velocity v = INLET_VELOCITY;
+            double density = INLET_DENSITY;
+            std::vector<double> current_dist_vals = maxwell_boltzmann_distribution(v, density);
+            lbm_access::set_distribution_values_of
+            (
+                current_dist_vals,
+                distribution_values,
+                current_border_node,
+                access_function
+            );
+            velocities[current_border_node] = v;
+            densities[current_border_node] = density;
 
-        // Update outlets
-        current_border_node = lbm_access::get_node_index(HORIZONTAL_NODES - 1,y);
-        v = macroscopic::flow_velocity(lbm_access::get_distribution_values_of(distribution_values, lbm_access::get_neighbor(current_border_node, 3), access_function));
-        density = OUTLET_DENSITY;
-        current_dist_vals = maxwell_boltzmann_distribution(v, density);
-        lbm_access::set_distribution_values_of
-        (
-            current_dist_vals,
-            distribution_values,
-            current_border_node,
-            access_function
-        );
-        velocities[current_border_node] = v;
-        densities[current_border_node] = density;
+            // Update outlets
+            current_border_node = lbm_access::get_node_index(HORIZONTAL_NODES - 1,y);
+            v = macroscopic::flow_velocity(
+                lbm_access::get_distribution_values_of(
+                    distribution_values, lbm_access::get_neighbor(current_border_node, 3), access_function));
+            density = OUTLET_DENSITY;
+            current_dist_vals = maxwell_boltzmann_distribution(v, density);
+            lbm_access::set_distribution_values_of
+            (
+                current_dist_vals,
+                distribution_values,
+                current_border_node,
+                access_function
+            );
+            velocities[current_border_node] = v;
+            densities[current_border_node] = density;
         });
 }

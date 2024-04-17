@@ -1,22 +1,10 @@
-#include "include/access.hpp"
-#include "include/simulation.hpp"
-#include "include/utils.hpp"
-#include "include/two_lattice_parallel.hpp"
+#include "include/parallel_two_step_framework.hpp"
+
 #include <hpx/hpx_init.hpp>
 
 int hpx_main()
 {
     bool enable_debug = false;
-    // if(argc > 2)
-    // {
-    //     std::cout << "Illegal argument count. Choose argument 'debug' if you want to run this program in debug mode, or run it without arguments." << std::endl;
-    //     exit(-1);
-    // }
-    // else if(argc == 2)
-    // {
-    //     std::string selection(argv[1]);
-    //     enable_debug = debug_handler(selection);
-    // }
 
     std::cout << std::endl;
     std::cout << "Starting simulation..." << std::endl;
@@ -28,23 +16,27 @@ int hpx_main()
 
 
     /* Initializations */
-    std::vector<double> distribution_values_0(0, TOTAL_NODE_COUNT * DIRECTION_COUNT);
+    std::vector<double> distribution_values(0, TOTAL_NODE_COUNT * DIRECTION_COUNT);
     std::vector<unsigned int> nodes(0, TOTAL_NODE_COUNT);
     std::vector<unsigned int> fluid_nodes(0, TOTAL_NODE_COUNT);
     std::vector<bool> phase_information(false, TOTAL_NODE_COUNT);
     border_swap_information swap_info;
     access_function access_function = lbm_access::collision;
 
-    if(enable_debug)
-    {
-        std::cout << "All vectors declared. " << std::endl;
-        std::cout << std::endl;
-    }
+    std::cout << "All vectors declared. " << std::endl;
+    std::cout << std::endl;
 
     /* Setting up example domain */
-    setup_example_domain(distribution_values_0, nodes, fluid_nodes, phase_information, access_function, enable_debug);
+    parallel_framework::setup_parallel_domain(distribution_values, nodes, fluid_nodes, phase_information, access_function);
 
-    swap_info = bounce_back::retrieve_border_swap_info(fluid_nodes, phase_information);
+    std::vector<start_end_it_tuple> subdomain_fluid_bounds;
+    for(auto subdomain = 0; subdomain < SUBDOMAIN_COUNT; ++subdomain)
+    {
+        // std::cout << "Currently determining bounds for subdomain " << subdomain << std::endl;
+        subdomain_fluid_bounds.push_back(parallel_framework::get_subdomain_fluid_node_pointers(subdomain, fluid_nodes));
+    }
+
+    swap_info = parallel_framework::retrieve_border_swap_info(subdomain_fluid_bounds, fluid_nodes, phase_information);
 
     if(enable_debug)
     {
@@ -55,7 +47,7 @@ int hpx_main()
 
         /* Overview */
         std::cout << "Enumeration of all nodes within the lattice: " << std::endl;
-        to_console::print_vector(nodes);
+        to_console::buffered::print_vector(nodes);
         std::cout << std::endl;
 
         std::cout << "Enumeration of all fluid nodes within the simulation domain: " << std::endl;
@@ -68,19 +60,17 @@ int hpx_main()
         std::cout << std::endl;
 
         std::cout << "Initial distributions:" << std::endl;
-        to_console::print_distribution_values(distribution_values_0, access_function);
+        to_console::buffered::print_distribution_values(distribution_values, access_function);
         std::cout << std::endl;
     }
 
-    std::vector<double> distribution_values_1 = distribution_values_0;
 
     /* Run simulation */
-    two_lattice_parallel::run
+    parallel_two_step_framework::run
     (
-        fluid_nodes, 
+        subdomain_fluid_bounds, 
+        distribution_values,
         swap_info, 
-        distribution_values_0, 
-        distribution_values_1,   
         access_function,
         TIME_STEPS
     );

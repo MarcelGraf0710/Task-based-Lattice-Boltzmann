@@ -40,7 +40,7 @@ void parallel_swap_framework::run
         std::cout << "\033[33mIteration " << time << ":\033[0m" << std::endl;
 
         // Framework-based parallel two-step: combined stream and collision
-        result[time] = parallel_swap_framework::perform_swap_stream_and_collide_debug
+        result[time] = parallel_swap_framework::stream_and_collide
         (fluid_nodes, bsi, distribution_values, access_function, y_values, buffer_ranges);
         std::cout << "\tFinished iteration " << time << std::endl;
     }
@@ -61,7 +61,85 @@ void parallel_swap_framework::run
  * @param buffer_ranges a vector containing a tuple of the indices of the first and last node belonging to a certain buffer
  * @return sim_data_tuple see documentation of sim_data_tuple
  */
-sim_data_tuple parallel_swap_framework::perform_swap_stream_and_collide_debug
+sim_data_tuple parallel_swap_framework::stream_and_collide
+(
+    const std::vector<start_end_it_tuple> &fluid_nodes,
+    const border_swap_information &bsi,
+    std::vector<double> &distribution_values,    
+    const access_function access_function,
+    const std::tuple<std::vector<unsigned int>, std::vector<unsigned int>> &y_values,
+    const std::vector<std::tuple<unsigned int, unsigned int>> &buffer_ranges
+)
+{
+    std::vector<velocity> velocities(TOTAL_NODE_COUNT, velocity{0,0});
+    std::vector<double> densities(TOTAL_NODE_COUNT, -1);
+
+    /* Border node initialization */
+    hpx::for_each
+    (
+        hpx::execution::par, 
+        bsi.begin(), 
+        bsi.end(), 
+        [&](std::vector<unsigned int> node)
+        {
+        for(auto it = node.begin() + 1; it < node.end(); ++it)
+            {
+                sequential_swap::perform_swap_step(distribution_values, node[0], access_function, *it);
+            }
+        });
+
+    /* Buffer update */
+    hpx::experimental::for_loop(
+        hpx::execution::par, 0, BUFFER_COUNT, 
+        [&](unsigned int buffer_index)
+        {
+            parallel_swap_framework::swap_buffer_update(buffer_ranges[buffer_index], distribution_values, access_function);
+        });
+
+    hpx::experimental::for_loop(
+        hpx::execution::par, 0, SUBDOMAIN_COUNT, 
+        [&](unsigned int subdomain)
+        {
+            for(auto node = std::get<0>(fluid_nodes[subdomain]); node <= std::get<1>(fluid_nodes[subdomain]); ++node)
+            {
+                // Swapping step
+                sequential_swap::perform_swap_step(distribution_values, *node, access_function, sequential_swap::ACTIVE_STREAMING_DIRECTIONS);
+
+                // Restore precious order in here
+                sequential_swap::restore_order(distribution_values, *node, access_function);
+
+                /* Perform collision for all fluid nodes */
+                collision::perform_collision(*node, distribution_values, access_function, velocities, densities);
+            }
+        });
+
+    /* Update ghost nodes */
+    parallel_framework::update_velocity_input_density_output(y_values, distribution_values, velocities, densities, access_function);
+
+    sequential_swap::restore_inout_correctness(distribution_values, access_function);
+
+    /* Buffer correction */
+    parallel_framework::outstream_buffer_update(distribution_values, y_values, access_function);
+
+    sim_data_tuple result{velocities, densities};
+
+    return result;
+}
+
+/**
+ * @brief Performs the streaming and collision step for all fluid nodes within the simulation domain.
+ *        The border conditions are enforced through ghost nodes.
+ *        This variant will print several debug comments to the console.
+ * 
+ * @param fluid_nodes a vector containing the first and last element of an iterator over all fluid nodes within each subdomain
+ * @param bsi see documentation of border_swap_information
+ * @param distribution_values a vector containing all distribution values
+ * @param access_function the access to node values will be performed according to this access function
+ * @param y_values a tuple containing the y values of all regular layers (0) and all buffer layers (1)
+ * @param buffer_ranges a vector containing a tuple of the indices of the first and last node belonging to a certain buffer
+ * @return sim_data_tuple see documentation of sim_data_tuple
+ */
+sim_data_tuple parallel_swap_framework::stream_and_collide_debug
 (
     const std::vector<start_end_it_tuple> &fluid_nodes,
     const border_swap_information &bsi,
@@ -126,7 +204,10 @@ sim_data_tuple parallel_swap_framework::perform_swap_stream_and_collide_debug
     /* Perform collision for all fluid nodes */
     for(auto subdomain = 0; subdomain < SUBDOMAIN_COUNT; ++subdomain)
     {
-        parallel_framework::perform_collision(fluid_nodes[subdomain], distribution_values, access_function, velocities, densities);
+        for(auto node = std::get<0>(fluid_nodes[subdomain]); node <= std::get<1>(fluid_nodes[subdomain]); ++node)
+        {
+            collision::perform_collision(*node, distribution_values, access_function, velocities, densities);
+        }
     }
     std::cout << "Distribution values after collision: " << std::endl;
     to_console::buffered::print_distribution_values(distribution_values, access_function);
@@ -141,103 +222,7 @@ sim_data_tuple parallel_swap_framework::perform_swap_stream_and_collide_debug
     sequential_swap::restore_inout_correctness(distribution_values, access_function);
 
     /* Buffer correction */
-    hpx::for_each(
-        hpx::execution::par, std::get<1>(y_values).begin(), std::get<1>(y_values).end(),
-        [&distribution_values, &velocities, &densities, access_function](int y)
-        {
-            int current_border_node = lbm_access::get_node_index(0,y);
-            parallel_framework::copy_to_buffer_node(current_border_node, distribution_values, access_function);
-
-            current_border_node = lbm_access::get_node_index(HORIZONTAL_NODES - 1,y);
-            parallel_framework::copy_to_buffer_node(current_border_node, distribution_values, access_function);
-    });
-
-    sim_data_tuple result{velocities, densities};
-
-    return result;
-}
-
-/**
- * @brief Performs the streaming and collision step for all fluid nodes within the simulation domain.
- *        The border conditions are enforced through ghost nodes.
- *        This variant will print several debug comments to the console.
- * 
- * @param fluid_nodes a vector containing the first and last element of an iterator over all fluid nodes within each subdomain
- * @param bsi see documentation of border_swap_information
- * @param distribution_values a vector containing all distribution values
- * @param access_function the access to node values will be performed according to this access function
- * @param y_values a tuple containing the y values of all regular layers (0) and all buffer layers (1)
- * @param buffer_ranges a vector containing a tuple of the indices of the first and last node belonging to a certain buffer
- * @return sim_data_tuple see documentation of sim_data_tuple
- */
-sim_data_tuple parallel_swap_framework::parallel_swap_stream_and_collide
-(
-    const std::vector<start_end_it_tuple> &fluid_nodes,
-    const border_swap_information &bsi,
-    std::vector<double> &distribution_values,    
-    const access_function access_function,
-    const std::tuple<std::vector<unsigned int>, std::vector<unsigned int>> &y_values,
-    const std::vector<std::tuple<unsigned int, unsigned int>> &buffer_ranges
-)
-{
-    std::vector<velocity> velocities(TOTAL_NODE_COUNT, velocity{0,0});
-    std::vector<double> densities(TOTAL_NODE_COUNT, -1);
-
-    /* Border node initialization */
-    hpx::for_each
-    (
-        hpx::execution::par, 
-        bsi.begin(), 
-        bsi.end(), 
-        [&](std::vector<unsigned int> node)
-        {
-        for(auto it = node.begin() + 1; it < node.end(); ++it)
-            {
-                sequential_swap::perform_swap_step(distribution_values, node[0], access_function, *it);
-            }
-        });
-
-    /* Buffer update */
-    hpx::experimental::for_loop(
-        hpx::execution::par, 0, BUFFER_COUNT, 
-        [&](unsigned int buffer_index)
-        {
-            parallel_swap_framework::swap_buffer_update(buffer_ranges[buffer_index], distribution_values, access_function);
-        });
-
-    hpx::experimental::for_loop(
-        hpx::execution::par, 0, SUBDOMAIN_COUNT, 
-        [&](unsigned int subdomain)
-        {
-            for(auto node = std::get<0>(fluid_nodes[subdomain]); node <= std::get<1>(fluid_nodes[subdomain]); ++node)
-            {
-                // Swapping step
-                sequential_swap::perform_swap_step(distribution_values, *node, access_function, sequential_swap::ACTIVE_STREAMING_DIRECTIONS);
-
-                // Restore precious order in here
-                sequential_swap::restore_order(distribution_values, *node, access_function);
-
-                /* Perform collision for all fluid nodes */
-                parallel_framework::perform_collision(*node, distribution_values, access_function, velocities, densities);
-            }
-        });
-
-    /* Update ghost nodes */
-    parallel_framework::update_velocity_input_density_output(y_values, distribution_values, velocities, densities, access_function);
-
-    sequential_swap::restore_inout_correctness(distribution_values, access_function);
-
-    /* Buffer correction */
-    hpx::for_each(
-        hpx::execution::par, std::get<1>(y_values).begin(), std::get<1>(y_values).end(),
-        [&distribution_values, &velocities, &densities, access_function](int y)
-        {
-            int current_border_node = lbm_access::get_node_index(0,y);
-            parallel_framework::copy_to_buffer_node(current_border_node, distribution_values, access_function);
-
-            current_border_node = lbm_access::get_node_index(HORIZONTAL_NODES - 1,y);
-            parallel_framework::copy_to_buffer_node(current_border_node, distribution_values, access_function);
-    });
+    parallel_framework::outstream_buffer_update(distribution_values, y_values, access_function);
 
     sim_data_tuple result{velocities, densities};
 

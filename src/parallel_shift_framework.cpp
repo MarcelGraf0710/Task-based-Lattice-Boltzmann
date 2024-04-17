@@ -1,14 +1,8 @@
 #include "../include/parallel_shift_framework.hpp"
 
 #include <iostream>
-#include <set>
 
-#include <hpx/format.hpp>
-#include <hpx/future.hpp>
 #include <hpx/algorithm.hpp>
-#include <hpx/execution.hpp>
-#include <hpx/iostream.hpp>
-
 
 /**
  * @brief Performs the parallel shift algorithm for the specified number of iterations.
@@ -48,13 +42,130 @@ void parallel_shift_framework::run
     {
         std::cout << "\033[33mIteration " << time << ":\033[0m" << std::endl;
 
-        result[time] = parallel_shift_framework::shift_stream_and_collide
+        result[time] = parallel_shift_framework::stream_and_collide
         (fluid_nodes, boundary_nodes, distribution_values, access_function, buffer_ranges, time);
         
         std::cout << "\tFinished iteration " << time << std::endl;
     }
     to_console::buffered::print_simulation_results(result);
     std::cout << "All done, exiting simulation. " << std::endl;
+}
+
+/**
+ * @brief Performs a combined collision and streaming step for the specified fluid node.
+ * 
+ * @param fluid_nodes         a vector of tuples of iterators pointing at the first and last fluid node of each domain
+ * @param boundary_nodes      a vector of border_swap_information for each subdomain, 
+ *                            see documentation of border_swap_information
+ * @param distribution_values a vector containing all distribution values, including those of buffer and "overlap" nodes
+ * @param access_function     An access function from the namespace parallel_shift_framework::access_functions.
+ *                            Caution: This algorithm is NOT compatible with the access functions from the namespace lbm_access.
+ * @param buffer_ranges       a vector containing a tuple of the indices of the first and last node belonging to a certain buffer
+ * @param iteration           the iteration the algorithm is currently processing
+ */
+sim_data_tuple parallel_shift_framework::stream_and_collide
+(
+    const std::vector<start_end_it_tuple> &fluid_nodes,
+    const std::vector<border_swap_information> &bsi,
+    std::vector<double> &distribution_values, 
+    const access_function access_function,
+    const std::vector<std::tuple<unsigned int, unsigned int>> &buffer_ranges,
+    const unsigned int iteration
+)
+{
+    unsigned int read_offset = 0;
+    unsigned int write_offset = 0;
+    std::vector<velocity> velocities(TOTAL_NODE_COUNT, velocity{0,0});
+    std::vector<double> densities(TOTAL_NODE_COUNT, -1);
+
+    if((iteration % 2) == 0)
+    {
+        read_offset = 0;
+        write_offset = (SHIFT_OFFSET);
+
+        // Emplace bounce-back values
+        hpx::experimental::for_loop
+        (
+            hpx::execution::par, 0, SUBDOMAIN_COUNT, 
+            [&](unsigned int subdomain)
+            {
+                unsigned int subdomain_offset = subdomain * (SHIFT_OFFSET);
+                parallel_shift_framework::emplace_bounce_back_values(bsi[subdomain], distribution_values, access_function, subdomain_offset + read_offset);
+            }
+        );
+
+        // Buffer update
+        hpx::experimental::for_loop
+        (
+            hpx::execution::par, 0, BUFFER_COUNT, 
+            [&](unsigned int buffer)
+            {
+                int buffer_offset = (buffer + 1) * (SHIFT_OFFSET);
+                parallel_shift_framework::buffer_update_even_time_step(buffer_ranges[buffer], distribution_values, access_function, buffer_offset);
+            }
+        );
+
+        hpx::experimental::for_loop
+        (
+            hpx::execution::par, 0, SUBDOMAIN_COUNT, 
+            [&](unsigned int subdomain)
+            {
+                unsigned int subdomain_offset = subdomain * (SHIFT_OFFSET);
+                for(auto it = std::get<1>(fluid_nodes[subdomain]); it >= std::get<0>(fluid_nodes[subdomain]); --it)
+                {
+                    sequential_shift::shift_stream(distribution_values, access_function, *it, read_offset + subdomain_offset, write_offset + subdomain_offset);
+                    parallel_shift_framework::perform_collision(*it, distribution_values, access_function, velocities, densities, write_offset + subdomain_offset);
+                }
+            }
+        );
+    }
+    else
+    {
+        read_offset = (SHIFT_OFFSET);
+        write_offset = 0;
+
+        // Emplace bounce-back values
+        hpx::experimental::for_loop
+        (
+            hpx::execution::par, 0, SUBDOMAIN_COUNT, 
+            [&](unsigned int subdomain)
+            {
+                unsigned int subdomain_offset = subdomain * (SHIFT_OFFSET);
+                parallel_shift_framework::emplace_bounce_back_values(bsi[subdomain], distribution_values, access_function, subdomain_offset + read_offset);
+            }
+        );
+
+        // Buffer update
+        hpx::experimental::for_loop
+        (
+            hpx::execution::par, 0, BUFFER_COUNT, 
+            [&](unsigned int buffer)
+            {
+                int buffer_offset = (buffer + 1) * (SHIFT_OFFSET);
+                parallel_shift_framework::buffer_update_odd_time_step(buffer_ranges[buffer], distribution_values, access_function, buffer_offset);
+            }
+        );
+
+        hpx::experimental::for_loop
+        (
+            hpx::execution::par, 0, SUBDOMAIN_COUNT, 
+            [&](unsigned int subdomain)
+            {
+                unsigned int subdomain_offset = subdomain * (SHIFT_OFFSET);
+                for(auto it = std::get<0>(fluid_nodes[subdomain]); it <= std::get<1>(fluid_nodes[subdomain]); ++it)
+                {
+                    sequential_shift::shift_stream(distribution_values, access_function, *it, read_offset + subdomain_offset, write_offset + subdomain_offset);
+                    parallel_shift_framework::perform_collision(*it, distribution_values, access_function, velocities, densities, write_offset + subdomain_offset);
+                }
+            }
+        );
+    }
+
+    /* Update ghost nodes */
+    parallel_shift_framework::update_velocity_input_density_output(distribution_values, velocities, densities, access_function, write_offset);
+    
+    sim_data_tuple result{velocities, densities};
+    return result;
 }
 
 /**
@@ -70,7 +181,7 @@ void parallel_shift_framework::run
  * @param buffer_ranges       a vector containing a tuple of the indices of the first and last node belonging to a certain buffer
  * @param iteration           the iteration the algorithm is currently processing
  */
-sim_data_tuple parallel_shift_framework::shift_stream_and_collide_debug
+sim_data_tuple parallel_shift_framework::stream_and_collide_debug
 (
     const std::vector<start_end_it_tuple> &fluid_nodes,
     const std::vector<border_swap_information> &bsi,
@@ -207,123 +318,6 @@ sim_data_tuple parallel_shift_framework::shift_stream_and_collide_debug
 
     std::cout << "Distribution values after input update" << std::endl;
     parallel_shift_framework::print_distribution_values(distribution_values, access_function, write_offset, buffer_ranges);
-    
-    sim_data_tuple result{velocities, densities};
-    return result;
-}
-
-/**
- * @brief Performs a combined collision and streaming step for the specified fluid node.
- * 
- * @param fluid_nodes         a vector of tuples of iterators pointing at the first and last fluid node of each domain
- * @param boundary_nodes      a vector of border_swap_information for each subdomain, 
- *                            see documentation of border_swap_information
- * @param distribution_values a vector containing all distribution values, including those of buffer and "overlap" nodes
- * @param access_function     An access function from the namespace parallel_shift_framework::access_functions.
- *                            Caution: This algorithm is NOT compatible with the access functions from the namespace lbm_access.
- * @param buffer_ranges       a vector containing a tuple of the indices of the first and last node belonging to a certain buffer
- * @param iteration           the iteration the algorithm is currently processing
- */
-sim_data_tuple parallel_shift_framework::shift_stream_and_collide
-(
-    const std::vector<start_end_it_tuple> &fluid_nodes,
-    const std::vector<border_swap_information> &bsi,
-    std::vector<double> &distribution_values, 
-    const access_function access_function,
-    const std::vector<std::tuple<unsigned int, unsigned int>> &buffer_ranges,
-    const unsigned int iteration
-)
-{
-    unsigned int read_offset = 0;
-    unsigned int write_offset = 0;
-    std::vector<velocity> velocities(TOTAL_NODE_COUNT, velocity{0,0});
-    std::vector<double> densities(TOTAL_NODE_COUNT, -1);
-
-    if((iteration % 2) == 0)
-    {
-        read_offset = 0;
-        write_offset = (SHIFT_OFFSET);
-
-        // Emplace bounce-back values
-        hpx::experimental::for_loop
-        (
-            hpx::execution::par, 0, SUBDOMAIN_COUNT, 
-            [&](unsigned int subdomain)
-            {
-                unsigned int subdomain_offset = subdomain * (SHIFT_OFFSET);
-                parallel_shift_framework::emplace_bounce_back_values(bsi[subdomain], distribution_values, access_function, subdomain_offset + read_offset);
-            }
-        );
-
-        // Buffer update
-        hpx::experimental::for_loop
-        (
-            hpx::execution::par, 0, BUFFER_COUNT, 
-            [&](unsigned int buffer)
-            {
-                int buffer_offset = (buffer + 1) * (SHIFT_OFFSET);
-                parallel_shift_framework::buffer_update_even_time_step(buffer_ranges[buffer], distribution_values, access_function, buffer_offset);
-            }
-        );
-
-        hpx::experimental::for_loop
-        (
-            hpx::execution::par, 0, SUBDOMAIN_COUNT, 
-            [&](unsigned int subdomain)
-            {
-                unsigned int subdomain_offset = subdomain * (SHIFT_OFFSET);
-                for(auto it = std::get<1>(fluid_nodes[subdomain]); it >= std::get<0>(fluid_nodes[subdomain]); --it)
-                {
-                    sequential_shift::shift_stream(distribution_values, access_function, *it, read_offset + subdomain_offset, write_offset + subdomain_offset);
-                    parallel_shift_framework::perform_collision(*it, distribution_values, access_function, velocities, densities, write_offset + subdomain_offset);
-                }
-            }
-        );
-    }
-    else
-    {
-        read_offset = (SHIFT_OFFSET);
-        write_offset = 0;
-
-        // Emplace bounce-back values
-        hpx::experimental::for_loop
-        (
-            hpx::execution::par, 0, SUBDOMAIN_COUNT, 
-            [&](unsigned int subdomain)
-            {
-                unsigned int subdomain_offset = subdomain * (SHIFT_OFFSET);
-                parallel_shift_framework::emplace_bounce_back_values(bsi[subdomain], distribution_values, access_function, subdomain_offset + read_offset);
-            }
-        );
-
-        // Buffer update
-        hpx::experimental::for_loop
-        (
-            hpx::execution::par, 0, BUFFER_COUNT, 
-            [&](unsigned int buffer)
-            {
-                int buffer_offset = (buffer + 1) * (SHIFT_OFFSET);
-                parallel_shift_framework::buffer_update_odd_time_step(buffer_ranges[buffer], distribution_values, access_function, buffer_offset);
-            }
-        );
-
-        hpx::experimental::for_loop
-        (
-            hpx::execution::par, 0, SUBDOMAIN_COUNT, 
-            [&](unsigned int subdomain)
-            {
-                unsigned int subdomain_offset = subdomain * (SHIFT_OFFSET);
-                for(auto it = std::get<0>(fluid_nodes[subdomain]); it <= std::get<1>(fluid_nodes[subdomain]); ++it)
-                {
-                    sequential_shift::shift_stream(distribution_values, access_function, *it, read_offset + subdomain_offset, write_offset + subdomain_offset);
-                    parallel_shift_framework::perform_collision(*it, distribution_values, access_function, velocities, densities, write_offset + subdomain_offset);
-                }
-            }
-        );
-    }
-
-    /* Update ghost nodes */
-    parallel_shift_framework::update_velocity_input_density_output(distribution_values, velocities, densities, access_function, write_offset);
     
     sim_data_tuple result{velocities, densities};
     return result;
@@ -577,7 +571,7 @@ void parallel_shift_framework::update_velocity_input_density_output
  *        The distribution values will be stored in the ghost nodes in inverted order such that
  *        after this method is executed, the border nodes can be treated like regular nodes when performing an instream.
  * 
- * @param bsi a border_swap_information generated by retrieve_fast_border_swap_info
+ * @param bsi a border_swap_information generated by retrieve_border_swap_info
  * @param distribution_values a vector containing the distribution values of all nodes
  * @param access_function An access function from the namespace parallel_shift_framework::access_functions.
  *                        Caution: This algorithm is NOT compatible with the access functions from the namespace lbm_access.

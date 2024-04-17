@@ -77,31 +77,11 @@ void bounce_back::emplace_bounce_back_values
 }
 
 /**
- * @brief Determines the directions in which the value will be reflected from the opposite direction.
- * 
- * @param current_border_info an entry of a border_swap_information object
- * @return a set containing all bounce back directions
- */
-std::set<unsigned int> bounce_back::determine_bounce_back_directions
-(
-    const std::vector<unsigned int> &current_border_info
-)
-{
-    std::vector<unsigned int> inverted;
-    for(auto j = current_border_info.begin() + 1; j < current_border_info.end(); ++j)
-    {
-        inverted.push_back(invert_direction(*j));
-    }
-    std::set<unsigned int> remaining_dirs = {inverted.begin(), inverted.end()};
-    return remaining_dirs;  
-}
-
-/**
  * @brief Performs a halfway bounce-back streaming update for all fluid nodes within the simulation domain.
  *        This version utilizes the ghost nodes bordering a boundary node. It is intended for use with
- *        the two-step, swap and shift algorithms.
+ *        the two-step algorithm.
  * 
- * @param ba see documentation of border_adjacency
+ * @param bsi see documentation of border_swap_information
  * @param distribution_values a vector containing the distribution values of all nodes
  * @param access_function the access function used to access the distribution values
  */
@@ -112,54 +92,12 @@ void bounce_back::perform_boundary_update
     const access_function access_function
 )
 {
-    std::vector<double> current_dist_vals;
-    std::vector<std::tuple<unsigned int, unsigned int>> swap_partners;
-    std::set<unsigned int> remaining_dirs{STREAMING_DIRECTIONS.begin(), STREAMING_DIRECTIONS.end()};
-    int current_border_node = 0;
-    for(const auto& current : bsi)
+    for(auto current : bsi)
     {
-        current_border_node = current[0];
-        remaining_dirs = bounce_back::determine_bounce_back_directions(current);
-
-        for(const auto direction : remaining_dirs)
+        for(auto it = current.begin() + 1; it < current.end(); ++it)
         {
-            distribution_values[access_function(current_border_node, direction)] = 
-            distribution_values[access_function(lbm_access::get_neighbor(current_border_node, invert_direction(direction)), invert_direction(direction))];
-        }
-    }
-}
-
-/**
- * @brief Modified version of the halfway bounce-back streaming update for all fluid nodes 
- *        within the simulation domain. Instead of using information stored in ghost nodes, 
- *        This allows for a convenient unification of the streaming and collision step for
- *        the two-lattice algorithm.
- * 
- * @param bsi see documentation of border_swap_information
- * @param source the distribution values will be read from this vector
- * @param destination the updated distribution values will be written to this vector
- * @param access_function the access function used to access the distribution values
- */
-void bounce_back::perform_early_boundary_update
-(
-    const border_swap_information &bsi,
-    const std::vector<double> &source, 
-    std::vector<double> &destination, 
-    const access_function access_function
-)
-{
-    std::vector<double> current_dist_vals;
-    std::set<unsigned int> remaining_dirs{STREAMING_DIRECTIONS.begin(), STREAMING_DIRECTIONS.end()};
-    int current_border_node = 0;
-    for(const auto& current : bsi)
-    {
-        current_border_node = current[0];
-        remaining_dirs = bounce_back::determine_bounce_back_directions(current);
-        
-        for(const auto direction : remaining_dirs)
-        {
-            destination[access_function(current_border_node, direction)] = 
-            source[access_function(current_border_node, invert_direction(direction))];
+            distribution_values[access_function(current[0], invert_direction(*it))] = 
+            distribution_values[access_function(lbm_access::get_neighbor(current[0], *it), *it)];
         }
     }
 }
@@ -391,7 +329,7 @@ void boundary_conditions::initialize_inout
 
 /**
  * @brief Realizes inflow and outflow by an inward stream of each border node.
- *        This method is intended for use with two-step, swap and shift algorithms.
+ *        This method is intended for use with the two-step algorithm.
  * 
  * @param distribution_values a vector containing the distribution values of all nodes
  * @param access_function the access function used to access the distribution values

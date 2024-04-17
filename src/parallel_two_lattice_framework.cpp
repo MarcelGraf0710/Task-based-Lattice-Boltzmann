@@ -1,6 +1,5 @@
 #include "../include/parallel_two_lattice_framework.hpp"
 
-#include <set>
 #include <iostream>
 
 #include <hpx/algorithm.hpp>
@@ -57,9 +56,82 @@ void parallel_two_lattice_framework::run
 }
 
 /**
+ * @brief Performs the combined streaming and collision step for all fluid nodes within the simulation domain.
+ *        The border conditions are enforced through ghost nodes.
+ * 
+ * @param fluid_nodes a vector containing the indices of all fluid nodes within the simulation domain.
+ * @param bsi see documentation of border_swap_information
+ * @param source a vector containing the distribution values of the previous time step
+ * @param destination the distribution values will be written to this vector after performing both steps.
+ * @param access_function the function used to access the distribution values
+ * @param y_values a tuple containing the y values of all regular layers (0) and all buffer layers (1)
+ * @param buffer_ranges a vector containing a tuple of the indices of the first and last node belonging to a certain buffer
+ * @return see documentation of sim_data_tuple
+ */
+sim_data_tuple parallel_two_lattice_framework::stream_and_collide
+(
+    const std::vector<start_end_it_tuple> &fluid_nodes,
+    const border_swap_information &bsi,
+    std::vector<double> &source, 
+    std::vector<double> &destination,    
+    const access_function access_function,
+    const std::tuple<std::vector<unsigned int>, std::vector<unsigned int>> &y_values,
+    const std::vector<std::tuple<unsigned int, unsigned int>> &buffer_ranges
+)
+{
+    std::vector<velocity> velocities(TOTAL_NODE_COUNT, velocity{0,0});
+    std::vector<double> densities(TOTAL_NODE_COUNT, -1);
+
+    // Global boundary update
+    parallel_framework::emplace_bounce_back_values(bsi, source, access_function);
+
+    // Buffer update
+    hpx::experimental::for_loop
+    (
+        hpx::execution::par, 0, BUFFER_COUNT,
+        [&](unsigned int buffer_index)
+        {
+            parallel_framework::copy_to_buffer(buffer_ranges[buffer_index], source, access_function);
+        }
+    );
+
+    hpx::experimental::for_loop
+    (
+        hpx::execution::par, 0, SUBDOMAIN_COUNT, 
+        [&](unsigned int subdomain)
+        {
+            for(auto it = std::get<0>(fluid_nodes[subdomain]); it <= std::get<1>(fluid_nodes[subdomain]); ++it)
+            {
+                /* Streaming step */
+                sequential_two_lattice::tl_stream(
+                    source, 
+                    destination, 
+                    access_function, 
+                    *it);
+
+                /* Collision step */
+                collision::perform_collision(
+                    *it, 
+                    destination, 
+                    access_function, 
+                    velocities,
+                    densities);          
+            }
+        }
+    );
+
+    parallel_framework::update_velocity_input_density_output(y_values, destination, velocities, densities, access_function);
+
+    sim_data_tuple result{velocities, densities};
+
+    return result;
+}
+
+/**
  * @brief This method is a serialized debug version of perform_tl_stream_and_collide_parallel.
  *        It acts as a proof-of-concept method that is suitable for testing such that errors related to
  *        the framework itself rather than the actual parallelization can be spotted.
+ *        This variant of the combined streaming and collision step will print several debug comments to the console.
  * 
  * @param fluid_nodes A vector of tuples of iterators pointing at the first and last fluid node of each domain
  * @param bsi see documentation of border_swap_information
@@ -127,16 +199,15 @@ sim_data_tuple parallel_two_lattice_framework::stream_and_collide_debug
         to_console::buffered::print_distribution_values(destination, access_function);
 
         /* Collision step */
-        for(auto it = std::get<0>(bounds); it <= std::get<1>(bounds); ++it)
-        {   
-            parallel_framework::perform_collision(
-                *it, 
-                destination, 
-                access_function, 
-                velocities,
-                densities 
-            );
-        }
+            for(auto it = std::get<0>(bounds); it <= std::get<1>(bounds); ++it)
+            {
+                collision::perform_collision(
+                    *it, 
+                    destination, 
+                    access_function, 
+                    velocities,
+                    densities);          
+            }
         std::cout << "\t DESTINATION after collision: " << std::endl;
         to_console::buffered::print_distribution_values(destination, access_function);
     }
@@ -149,93 +220,3 @@ sim_data_tuple parallel_two_lattice_framework::stream_and_collide_debug
 
     return result;
 }
-
-/**
- * @brief Performs the combined streaming and collision step for all fluid nodes within the simulation domain.
- *        The border conditions are enforced through ghost nodes.
- *        This variant of the combined streaming and collision step will print several debug comments to the console.
- * 
- * @param fluid_nodes a vector containing the indices of all fluid nodes within the simulation domain.
- * @param bsi see documentation of border_swap_information
- * @param source a vector containing the distribution values of the previous time step
- * @param destination the distribution values will be written to this vector after performing both steps.
- * @param access_function the function used to access the distribution values
- * @param y_values a tuple containing the y values of all regular layers (0) and all buffer layers (1)
- * @param buffer_ranges a vector containing a tuple of the indices of the first and last node belonging to a certain buffer
- * @return see documentation of sim_data_tuple
- */
-sim_data_tuple parallel_two_lattice_framework::stream_and_collide
-(
-    const std::vector<start_end_it_tuple> &fluid_nodes,
-    const border_swap_information &bsi,
-    std::vector<double> &source, 
-    std::vector<double> &destination,    
-    const access_function access_function,
-    const std::tuple<std::vector<unsigned int>, std::vector<unsigned int>> &y_values,
-    const std::vector<std::tuple<unsigned int, unsigned int>> &buffer_ranges
-)
-{
-    std::vector<velocity> velocities(TOTAL_NODE_COUNT, velocity{0,0});
-    std::vector<double> densities(TOTAL_NODE_COUNT, -1);
-
-    // Global boundary update
-    parallel_framework::emplace_bounce_back_values(bsi, source, access_function);
-
-    // Buffer update
-    hpx::experimental::for_loop
-    (
-        hpx::execution::par, 0, BUFFER_COUNT,
-        [&](unsigned int buffer_index)
-        {
-            parallel_framework::copy_to_buffer(buffer_ranges[buffer_index], source, access_function);
-        }
-    );
-
-    hpx::experimental::for_loop
-    (
-        hpx::execution::par, 0, SUBDOMAIN_COUNT, 
-        [&](unsigned int subdomain)
-        {
-            parallel_two_lattice_framework::stream_and_collide_helper(source, destination, access_function, velocities, densities, fluid_nodes[subdomain]);
-        }
-    );
-
-    parallel_framework::update_velocity_input_density_output(y_values, destination, velocities, densities, access_function);
-
-    sim_data_tuple result{velocities, densities};
-
-    return result;
-}
-
-/** 
- * @brief This helper function of parallel_two_lattice_framework::perform_tl_stream_and_collide_parallel
- *        is used in the HPX loop. It performs the actual streaming and collision.
- */
-void parallel_two_lattice_framework::stream_and_collide_helper
-(
-    const std::vector<double> &source, 
-    std::vector<double> &destination, 
-    const access_function &access_function, 
-    std::vector<velocity> &velocities, 
-    std::vector<double> &densities,
-    const start_end_it_tuple bounds
-)
-{
-    for(auto it = std::get<0>(bounds); it <= std::get<1>(bounds); ++it)
-    {
-        /* Streaming step */
-        sequential_two_lattice::tl_stream(
-            source, 
-            destination, 
-            access_function, 
-            *it);
-
-        /* Collision step */
-        parallel_framework::perform_collision(
-            *it, 
-            destination, 
-            access_function, 
-            velocities,
-            densities);          
-    }
-} 

@@ -12,7 +12,7 @@
 
 #define DIMENSION_COUNT 2
 #define DIRECTION_COUNT 9
-#define VERTICAL_NODES 24 // 15, readable up to 50 in console, beyond not recommended // 14 as for parallel
+#define VERTICAL_NODES 26 // 15, readable up to 50 in console, beyond not recommended // 14 as for parallel
 #define HORIZONTAL_NODES 7 // comfortable console limit: 9 
 #define TOTAL_NODE_COUNT (VERTICAL_NODES * HORIZONTAL_NODES)
 #define BOLTZMANN_CONSTANT 1.380649e-23

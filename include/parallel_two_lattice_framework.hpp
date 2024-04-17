@@ -1,15 +1,15 @@
 #ifndef PARALLEL_TWO_LATTICE_FRAMEWORK_HPP
 #define PARALLEL_TWO_LATTICE_FRAMEWORK_HPP
 
-#include "defines.hpp"
 #include "access.hpp"
-
-#include "collision.hpp"
-#include "utils.hpp"
 #include "boundaries.hpp"
+#include "collision.hpp"
+#include "defines.hpp"
+#include "utils.hpp"
+
 #include "parallel_framework.hpp"
 #include "sequential_two_lattice.hpp"
-#include "utils.hpp"
+
 
 /**
  * @brief This namespace contains all methods for the framework of the parallel two-lattice algorithm.
@@ -40,7 +40,6 @@ namespace parallel_two_lattice_framework
     /**
      * @brief Performs the combined streaming and collision step for all fluid nodes within the simulation domain.
      *        The border conditions are enforced through ghost nodes.
-     *        This variant of the combined streaming and collision step will print several debug comments to the console.
      * 
      * @param fluid_nodes a vector containing the indices of all fluid nodes within the simulation domain.
      * @param bsi see documentation of border_swap_information
@@ -66,6 +65,7 @@ namespace parallel_two_lattice_framework
      * @brief This method is a serialized debug version of perform_tl_stream_and_collide_parallel.
      *        It acts as a proof-of-concept method that is suitable for testing such that errors related to
      *        the framework itself rather than the actual parallelization can be spotted.
+     *        This variant of the combined streaming and collision step will print several debug comments to the console.
      * 
      * @param fluid_nodes A vector of tuples of iterators pointing at the first and last fluid node of each domain
      * @param bsi see documentation of border_swap_information
@@ -84,20 +84,6 @@ namespace parallel_two_lattice_framework
         const access_function access_function,
         const std::tuple<std::vector<unsigned int>, std::vector<unsigned int>> &y_values,
         const std::vector<std::tuple<unsigned int, unsigned int>> &buffer_ranges
-    );
-
-    /** 
-     * @brief This helper function of parallel_two_lattice_framework::perform_tl_stream_and_collide_parallel
-     *        is used in the HPX loop. It performs the actual streaming and collision.
-     */
-    void stream_and_collide_helper
-    (
-        const std::vector<double> &source, 
-        std::vector<double> &destination, 
-        const access_function &access_function, 
-        std::vector<velocity> &velocities, 
-        std::vector<double> &densities,
-        const start_end_it_tuple bounds
     );
 }
 

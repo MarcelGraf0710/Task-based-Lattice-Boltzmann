@@ -10,8 +10,6 @@
 #include "utils.hpp"
 
 #include <vector>
-#include <set>
-#include <iostream>
 
 /**
  * @brief This namespace contains all methods for the framework of the parallel swap algorithm.
@@ -49,7 +47,7 @@ namespace parallel_swap_framework
      * @param buffer_ranges a vector containing a tuple of the indices of the first and last node belonging to a certain buffer
      * @return sim_data_tuple see documentation of sim_data_tuple
      */
-    sim_data_tuple parallel_swap_stream_and_collide
+    sim_data_tuple stream_and_collide
     (
         const std::vector<start_end_it_tuple> &fluid_nodes,
         const border_swap_information &bsi,
@@ -72,7 +70,7 @@ namespace parallel_swap_framework
      * @param buffer_ranges a vector containing a tuple of the indices of the first and last node belonging to a certain buffer
      * @return sim_data_tuple see documentation of sim_data_tuple
      */
-    sim_data_tuple perform_swap_stream_and_collide_debug
+    sim_data_tuple stream_and_collide_debug
     (
         const std::vector<start_end_it_tuple> &fluid_nodes,
         const border_swap_information &bsi,

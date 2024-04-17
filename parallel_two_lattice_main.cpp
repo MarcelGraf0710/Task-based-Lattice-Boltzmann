@@ -1,22 +1,12 @@
 #include "include/access.hpp"
 #include "include/simulation.hpp"
 #include "include/utils.hpp"
-#include "include/sequential_two_lattice.hpp"
+#include "include/parallel_two_lattice.hpp"
 #include <hpx/hpx_init.hpp>
 
 int hpx_main()
 {
     bool enable_debug = false;
-    // if(argc > 2)
-    // {
-    //     std::cout << "Illegal argument count. Choose argument 'debug' if you want to run this program in debug mode, or run it without arguments." << std::endl;
-    //     exit(-1);
-    // }
-    // else if(argc == 2)
-    // {
-    //     std::string selection(argv[1]);
-    //     enable_debug = debug_handler(selection);
-    // }
 
     std::cout << std::endl;
     std::cout << "Starting simulation..." << std::endl;
@@ -40,7 +30,6 @@ int hpx_main()
         std::cout << "All vectors declared. " << std::endl;
         std::cout << std::endl;
     }
-
 
     /* Setting up example domain */
     setup_example_domain(distribution_values_0, nodes, fluid_nodes, phase_information, access_function, enable_debug);
@@ -76,7 +65,7 @@ int hpx_main()
     std::vector<double> distribution_values_1 = distribution_values_0;
 
     /* Run simulation */
-    sequential_two_lattice::run
+    parallel_two_lattice::run
     (
         fluid_nodes, 
         swap_info, 

@@ -1,16 +1,23 @@
-#ifndef TWO_LATTICE_PARALLEL_HPP
-#define TWO_LATTICE_PARALLEL_HPP
+#ifndef PARALLEL_TWO_LATTICE_HPP
+#define PARALLEL_TWO_LATTICE_HPP
 
-#include <vector>
-#include <set>
-#include "defines.hpp"
 #include "access.hpp"
-#include <iostream>
-#include "collision.hpp"
-#include "utils.hpp"
 #include "boundaries.hpp"
+#include "collision.hpp"
+#include "defines.hpp"
+#include "utils.hpp"
 
-namespace two_lattice_parallel
+#include "sequential_two_lattice.hpp"
+#include "parallel_framework.hpp"
+
+#include <iostream>
+#include <vector>
+
+/**
+ * @brief This namespace contains all methods for the non-framework-version of the parallel two-lattice algorithm.
+ *        In this version of the algorithm, HPX takes care of the domain decomposition and scheduling. 
+ */
+namespace parallel_two_lattice
 {
     /**
      * @brief Performs the combined streaming and collision step for all fluid nodes within the simulation domain.
@@ -23,21 +30,13 @@ namespace two_lattice_parallel
      * @param access_function the function used to access the distribution values
      * @return see documentation of sim_data_tuple
      */
-    sim_data_tuple perform_tl_stream_and_collide(
+    sim_data_tuple stream_and_collide
+    (
         const std::vector<unsigned int> &fluid_nodes,
         const border_swap_information &bsi,
         std::vector<double> &source,
         std::vector<double> &destination,
-        const access_function access_function);
-
-    void tl_stream_and_collide_helper
-    (
-        std::vector<double> &source, 
-        std::vector<double> &destination, 
-        const access_function &access_function, 
-        const unsigned int fluid_node, 
-        std::vector<velocity> &velocities, 
-        std::vector<double> &densities
+        const access_function access_function
     );
 
     /**
@@ -52,7 +51,7 @@ namespace two_lattice_parallel
      * @param access_function the function used to access the distribution values
      * @return see documentation of sim_data_tuple
      */
-    sim_data_tuple perform_tl_stream_and_collide_debug
+    sim_data_tuple stream_and_collide_debug
     (
         const std::vector<unsigned int> &fluid_nodes,
         const border_swap_information &bsi,
@@ -81,7 +80,6 @@ namespace two_lattice_parallel
         const unsigned int iterations
     );
 
-
     /**
      * @brief Updates the ghost nodes that represent inlet and outlet edges.
      *        When updating, a velocity border condition will be considered for the input
@@ -102,71 +100,6 @@ namespace two_lattice_parallel
         std::vector<double> &densities, 
         const access_function access_function
     );
-
-    /**
-     * @brief Determines the remaining streaming option for a node based on the specified border 
-     *        information vector.
-     * 
-     * @param current_border_info an entry of a border_swap_information object
-     * @return a set containing all remaining streaming directions
-     */
-    std::set<unsigned int> determine_streaming_directions
-    (
-        const std::vector<unsigned int> &current_border_info
-    );
-
-    /**
-     * @brief Performs the steaming step in all directions for the fluid node with 
-     *        the specified index.
-     * 
-     * @param source distribution values will be taken from this vector
-     * @param destination distribution values will be rearranged in this vector
-     * @param access_function function that will be used to access the distribution values
-     * @param fluid_node the index of the node for which the streaming step is performed
-     */
-    inline void tl_stream
-    (
-        const std::vector<double> &source,
-        std::vector<double> &destination, 
-        const access_function &access_function, 
-        const unsigned int fluid_node
-    )
-    {
-        for (const auto direction : ALL_DIRECTIONS)
-        {
-            destination[access_function(fluid_node, direction)] =
-                source[
-                    access_function(
-                        lbm_access::get_neighbor(fluid_node, invert_direction(direction)), 
-                        direction)];
-        }
-    }
-
-    /**
-     * @brief Performs the collision step for the fluid node with the specified index.
-     * 
-     * @param destination the updated distribution values will be written to this vector
-     * @param fluid_node the index of the fluid node
-     * @param access_function the function used to access the distribution values
-     * @param velocity the velocity at the node in question
-     * @param density the density at the node in question
-     */
-    inline void tl_collision
-    (
-        std::vector<double> &destination, 
-        const unsigned int fluid_node, 
-        const std::vector<double> &distribution_values,
-        const access_function &access_function, 
-        const velocity &velocity, 
-        const double &density
-    )
-    {
-        // std::cout << "Accessing tl_collision on node "<< fluid_node << " with velocity (" << velocity[0] << ", " << velocity[1] << ") and density " << density << std::endl;
-        std::vector<double> vals = collision::collide_bgk(distribution_values, velocity, density);
-        // std::cout << "Calculated distribution: " << std::endl;
-        // to_console::print_vector(vals);
-        lbm_access::set_distribution_values_of(vals, destination, fluid_node, access_function);
-    }
 }
 
 #endif

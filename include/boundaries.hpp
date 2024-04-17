@@ -128,22 +128,11 @@ namespace bounce_back
     );
 
     /**
-     * @brief Determines the directions in which the value will be reflected from the opposite direction.
-     * 
-     * @param current_border_info an entry of a border_swap_information object
-     * @return a set containing all bounce back directions
-     */
-    std::set<unsigned int> determine_bounce_back_directions
-    (
-        const std::vector<unsigned int> &current_border_info
-    );
-
-    /**
      * @brief Performs a halfway bounce-back streaming update for all fluid nodes within the simulation domain.
      *        This version utilizes the ghost nodes bordering a boundary node. It is intended for use with
-     *        the two-step, swap and shift algorithms.
+     *        the two-step algorithm.
      * 
-     * @param ba see documentation of border_adjacency
+     * @param bsi see documentation of border_swap_information
      * @param distribution_values a vector containing the distribution values of all nodes
      * @param access_function the access function used to access the distribution values
      */
@@ -151,25 +140,6 @@ namespace bounce_back
     (
         const border_swap_information &bsi,
         std::vector<double> &distribution_values, 
-        const access_function access_function
-    );
-
-    /**
-     * @brief Modified version of the halfway bounce-back streaming update for all fluid nodes 
-     *        within the simulation domain. Instead of using information stored in ghost nodes, 
-     *        This allows for a convenient unification of the streaming and collision step for
-     *        the two-lattice algorithm.
-     * 
-     * @param bsi see documentation of border_swap_information
-     * @param source the distribution values will be read from this vector
-     * @param destination the updated distribution values will be written to this vector
-     * @param access_function the access function used to access the distribution values
-     */
-    void perform_early_boundary_update
-    (
-        const border_swap_information &bsi,
-        const std::vector<double> &source, 
-        std::vector<double> &destination, 
         const access_function access_function
     );
 }

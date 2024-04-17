@@ -35,17 +35,25 @@ namespace parallel_two_step_framework
     );
 
     /**
-     * @brief Performs the streaming step for all fluid nodes within the specified bounds.
+     * @brief Performs the streaming and collision step for all fluid nodes within the simulation domain.
+     *        The border conditions are enforced through ghost nodes.
      * 
-     * @param fluid_nodes a tuple of the first and last element of an iterator over all fluid nodes within the respective subdomain
-     * @param distribution_values a vector containing all distribution distribution_values
+     * @param fluid_nodes a vector containing the first and last element of an iterator over all fluid nodes within each subdomain
+     * @param bsi see documentation of border_swap_information
+     * @param distribution_values a vector containing all distribution values
      * @param access_function the access to node values will be performed according to this access function
+     * @param y_values a tuple containing the y values of all regular layers (0) and all buffer layers (1)
+     * @param buffer_ranges a vector containing a tuple of the indices of the first and last node belonging to a certain buffer
+     * @return sim_data_tuple see documentation of sim_data_tuple
      */
-    void perform_stream
+    sim_data_tuple stream_and_collide
     (
-        const start_end_it_tuple fluid_node_bounds, 
-        std::vector<double> &distribution_values, 
-        const access_function access_function
+        const std::vector<start_end_it_tuple> &fluid_nodes,
+        const border_swap_information &bsi,
+        std::vector<double> &distribution_values,    
+        const access_function access_function,
+        const std::tuple<std::vector<unsigned int>, std::vector<unsigned int>> &y_values,
+        const std::vector<std::tuple<unsigned int, unsigned int>> &buffer_ranges
     );
 
     /**
@@ -71,26 +79,19 @@ namespace parallel_two_step_framework
         const std::vector<std::tuple<unsigned int, unsigned int>> &buffer_ranges
     );
 
+
     /**
-     * @brief Performs the streaming and collision step for all fluid nodes within the simulation domain.
-     *        The border conditions are enforced through ghost nodes.
+     * @brief Performs the streaming step for all fluid nodes within the specified bounds.
      * 
-     * @param fluid_nodes a vector containing the first and last element of an iterator over all fluid nodes within each subdomain
-     * @param bsi see documentation of border_swap_information
-     * @param distribution_values a vector containing all distribution values
+     * @param fluid_nodes a tuple of the first and last element of an iterator over all fluid nodes within the respective subdomain
+     * @param distribution_values a vector containing all distribution distribution_values
      * @param access_function the access to node values will be performed according to this access function
-     * @param y_values a tuple containing the y values of all regular layers (0) and all buffer layers (1)
-     * @param buffer_ranges a vector containing a tuple of the indices of the first and last node belonging to a certain buffer
-     * @return sim_data_tuple see documentation of sim_data_tuple
      */
-    sim_data_tuple stream_and_collide
+    void perform_stream
     (
-        const std::vector<start_end_it_tuple> &fluid_nodes,
-        const border_swap_information &bsi,
-        std::vector<double> &distribution_values,    
-        const access_function access_function,
-        const std::tuple<std::vector<unsigned int>, std::vector<unsigned int>> &y_values,
-        const std::vector<std::tuple<unsigned int, unsigned int>> &buffer_ranges
+        const start_end_it_tuple fluid_node_bounds, 
+        std::vector<double> &distribution_values, 
+        const access_function access_function
     );
 
     /**
