@@ -3,6 +3,7 @@
 #include <iostream>
 
 #include <hpx/algorithm.hpp>
+#include "../include/file_interaction.hpp"
 
 /**
  * @brief Performs the framework-based parallel two-lattice algorithm for the specified number of iterations.
@@ -25,7 +26,7 @@ void parallel_two_lattice_framework::run
 )
 {
     to_console::print_run_greeting("parallel two-lattice algorithm (framework version)", iterations);
-
+    hpx::chrono::high_resolution_timer t;
     std::vector<double> temp;
 
     // Initializations relevant for buffering
@@ -45,13 +46,15 @@ void parallel_two_lattice_framework::run
         result[time] = parallel_two_lattice_framework::stream_and_collide
         (fluid_nodes, boundary_nodes, distribution_values_0, distribution_values_1, access_function, y_values, buffer_ranges);
         
-        std::cout << "\tFinished iteration " << time << std::endl;
+        std::cout << "\tFinished iteration " << time  << " after " << t.elapsed() << " seconds." << std::endl;
+        t.restart();
 
         temp = std::move(distribution_values_0);
         distribution_values_0 = std::move(distribution_values_1);
         distribution_values_1 = std::move(temp);
     }
-    to_console::buffered::print_simulation_results(result);
+    //to_console::buffered::print_simulation_results(result);
+    sim_data_to_csv(result, "test.csv");
     std::cout << "All done, exiting simulation. " << std::endl;
 }
 

@@ -1,6 +1,7 @@
 #include "../include/sequential_two_lattice.hpp"
 
 #include <iostream>
+#include "../include/file_interaction.hpp"
 
 /**
  * @brief Performs the combined streaming and collision step for all fluid nodes within the simulation domain.
@@ -167,7 +168,8 @@ void sequential_two_lattice::run
         distribution_values_1 = std::move(temp);
     }
 
-    to_console::print_simulation_results(result);
+    //to_console::print_simulation_results(result);
+    sim_data_to_csv(result, "test.csv");
     std::cout << "All done, exiting simulation. " << std::endl;
 }
 

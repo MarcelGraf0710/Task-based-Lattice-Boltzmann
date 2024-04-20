@@ -12,7 +12,7 @@ int hpx_main()
 
     /* Color message */
     to_console::print_ansi_color_message();
-
+    hpx::chrono::high_resolution_timer t;
 
     /* Initializations */
     std::vector<double> distribution_values_0(0, TOTAL_NODE_COUNT * DIRECTION_COUNT);
@@ -64,6 +64,8 @@ int hpx_main()
     }
 
     std::vector<double> distribution_values_1 = distribution_values_0;
+    std::cout << "Finished setup after " << t.elapsed() << " seconds." << std::endl;
+    t.restart();
 
     /* Run simulation */
     parallel_two_lattice_framework::run
@@ -75,6 +77,8 @@ int hpx_main()
         access_function,
         TIME_STEPS
     );
+
+    std::cout << "Execution took " << t.elapsed() << " seconds " << std::endl;
 
     return hpx::finalize();
 }
