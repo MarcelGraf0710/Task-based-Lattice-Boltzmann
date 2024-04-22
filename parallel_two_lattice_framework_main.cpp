@@ -1,9 +1,9 @@
 #include "include/parallel_two_lattice_framework.hpp"
 #include <hpx/hpx_init.hpp>
 
-int hpx_main()
+int hpx_main(hpx::program_options::variables_map& vm)
 {
-    bool enable_debug = false;
+    bool enable_debug = true;
 
     std::cout << std::endl;
     std::cout << "Starting simulation..." << std::endl;
@@ -83,9 +83,13 @@ int hpx_main()
     return hpx::finalize();
 }
 
-int main()
+int main(int argc, char* argv[])
 {
-    // Initialize HPX, run hpx_main as the first HPX thread, and
-    // wait for hpx::finalize being called.
-    return hpx::init();
+    hpx::program_options::options_description desc_commandline(
+        "Usage: " HPX_APPLICATION_STRING " [options]");
+
+    hpx::local::init_params init_args;
+    init_args.desc_cmdline = desc_commandline;
+
+    return hpx::local::init(hpx_main, argc, argv, init_args);
 }

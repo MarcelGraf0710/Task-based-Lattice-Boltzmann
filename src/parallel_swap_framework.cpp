@@ -1,8 +1,10 @@
 #include "../include/parallel_swap_framework.hpp"
+#include "../include/file_interaction.hpp"
 
 #include <iostream>
 
 #include <hpx/algorithm.hpp>
+
 
 
 /**
@@ -44,7 +46,8 @@ void parallel_swap_framework::run
         (fluid_nodes, bsi, distribution_values, access_function, y_values, buffer_ranges);
         std::cout << "\tFinished iteration " << time << std::endl;
     }
-    to_console::buffered::print_simulation_results(result);
+    // to_console::buffered::print_simulation_results(result);
+    sim_data_to_csv(result, "test.csv");
     std::cout << "All done, exiting simulation. " << std::endl;
 }
 

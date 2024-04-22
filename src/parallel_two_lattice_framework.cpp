@@ -53,8 +53,8 @@ void parallel_two_lattice_framework::run
         distribution_values_0 = std::move(distribution_values_1);
         distribution_values_1 = std::move(temp);
     }
-    //to_console::buffered::print_simulation_results(result);
-    sim_data_to_csv(result, "test.csv");
+    to_console::buffered::print_simulation_results(result);
+    //parallel_domain_sim_data_to_csv(result, "test.csv");
     std::cout << "All done, exiting simulation. " << std::endl;
 }
 
