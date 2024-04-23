@@ -1,8 +1,6 @@
 #ifndef SEQUENTIAL_SHIFT_HPP
 #define SEQUENTIAL_SHIFT_HPP
 
-#define SHIFT_OFFSET HORIZONTAL_NODES + 1
-
 #include "access.hpp"
 #include "boundaries.hpp"
 #include "collision.hpp"

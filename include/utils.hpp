@@ -45,7 +45,7 @@ namespace to_console
     template <typename T>
     void print_vector(const std::vector<T> &vector)
     {
-        for(auto y = VERTICAL_NODES - 1; y >= 0; --y)
+        for(auto y = VERTICAL_NODES; y-- > 0; )
         {
             for(auto x = 0; x < HORIZONTAL_NODES; ++x)
             {
@@ -97,17 +97,17 @@ namespace to_console
      */
     inline void print_phase_vector(const std::vector<bool> &vector)
     {
-        for(auto y = VERTICAL_NODES - 1; y >= 0; --y)
+        for(auto y = VERTICAL_NODES; y-- > 0; )
         {
+            std::cout << "beep: y = " << y << std::endl;
             for(auto x = 0; x < HORIZONTAL_NODES; ++x)
             {
+                std::cout << "x=" << x << " " << std::endl;
                 if(vector[matrix_access(y,x, HORIZONTAL_NODES)]) std::cout << "\033[32m#\033[0m";
                 else std::cout << "\033[34m~\033[0m"; 
                 std::cout << " ";
             }
-            std::cout << std::endl;
         }
-        std::cout << std::endl;
     } 
 
     /**
@@ -118,7 +118,7 @@ namespace to_console
      */
     inline void print_velocity_vector(const std::vector<velocity> &vector)
     {
-        for(auto y = VERTICAL_NODES - 1; y >= 0; --y)
+        for(auto y = VERTICAL_NODES; y-- > 0; )
         {
             for(auto x = 0; x < HORIZONTAL_NODES; ++x)
             {
@@ -172,7 +172,7 @@ namespace to_console
         std::vector<double> current_values(9,0);
         std::cout << std::setprecision(3) << std::fixed;
 
-        for(auto y = VERTICAL_NODES - 1; y >= 0; --y)
+        for(auto y = VERTICAL_NODES; y-- > 0; )
         {
             for(auto i = 0; i < 3; ++i)
             {
@@ -280,7 +280,7 @@ namespace to_console
             std::cout << std::setprecision(5) << std::fixed;
             unsigned int line_counter = 0;
         
-            for(auto y = VERTICAL_NODES - 1; y >= 0; --y)
+            for(auto y = VERTICAL_NODES; y-- > 0; )
             {
                 if(line_counter == SUBDOMAIN_HEIGHT) std::cout << "\033[32m";
                 for(auto x = 0; x < HORIZONTAL_NODES; ++x)
@@ -313,7 +313,7 @@ namespace to_console
         {
             unsigned int line_counter = 0;
 
-            for(auto y = VERTICAL_NODES - 1; y >= 0; --y)
+            for(auto y = VERTICAL_NODES ; y-- > 0; )
             {
                 if(line_counter == SUBDOMAIN_HEIGHT) std::cout << "\033[32m";
                 for(auto x = 0; x < HORIZONTAL_NODES; ++x)
@@ -386,7 +386,7 @@ namespace to_console
         std::cout << std::setprecision(3) << std::fixed;
         unsigned int line_counter = 0;
 
-        for(auto y = VERTICAL_NODES - 1; y >= 0; --y)
+        for(auto y = VERTICAL_NODES ; y-- > 0; )
         {
             if(line_counter == SUBDOMAIN_HEIGHT)
             {

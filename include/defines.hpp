@@ -12,24 +12,7 @@
 
 #define DIMENSION_COUNT 2
 #define DIRECTION_COUNT 9
-#define VERTICAL_NODES 26 // 15, readable up to 50 in console, beyond not recommended // 14 as for parallel
-#define HORIZONTAL_NODES 7 // comfortable console limit: 9 
-#define TOTAL_NODE_COUNT (VERTICAL_NODES * HORIZONTAL_NODES)
-
-#define BOLTZMANN_CONSTANT 1.380649e-23
-#define RELAXATION_TIME 1.4
-#define TIME_STEPS 50
-#define SUBDOMAIN_HEIGHT 8 // 4 as for parallel
-#define SUBDOMAIN_COUNT ((VERTICAL_NODES + 1) / (1 + SUBDOMAIN_HEIGHT))
-#define BUFFER_COUNT SUBDOMAIN_COUNT - 1
-#define TOTAL_NODES_EXCLUDING_BUFFERS (TOTAL_NODE_COUNT - BUFFER_COUNT * HORIZONTAL_NODES)
-
-/// Inlet and outlet behavior ///
-
-#define INLET_VELOCITY velocity{0.1,0.0}
-#define OUTLET_VELOCITY velocity{0.00,0.0}
-#define INLET_DENSITY 1
-#define OUTLET_DENSITY 1 
+#define BOLTZMANN_CONSTANT 1.380649e-23;
 
 /// Convenience and readability type definitions ///
 
@@ -62,6 +45,28 @@ typedef std::tuple<std::vector<velocity>, std::vector<double>> sim_data_tuple;
  *        via this function, the corresponding access scheme can be specified.
  */
 typedef std::function<unsigned int(unsigned int, unsigned int)> access_function;
+
+/// Global variable declarations ///
+
+extern unsigned int VERTICAL_NODES;
+extern unsigned int HORIZONTAL_NODES;
+extern unsigned long TOTAL_NODE_COUNT;
+
+extern double RELAXATION_TIME;
+extern unsigned int TIME_STEPS;
+
+extern unsigned int SUBDOMAIN_HEIGHT;
+extern unsigned int SUBDOMAIN_COUNT;
+extern unsigned int BUFFER_COUNT;
+extern unsigned long TOTAL_NODES_EXCLUDING_BUFFERS;
+
+extern velocity INLET_VELOCITY;
+extern velocity OUTLET_VELOCITY;
+extern double INLET_DENSITY;
+extern double OUTLET_DENSITY;
+
+extern unsigned int SHIFT_OFFSET;
+extern unsigned int SHIFT_DISTRIBUTION_VALUE_COUNT;
 
 /// Global constants ///
 

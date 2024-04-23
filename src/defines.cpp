@@ -1,6 +1,26 @@
 #include "../include/defines.hpp"
 #include "../include/utils.hpp"
 
+unsigned int VERTICAL_NODES = 24;
+unsigned int HORIZONTAL_NODES = 7;
+unsigned long TOTAL_NODE_COUNT = VERTICAL_NODES * HORIZONTAL_NODES;
+
+double RELAXATION_TIME = 1.4;
+unsigned int TIME_STEPS = 50;
+
+unsigned int SUBDOMAIN_HEIGHT = 8;
+unsigned int SUBDOMAIN_COUNT = ((VERTICAL_NODES + 1) / (1 + SUBDOMAIN_HEIGHT));
+unsigned int BUFFER_COUNT = SUBDOMAIN_COUNT - 1;
+unsigned long TOTAL_NODES_EXCLUDING_BUFFERS = (TOTAL_NODE_COUNT - BUFFER_COUNT * HORIZONTAL_NODES);
+
+velocity INLET_VELOCITY = {0.1,0.0};
+velocity OUTLET_VELOCITY = {0.00,0.0};
+double INLET_DENSITY = 1;
+double OUTLET_DENSITY = 1;
+
+unsigned int SHIFT_OFFSET = HORIZONTAL_NODES + 1;
+unsigned int SHIFT_DISTRIBUTION_VALUE_COUNT = (TOTAL_NODE_COUNT + (BUFFER_COUNT) * (HORIZONTAL_NODES) + (SUBDOMAIN_COUNT) * (SHIFT_OFFSET));
+
 /** Mapping of directions as proposed by Mattila to the corresponding velocity vectors */
 const std::map<unsigned int, velocity> VELOCITY_VECTORS =
 {

@@ -23,12 +23,12 @@ set(HEADER_FILES ### General
                  include/sequential_two_lattice.hpp
                  include/sequential_two_step.hpp
                  ### Parallel implementations
-                 include/parallel_framework.hpp
+                #  include/parallel_framework.hpp
                 #  include/parallel_two_lattice.hpp
-                 include/parallel_two_lattice_framework.hpp
-                 include/parallel_two_step_framework.hpp
-                 include/parallel_swap_framework.hpp
-                 include/parallel_shift_framework.hpp
+                #  include/parallel_two_lattice_framework.hpp
+                #  include/parallel_two_step_framework.hpp
+                #  include/parallel_swap_framework.hpp
+                #  include/parallel_shift_framework.hpp
                  )
 
 set(SOURCE_FILES ###General
@@ -45,12 +45,12 @@ set(SOURCE_FILES ###General
                  src/sequential_two_lattice.cpp
                  src/sequential_two_step.cpp
                  ### Parallel implementations
-                 src/parallel_framework.cpp
+                #  src/parallel_framework.cpp
                 #  src/parallel_two_lattice.cpp
-                 src/parallel_two_lattice_framework.cpp
-                 src/parallel_two_step_framework.cpp
-                 src/parallel_swap_framework.cpp
-                 src/parallel_shift_framework.cpp
+                #  src/parallel_two_lattice_framework.cpp
+                #  src/parallel_two_step_framework.cpp
+                #  src/parallel_swap_framework.cpp
+                #  src/parallel_shift_framework.cpp
                  )
 
 ### Two-lattice algorithms
@@ -60,8 +60,8 @@ set(SOURCE_FILES ###General
 # add_executable(parallel_two_lattice parallel_two_lattice_main.cpp ${SOURCE_FILES})
 # target_link_libraries(parallel_two_lattice HPX::hpx HPX::wrap_main)
 
-add_executable(parallel_two_lattice_framework parallel_two_lattice_framework_main.cpp ${SOURCE_FILES})
-target_link_libraries(parallel_two_lattice_framework HPX::hpx HPX::wrap_main)
+# add_executable(parallel_two_lattice_framework parallel_two_lattice_framework_main.cpp ${SOURCE_FILES})
+# target_link_libraries(parallel_two_lattice_framework HPX::hpx HPX::wrap_main)
 
 ### Two-step algorithms
 
@@ -74,8 +74,8 @@ target_link_libraries(parallel_two_lattice_framework HPX::hpx HPX::wrap_main)
 
 # add_executable(sequential_swap sequential_swap_main.cpp ${SOURCE_FILES})
 
-add_executable(parallel_swap parallel_swap_main.cpp ${SOURCE_FILES})
-target_link_libraries(parallel_swap HPX::hpx HPX::wrap_main)
+# add_executable(parallel_swap parallel_swap_main.cpp ${SOURCE_FILES})
+# target_link_libraries(parallel_swap HPX::hpx HPX::wrap_main)
 
 ### Shift algorithms
 
@@ -88,5 +88,9 @@ target_link_libraries(parallel_swap HPX::hpx HPX::wrap_main)
 # add_executable(test main_global.cpp)
 #target_link_libraries(test HPX::hpx HPX::wrap_main)
 
-add_executable(benchmark main_benchmark.cpp ${SOURCE_FILES})
-target_link_libraries(benchmark HPX::hpx HPX::wrap_main)
+# add_executable(benchmark main_benchmark.cpp ${SOURCE_FILES})
+# target_link_libraries(benchmark HPX::hpx HPX::wrap_main)
+
+######
+# Log entry: Everything is working
+# Next step: Create master main that can execute everything

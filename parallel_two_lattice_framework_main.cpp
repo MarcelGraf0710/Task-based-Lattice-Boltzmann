@@ -39,6 +39,19 @@ int hpx_main(hpx::program_options::variables_map& vm)
 
     if(enable_debug)
     {
+        std::cout << "VERTICAL_NODES = " << VERTICAL_NODES << std::endl;
+        std::cout << "HORIZONTAL_NODES = " << HORIZONTAL_NODES << std::endl;
+        std::cout << "TOTAL_NODE_COUNT = " << TOTAL_NODE_COUNT << std::endl;
+        std::cout << "RELAXATION_TIME = " << RELAXATION_TIME << std::endl;
+        std::cout << "TIME_STEPS = " << TIME_STEPS << std::endl;
+        std::cout << "SUBDOMAIN_HEIGHT = " << SUBDOMAIN_HEIGHT << std::endl;
+        std::cout << "SUBDOMAIN_COUNT = " << SUBDOMAIN_COUNT << std::endl;
+        std::cout << "BUFFER_COUNT = " << BUFFER_COUNT << std::endl;
+        std::cout << "TOTAL_NODES_EXCLUDING_BUFFERS = " << TOTAL_NODES_EXCLUDING_BUFFERS << std::endl;
+        std::cout << "INLET_DENSITY = " << INLET_DENSITY << std::endl;
+        std::cout << "OUTLET_DENSITY = " << OUTLET_DENSITY << std::endl;
+
+
         /* Illustration of the phase information */
         std::cout << "Illustration of lattice: " << std::endl;
         to_console::print_phase_vector(phase_information);

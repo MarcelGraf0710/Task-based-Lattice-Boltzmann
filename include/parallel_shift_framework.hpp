@@ -10,8 +10,6 @@
 #include "parallel_framework.hpp"
 #include "sequential_shift.hpp"
 
-#define SHIFT_DISTRIBUTION_VALUE_COUNT (TOTAL_NODE_COUNT + (BUFFER_COUNT) * (HORIZONTAL_NODES) + (SUBDOMAIN_COUNT) * (SHIFT_OFFSET))
-
 /**
  * @brief This namespace contains all methods required for the parallel shift algorithm.
  *        Notice that the shift algorithm forms a rather independent framework that differs 
