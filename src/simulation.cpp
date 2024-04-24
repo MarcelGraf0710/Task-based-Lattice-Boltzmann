@@ -30,26 +30,11 @@ void setup_example_domain
 {
     distribution_values.assign(TOTAL_NODE_COUNT * DIRECTION_COUNT, 0);
 
-    if(enable_debug)
+
+    std::vector<double> values = maxwell_boltzmann_distribution(VELOCITY_VECTORS.at(4), 1);
+    for(auto i = 0; i < TOTAL_NODE_COUNT; ++i)
     {
-        /* Set up distribution values */
-        std::cout << "Setting up example domain." << std::endl;
-        std::cout << std::endl;
-        std::vector<double> values_0 = {0.00,0.01,0.02,0.03,0.04,0.05,0.06,0.07,0.08};
-        std::vector<double> values_1 = {-0.00,0.001,0.002,0.003,0.004,0.005,0.006,0.007,0.008};
-        for(auto i = 0; i < TOTAL_NODE_COUNT; ++i)
-        {
-        if(i % 2) lbm_access::set_distribution_values_of(values_0, distribution_values, i, access_function);
-        else lbm_access::set_distribution_values_of(values_1, distribution_values, i, access_function);
-        }
-    }
-    else
-    {
-        std::vector<double> values = maxwell_boltzmann_distribution(VELOCITY_VECTORS.at(4), 1);
-        for(auto i = 0; i < TOTAL_NODE_COUNT; ++i)
-        {
-            lbm_access::set_distribution_values_of(values, distribution_values, i, access_function);
-        }   
+        lbm_access::set_distribution_values_of(values, distribution_values, i, access_function);
     }    
 
     boundary_conditions::initialize_inout(distribution_values, access_function);

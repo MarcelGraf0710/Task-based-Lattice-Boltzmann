@@ -12,6 +12,10 @@ Assuming the `CMakeLists.txt` is located within the parent folder of the build f
 By default, this path looks something like this:
 `~/Documents/spack/opt/spack/YOUR-LINUX-VERSION/YOUR-COMPILER-VERSION/HPX-VERSION-FOLLOWED-BY-GIBBERISH/lib/cmake/HPX`.
 
+## Running the lattice Boltzmann execution and the benchmark
+Caution: The debug variants will run sequentially. This is intentional such that any complications that arise
+from the model itself rather than the parallel version can be spotted.
+
 ## General recommendations
 If you want to use IntelliSense, I recommend making an addition to the `c_cpp_properties.json` file within the `.vscode` folder.
 `"includePath"` usually contains `"${workspaceFolder}/**"` such that IntelliSense recursively searches through all files within the workspace folder.

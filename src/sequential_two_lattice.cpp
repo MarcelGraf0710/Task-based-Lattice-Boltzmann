@@ -144,6 +144,53 @@ void sequential_two_lattice::run
     const unsigned int iterations
 )
 {
+    std::vector<double> temp;
+    std::vector<sim_data_tuple>result(
+        iterations, 
+        std::make_tuple(std::vector<velocity>(TOTAL_NODE_COUNT, {0,0}), std::vector<double>(TOTAL_NODE_COUNT, 0)));
+
+    for(auto time = 0; time < iterations; ++time)
+    {
+        result[time] = sequential_two_lattice::stream_and_collide
+        (
+            fluid_nodes, 
+            boundary_nodes, 
+            distribution_values_0, 
+            distribution_values_1, 
+            access_function
+        );     
+
+        temp = std::move(distribution_values_0);
+        distribution_values_0 = std::move(distribution_values_1);
+        distribution_values_1 = std::move(temp);
+    }
+
+    if(RESULTS_TO_CSV)
+    {
+        sim_data_to_csv(result, "results.csv");
+    }
+}
+
+/**
+ * @brief Performs the sequential two-lattice algorithm for the specified number of iterations.
+ * 
+ * @param fluid_nodes A vector containing the indices of all fluid nodes in the domain
+ * @param boundary_nodes see documentation of border_swap_information
+ * @param distribution_values_0 source for even time steps and destination for odd time steps
+ * @param distribution_values_1 source for odd time steps and destination for even time steps
+ * @param access_function the access function according to which distribution values are to be accessed
+ * @param iterations this many iterations will be performed
+ */
+void sequential_two_lattice::run_debug
+(  
+    const std::vector<unsigned int> &fluid_nodes,       
+    const border_swap_information &boundary_nodes,
+    std::vector<double> &distribution_values_0, 
+    std::vector<double> &distribution_values_1,   
+    const access_function access_function,
+    const unsigned int iterations
+)
+{
     to_console::print_run_greeting("sequential two-lattice algorithm", iterations);
 
     std::vector<double> temp;
@@ -153,8 +200,8 @@ void sequential_two_lattice::run
 
     for(auto time = 0; time < iterations; ++time)
     {
-        std::cout << "\033[33mIteration " << time << ":\033[0m" << std::endl;
-        result[time] = sequential_two_lattice::stream_and_collide
+        std::cout << "\033[33mIteration " << time << ":\033[0m";
+        result[time] = sequential_two_lattice::stream_and_collide_debug
         (
             fluid_nodes, 
             boundary_nodes, 
@@ -163,13 +210,17 @@ void sequential_two_lattice::run
             access_function
         );     
         std::cout << "\tFinished iteration " << time << std::endl;
+
         temp = std::move(distribution_values_0);
         distribution_values_0 = std::move(distribution_values_1);
         distribution_values_1 = std::move(temp);
     }
 
+    if(RESULTS_TO_CSV)
+    {
+        sim_data_to_csv(result, "results.csv");
+    }
+
     to_console::print_simulation_results(result);
-    // sim_data_to_csv(result, "test.csv");
     std::cout << "All done, exiting simulation. " << std::endl;
 }
-

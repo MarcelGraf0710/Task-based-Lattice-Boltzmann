@@ -106,6 +106,27 @@ void write_csv_config_file(const Settings &settings)
 
     file.open("config.csv");
 
+    bool is_parallel = 
+        (
+            settings.algorithm == "parallel_two_lattice" | 
+            settings.algorithm == "parallel_two_lattice_framework" | 
+            settings.algorithm == "parallel_two_step" | 
+            settings.algorithm == "parallel_swap" | 
+            settings.algorithm == "parallel_shift"
+        );
+    
+    bool use_buffered_layout = is_parallel && settings.algorithm != "parallel_two_lattice";
+
+    // Set algorithm
+    if (!is_valid_algorithm(settings.algorithm))
+    {
+        std::cout << "The following algorithm is invalid and was not written to the csv file: " << settings.algorithm << "\n";
+    }
+    else
+    {
+        file << "algorithm," << settings.algorithm << "\n";
+    }
+
     // Debug mode
     file << "debug_mode," << settings.debug_mode << "\n";
 
@@ -123,7 +144,6 @@ void write_csv_config_file(const Settings &settings)
     else
     {
         file << "access_pattern," << settings.access_pattern << "\n";
-        file << "access_pattern_shift," << settings.access_pattern << "\n";
     }
 
     // Set relaxation time
@@ -134,13 +154,22 @@ void write_csv_config_file(const Settings &settings)
     
     /* Setup of domain parameters for parallel or sequential algorithms */
     file << "horizontal_nodes," << settings.horizontal_nodes << "\n";
-    if(settings.is_parallel) 
+
+    if(use_buffered_layout) 
     {
         file << "vertical_nodes_excluding_buffers," << settings.vertical_nodes_excluding_buffers << "\n";
+        subdomain_count = settings.subdomain_count;
         file << "subdomain_count," << settings.subdomain_count << "\n";
         
-        subdomain_height = settings.vertical_nodes_excluding_buffers / settings.subdomain_count;
-        file << "subdomain_height," << subdomain_height << "\n";
+        if(subdomain_count > 0)
+        {
+            subdomain_height = settings.vertical_nodes_excluding_buffers / settings.subdomain_count;
+            file << "subdomain_height," << subdomain_height << "\n";
+        }
+        else
+        {
+            std::cout << "Invalid subdomain count (will not be written to the csv file): " << subdomain_count << "\n";
+        }
 
         buffer_count = settings.subdomain_count - 1;
         file << "buffer_count," << buffer_count << "\n";
@@ -151,7 +180,7 @@ void write_csv_config_file(const Settings &settings)
         file << "total_node_count," << total_node_count << "\n";
         file << "total_nodes_excluding_buffers," << settings.vertical_nodes_excluding_buffers * settings.horizontal_nodes << "\n";
     }
-    else // sequential case
+    else // Non-buffered layout, i.e. sequential algorithm or non-framework parallel two-lattice
     {
         vertical_nodes = settings.vertical_nodes_excluding_buffers;
         file << "vertical_nodes," << vertical_nodes << "\n";
@@ -160,12 +189,26 @@ void write_csv_config_file(const Settings &settings)
         total_node_count = settings.vertical_nodes_excluding_buffers * settings.horizontal_nodes;
         file << "total_node_count," << total_node_count << "\n";
 
-        // Those specifications are theoretically unnecessary for sequential algorithms but are made for consistency
-        file << "subdomain_height," << 0 << "\n";
-        subdomain_count = 0;
-        file << "subdomain_count," << 0 << "\n";
-        buffer_count = 0;
-        file << "buffer_count," << 0 << "\n";
+        if(is_parallel) // non-framework parallel two-lattice
+        {
+            subdomain_count = settings.subdomain_count;
+            file << "subdomain_count," << settings.subdomain_count << "\n";
+        
+            subdomain_height = settings.vertical_nodes_excluding_buffers / settings.subdomain_count;
+            file << "subdomain_height," << subdomain_height << "\n";
+
+            buffer_count = 0;
+            file << "buffer_count," << buffer_count << "\n";
+        }
+        else // Sequential algorithm
+        {
+            // Those specifications are theoretically unnecessary for sequential algorithms but are made for consistency
+            file << "subdomain_height," << 0 << "\n";
+            subdomain_count = 0;
+            file << "subdomain_count," << subdomain_count << "\n";
+            buffer_count = 0;
+            file << "buffer_count," << 0 << "\n";
+        }
     }
 
     // Specification of parameters for shift algorithms
@@ -210,7 +253,11 @@ Settings retrieve_settings_from_csv(const std::string &filename)
             Tokenizer tokenizer(line);
             line_contents.assign(tokenizer.begin(),tokenizer.end());
 
-            if(line_contents[0] == "debug_mode")
+            if(line_contents[0] == "algorithm")
+            {
+                settings.algorithm = line_contents[1]; 
+            }
+            else if(line_contents[0] == "debug_mode")
             {
                 settings.debug_mode = std::stoi(line_contents[1]);
             }
@@ -221,10 +268,6 @@ Settings retrieve_settings_from_csv(const std::string &filename)
             else if(line_contents[0] == "access_pattern")
             {
                 settings.access_pattern = line_contents[1];
-            }
-            else if(line_contents[0] == "access_pattern_shift")
-            {
-                settings.access_pattern_shift = line_contents[1];
             }
             else if(line_contents[0] == "relaxation_time")
             {
@@ -261,15 +304,6 @@ Settings retrieve_settings_from_csv(const std::string &filename)
             else if(line_contents[0] == "subdomain_count")
             {
                 settings.subdomain_count = std::stoi(line_contents[1]);
-                
-                if(settings.subdomain_count == 0)
-                {
-                    settings.is_parallel = false;
-                }
-                else
-                {
-                    settings.is_parallel = true;
-                }
             }
             else if(line_contents[0] == "buffer_count")
             {
@@ -300,6 +334,8 @@ Settings retrieve_settings_from_csv(const std::string &filename)
                 settings.outlet_density = std::stod(line_contents[1]);
             }
         }
+        
+        settings_file.close();
     }
 
     return settings;

@@ -6,6 +6,7 @@
 #include "collision.hpp"
 #include "boundaries.hpp"
 #include "defines.hpp"
+#include "file_interaction.hpp"
 #include "macroscopic.hpp"
 #include "parallel_framework.hpp"
 #include "sequential_shift.hpp"
@@ -30,6 +31,26 @@ namespace parallel_shift_framework
      * @param iterations          this many iterations will be performed
      */
     void run
+    (  
+        const std::vector<start_end_it_tuple> &fluid_nodes,       
+        const std::vector<border_swap_information> &boundary_nodes,
+        std::vector<double> &distribution_values,   
+        const access_function access_function,
+        const unsigned int iterations
+    );
+
+    /**
+     * @brief Performs the parallel shift algorithm for the specified number of iterations.
+     * 
+     * @param fluid_nodes         a vector of tuples of iterators pointing at the first and last fluid node of each domain
+     * @param boundary_nodes      a vector of border_swap_information for each subdomain, 
+     *                            see documentation of border_swap_information
+     * @param distribution_values a vector containing all distribution values, including those of buffer and "overlap" nodes
+     * @param access_function     An access function from the namespace parallel_shift_framework::access_functions.
+     *                            Caution: This algorithm is NOT compatible with the access functions from the namespace lbm_access.
+     * @param iterations          this many iterations will be performed
+     */
+    void run_debug
     (  
         const std::vector<start_end_it_tuple> &fluid_nodes,       
         const std::vector<border_swap_information> &boundary_nodes,
@@ -283,7 +304,7 @@ namespace parallel_shift_framework
         unsigned int line_counter = 0;
         unsigned int natural_offset = 0;
 
-        for(auto y = VERTICAL_NODES - 1; y >= 0; --y)
+        for(auto y = VERTICAL_NODES; y-- > 0; )
         {
             if(line_counter == SUBDOMAIN_HEIGHT)
                 std::cout << "\033[32m";

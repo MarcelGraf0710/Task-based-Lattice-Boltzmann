@@ -43,10 +43,10 @@ for i in range(1, len(read_content)):
 
 plot.figure(dpi=200)
 plot.title('Rosenbrock function as 2d heat map')
-p = plot.imshow(velocities_x[-1], extent=[min_x-0.5, max_x-0.5, min_y-0.5, max_y-0.5], cmap='inferno', vmin=0, vmax=0.1)
+p = plot.imshow(velocities_x[-1], extent=(min_x-0.5, max_x+0.5, min_y-0.5, max_y+0.5), cmap='inferno', vmin=0, vmax=0.2)
 plot.colorbar(p)
-plot.xticks(numpy.arange(10, max_x, step=10))
-plot.yticks(numpy.arange(10, max_y, step=10))
+plot.xticks(numpy.linspace(min_x, max_x, 10))
+plot.yticks(numpy.linspace(min_y, max_y, 10))
 plot.xlabel('x')
 plot.ylabel('y')
 plot.show()

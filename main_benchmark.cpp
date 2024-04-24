@@ -9,7 +9,6 @@
 char* algorithm_picker(const std::string &algorithm, bool parallel, unsigned int number_of_cores)
 {
     std::string command_line_instruction = "";
-
     // Select if algorithm is parallel or not
     if(parallel)
     {
@@ -47,7 +46,19 @@ char* algorithm_picker(const std::string &algorithm, bool parallel, unsigned int
     return result;
 }
 
-
+Settings csv_test(const std::string& algorithm)
+{
+    Settings result;
+    result.debug_mode = 0;
+    result.results_to_csv = 1;
+    result.horizontal_nodes = 200;
+    result.algorithm = algorithm;
+    result.vertical_nodes_excluding_buffers = 50;
+    result.subdomain_count = 5;
+    result.access_pattern = "bundle";
+    result.time_steps = 800;
+    return result;
+}
 
 int main(int argc, char* argv[])
 {
@@ -71,27 +82,29 @@ int main(int argc, char* argv[])
     // system("./parallel_two_lattice_framework -t2 --hpx:bind=thread:0-1=core:0-1.pu:0 --hpx:dump-config");
 
     /* Example execution */
-    std::cout << algorithm_picker("two_lattice", true, 4) << std::endl;
-    system(algorithm_picker("two_lattice", true, 4));
+    // std::cout << algorithm_picker("two_lattice", true, 4) << std::endl;
+    // system(algorithm_picker("two_lattice", true, 4));
 
-    for(bool parallel : select_parallel_algorithm)
-    {
-        for(std::string access_pattern : access_patterns)
-        {
-            for(std::string algorithm : algorithms)
-            {
-                for(unsigned int current_pow_2_vertical_nodes : pow_2_vertical_nodes)
-                {  
-                   for(unsigned int current_horizontal_nodes : horizontal_nodes) 
-                   {
-                        // Write options file
-                        // execute algorithm
-                   }
-                }
-            }
-        }
-    }
+    // for(bool parallel : select_parallel_algorithm)
+    // {
+    //     for(std::string access_pattern : access_patterns)
+    //     {
+    //         for(std::string algorithm : algorithms)
+    //         {
+    //             for(unsigned int current_pow_2_vertical_nodes : pow_2_vertical_nodes)
+    //             {  
+    //                for(unsigned int current_horizontal_nodes : horizontal_nodes) 
+    //                {
+    //                     // Write options file
+    //                     // execute algorithm
+    //                }
+    //             }
+    //         }
+    //     }
+    // }
 
+    Settings example = csv_test("parallel_two_lattice_framework");
+    write_csv_config_file(example);
 
 }
 

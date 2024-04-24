@@ -5,6 +5,7 @@
 #include "boundaries.hpp"
 #include "collision.hpp"
 #include "defines.hpp"
+#include "file_interaction.hpp"
 #include "macroscopic.hpp"
 
 #include <set>
@@ -77,6 +78,24 @@ namespace sequential_two_step
      * @param iterations this many iterations will be performed
      */
     void run
+    (  
+        std::vector<unsigned int> &fluid_nodes,       
+        std::vector<double> &distribution_values, 
+        border_swap_information &bsi,
+        access_function access_function,
+        unsigned int iterations
+    );
+
+    /**
+     * @brief Performs the sequential two-step algorithm for the specified number of iterations.
+     * 
+     * @param fluid_nodes A vector containing the indices of all fluid nodes in the domain
+     * @param distribution_values the vector containing the distribution values of all nodes
+     * @param bsi see documentation of border_swap_information
+     * @param access_function the access function according to which the values are to be accessed
+     * @param iterations this many iterations will be performed
+     */
+    void run_debug
     (  
         std::vector<unsigned int> &fluid_nodes,       
         std::vector<double> &distribution_values, 

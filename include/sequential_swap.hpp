@@ -5,6 +5,7 @@
 #include "boundaries.hpp"
 #include "collision.hpp"
 #include "defines.hpp"
+#include "file_interaction.hpp"
 #include "macroscopic.hpp"
 #include "utils.hpp"
 
@@ -42,6 +43,7 @@ namespace sequential_swap
      * @brief Performs the sequential swap algorithm for the specified number of iterations.
      * 
      * @param fluid_nodes A vector containing the indices of all fluid nodes in the domain
+     * @param bsi see documentation of border_swap_information
      * @param values the vector containing the distribution values of all nodes
      * @param access_function the access function according to which the values are to be accessed
      * @param iterations this many iterations will be performed
@@ -49,7 +51,25 @@ namespace sequential_swap
     void run
     (  
         const std::vector<unsigned int> &fluid_nodes,
-        const std::vector<bool> &phase_information,       
+        const border_swap_information &bsi,
+        std::vector<double> &values, 
+        const access_function access_function,
+        const unsigned int iterations
+    );
+
+    /**
+     * @brief Performs the sequential swap algorithm for the specified number of iterations.
+     * 
+     * @param fluid_nodes A vector containing the indices of all fluid nodes in the domain
+     * @param bsi see documentation of border_swap_information
+     * @param values the vector containing the distribution values of all nodes
+     * @param access_function the access function according to which the values are to be accessed
+     * @param iterations this many iterations will be performed
+     */
+    void run_debug
+    (  
+        const std::vector<unsigned int> &fluid_nodes,
+        const border_swap_information &bsi,
         std::vector<double> &values, 
         const access_function access_function,
         const unsigned int iterations

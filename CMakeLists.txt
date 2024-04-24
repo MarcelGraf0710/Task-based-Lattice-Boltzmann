@@ -14,6 +14,7 @@ set(HEADER_FILES ### General
                  include/collision.hpp
                  include/defines.hpp
                  include/file_interaction.hpp
+                 include/lbm_execution.hpp
                  include/macroscopic.hpp
                  include/utils.hpp
                  ### Sequential implementations
@@ -23,12 +24,12 @@ set(HEADER_FILES ### General
                  include/sequential_two_lattice.hpp
                  include/sequential_two_step.hpp
                  ### Parallel implementations
-                #  include/parallel_framework.hpp
-                #  include/parallel_two_lattice.hpp
-                #  include/parallel_two_lattice_framework.hpp
-                #  include/parallel_two_step_framework.hpp
-                #  include/parallel_swap_framework.hpp
-                #  include/parallel_shift_framework.hpp
+                 include/parallel_framework.hpp
+                 include/parallel_two_lattice.hpp
+                 include/parallel_two_lattice_framework.hpp
+                 include/parallel_two_step_framework.hpp
+                 include/parallel_swap_framework.hpp
+                 include/parallel_shift_framework.hpp
                  )
 
 set(SOURCE_FILES ###General
@@ -37,6 +38,7 @@ set(SOURCE_FILES ###General
                  src/collision.cpp
                  src/defines.cpp
                  src/file_interaction.cpp
+                 src/lbm_execution.cpp
                  src/macroscopic.cpp
                  ### Sequential implementations
                  src/simulation.cpp
@@ -45,12 +47,12 @@ set(SOURCE_FILES ###General
                  src/sequential_two_lattice.cpp
                  src/sequential_two_step.cpp
                  ### Parallel implementations
-                #  src/parallel_framework.cpp
-                #  src/parallel_two_lattice.cpp
-                #  src/parallel_two_lattice_framework.cpp
-                #  src/parallel_two_step_framework.cpp
-                #  src/parallel_swap_framework.cpp
-                #  src/parallel_shift_framework.cpp
+                 src/parallel_framework.cpp
+                 src/parallel_two_lattice.cpp
+                 src/parallel_two_lattice_framework.cpp
+                 src/parallel_two_step_framework.cpp
+                 src/parallel_swap_framework.cpp
+                 src/parallel_shift_framework.cpp
                  )
 
 ### Two-lattice algorithms
@@ -88,8 +90,11 @@ set(SOURCE_FILES ###General
 # add_executable(test main_global.cpp)
 #target_link_libraries(test HPX::hpx HPX::wrap_main)
 
-# add_executable(benchmark main_benchmark.cpp ${SOURCE_FILES})
-# target_link_libraries(benchmark HPX::hpx HPX::wrap_main)
+add_executable(benchmark main_benchmark.cpp ${SOURCE_FILES})
+target_link_libraries(benchmark HPX::hpx HPX::wrap_main)
+
+add_executable(test main_global.cpp ${SOURCE_FILES})
+target_link_libraries(test HPX::hpx HPX::wrap_main)
 
 ######
 # Log entry: Everything is working

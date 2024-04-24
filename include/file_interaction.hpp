@@ -24,7 +24,7 @@ struct Settings
     /* General parameters */
     int debug_mode = 0;
     int results_to_csv = 0;
-    bool is_parallel = true;
+    std::string algorithm = "sequential_two_lattice";
     std::string access_pattern = "collision";
     unsigned int vertical_nodes = 26;
     unsigned int vertical_nodes_excluding_buffers = 24;
@@ -46,9 +46,8 @@ struct Settings
     double outlet_density = 1;
 
     /* Parameters relevant for shift algorithms */
-    std::string access_pattern_shift = "collision";
-    unsigned long shift_distribution_value_count = 223;
-    unsigned int shift_offset = 9;
+    unsigned long shift_distribution_value_count = 220;
+    unsigned int shift_offset = 8;
 };
 
 /**
@@ -79,7 +78,7 @@ void parallel_domain_sim_data_to_csv(std::vector<sim_data_tuple> &data, const st
  *        The following parameters of the struct must be specified:
  *        
  *        Always:
- *        - is_parallel
+ *        - algorithm
  *        - access_pattern
  *        - relaxation_time
  *        - vertical_nodes_excluding_buffers
@@ -108,5 +107,27 @@ void write_csv_config_file(const Settings &settings);
  * @return Settings a struct containing the specified values, missing values will be initialized by default
  */
 Settings retrieve_settings_from_csv(const std::string &filename);
+
+/**
+ * @brief Determines whether the specified string resembles a valid algorithm.
+ * 
+ * @param algorithm a string representing an algorithm
+ * @return true if the specified string resembles a valid algorithm, and false if it does not
+ */
+inline bool is_valid_algorithm(const std::string &algorithm)
+{
+    return 
+    // Sequential algorithms
+    algorithm == "sequential_two_lattice" | 
+    algorithm == "sequential_two_step" |
+    algorithm == "sequential_swap" | 
+    algorithm == "sequential_shift" | 
+    // Parallel algorithms
+    algorithm == "parallel_two_lattice" | 
+    algorithm == "parallel_two_lattice_framework" | 
+    algorithm == "parallel_two_step" |
+    algorithm == "parallel_swap" | 
+    algorithm == "parallel_shift";
+}
 
 #endif

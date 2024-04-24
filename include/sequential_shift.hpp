@@ -5,6 +5,7 @@
 #include "boundaries.hpp"
 #include "collision.hpp"
 #include "defines.hpp"
+#include "file_interaction.hpp"
 #include "utils.hpp"
 
 #include <vector>
@@ -104,6 +105,25 @@ namespace sequential_shift
      * @param iterations          this many iterations will be performed
      */
     void run
+    (  
+        std::vector<unsigned int> &fluid_nodes,       
+        std::vector<double> &values, 
+        border_swap_information &bsi,
+        access_function access_function,
+        unsigned int iterations
+    );
+
+    /**
+     * @brief Performs the parallel shift algorithm for the specified number of iterations.
+     * 
+     * @param fluid_nodes         a vector containing the indices of all fluid nodes within the simulation domain.
+     * @param bsi                 see documentation of border_swap_information
+     * @param distribution_values a vector containing all distribution values, including those of buffer and "overlap" nodes
+     * @param access_function     An access function from the namespace sequential_shift::access_functions.
+     *                            Caution: This algorithm is NOT compatible with the access functions from the namespace lbm_access.
+     * @param iterations          this many iterations will be performed
+     */
+    void run_debug
     (  
         std::vector<unsigned int> &fluid_nodes,       
         std::vector<double> &values, 

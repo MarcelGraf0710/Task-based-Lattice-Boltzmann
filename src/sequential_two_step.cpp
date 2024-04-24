@@ -173,6 +173,45 @@ void sequential_two_step::run
     unsigned int iterations
 )
 {
+    std::vector<sim_data_tuple>result(
+        iterations, 
+        std::make_tuple(std::vector<velocity>(TOTAL_NODE_COUNT, {0,0}), std::vector<double>(TOTAL_NODE_COUNT, 0)));
+
+    for(auto time = 0; time < iterations; ++time)
+    {
+        result[time] = sequential_two_step::stream_and_collide
+        (
+            fluid_nodes, 
+            bsi, 
+            distribution_values, 
+            access_function
+        );
+    }
+
+    if(RESULTS_TO_CSV)
+    {
+        sim_data_to_csv(result, "results.csv");
+    }
+}
+
+/**
+ * @brief Performs the sequential two-step algorithm for the specified number of iterations.
+ * 
+ * @param fluid_nodes A vector containing the indices of all fluid nodes in the domain
+ * @param distribution_values the vector containing the distribution values of all nodes
+ * @param bsi see documentation of border_swap_information
+ * @param access_function the access function according to which the values are to be accessed
+ * @param iterations this many iterations will be performed
+ */
+void sequential_two_step::run_debug
+(  
+    std::vector<unsigned int> &fluid_nodes,       
+    std::vector<double> &distribution_values, 
+    border_swap_information &bsi,
+    access_function access_function,
+    unsigned int iterations
+)
+{
     to_console::print_run_greeting("sequential two-step algorithm", iterations);
 
     std::vector<sim_data_tuple>result(
@@ -181,8 +220,8 @@ void sequential_two_step::run
 
     for(auto time = 0; time < iterations; ++time)
     {
-        std::cout << "\033[33mIteration " << time << ":\033[0m" << std::endl;
-        result[time] = sequential_two_step::stream_and_collide
+        std::cout << "\033[33mIteration " << time << ":\033[0m";
+        result[time] = sequential_two_step::stream_and_collide_debug
         (
             fluid_nodes, 
             bsi, 
@@ -190,6 +229,11 @@ void sequential_two_step::run
             access_function
         );
         std::cout << "\tFinished iteration " << time << std::endl;
+    }
+
+    if(RESULTS_TO_CSV)
+    {
+        sim_data_to_csv(result, "results.csv");
     }
 
     to_console::print_simulation_results(result);

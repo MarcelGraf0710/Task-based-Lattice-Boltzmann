@@ -99,14 +99,13 @@ namespace to_console
     {
         for(auto y = VERTICAL_NODES; y-- > 0; )
         {
-            std::cout << "beep: y = " << y << std::endl;
             for(auto x = 0; x < HORIZONTAL_NODES; ++x)
             {
-                std::cout << "x=" << x << " " << std::endl;
                 if(vector[matrix_access(y,x, HORIZONTAL_NODES)]) std::cout << "\033[32m#\033[0m";
                 else std::cout << "\033[34m~\033[0m"; 
                 std::cout << " ";
             }
+            std::cout << std::endl;
         }
     } 
 

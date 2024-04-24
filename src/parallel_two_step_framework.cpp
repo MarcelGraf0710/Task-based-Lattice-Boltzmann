@@ -22,6 +22,47 @@ void parallel_two_step_framework::run
     const unsigned int iterations
 )
 {
+    // Initializations relevant for buffering
+    std::vector<std::tuple<unsigned int, unsigned int>> buffer_ranges;
+    std::tuple<std::vector<unsigned int>, std::vector<unsigned int>> y_values;
+    parallel_framework::buffer_dimension_initializations(buffer_ranges, y_values);
+
+    std::vector<sim_data_tuple>result(
+        iterations, 
+        std::make_tuple(std::vector<velocity>(TOTAL_NODE_COUNT, {0,0}), std::vector<double>(TOTAL_NODE_COUNT, 0)));
+
+    /* Parallelization framework */
+    for(auto time = 0; time < iterations; ++time)
+    {
+        result[time] = parallel_two_step_framework::stream_and_collide
+        (fluid_nodes, bsi, distribution_values, access_function, y_values, buffer_ranges);
+    }
+
+    if(RESULTS_TO_CSV)
+    {
+        parallel_domain_sim_data_to_csv(result, "results.csv");
+    }
+}
+
+/**
+ * @brief Performs the parallel two-step algorithm for the specified number of iterations.
+ * 
+ * @param fluid_nodes a vector containing the first and last element of an iterator over all fluid nodes within each subdomain
+ * @param distribution_values the vector containing the distribution values of all nodes
+ * @param bsi see documentation of border_swap_information
+ * @param access_function the access function according to which the values are to be accessed
+ * @param iterations this many iterations will be performed
+ */
+void parallel_two_step_framework::run_debug
+(  
+    const std::vector<start_end_it_tuple> &fluid_nodes,       
+    std::vector<double> &distribution_values, 
+    const border_swap_information &bsi,
+    const access_function access_function,
+    const unsigned int iterations
+)
+{
+
     to_console::print_run_greeting("parallel two-step algorithm", iterations);
 
     // Initializations relevant for buffering
@@ -36,12 +77,17 @@ void parallel_two_step_framework::run
     /* Parallelization framework */
     for(auto time = 0; time < iterations; ++time)
     {
-        std::cout << "\033[33mIteration " << time << ":\033[0m" << std::endl;
+        std::cout << "\033[33mIteration " << time << ":\033[0m";
 
-        result[time] = parallel_two_step_framework::stream_and_collide
+        result[time] = parallel_two_step_framework::stream_and_collide_debug
         (fluid_nodes, bsi, distribution_values, access_function, y_values, buffer_ranges);
 
         std::cout << "\tFinished iteration " << time << std::endl;
+    }
+
+    if(RESULTS_TO_CSV)
+    {
+        parallel_domain_sim_data_to_csv(result, "results.csv");
     }
 
     to_console::buffered::print_simulation_results(result);

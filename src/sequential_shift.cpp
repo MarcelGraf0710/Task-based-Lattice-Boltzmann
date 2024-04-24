@@ -161,6 +161,40 @@ void sequential_shift::run
     unsigned int iterations
 )
 {
+    std::vector<sim_data_tuple>result(
+        iterations,
+        std::make_tuple(std::vector<velocity>(TOTAL_NODE_COUNT, {0,0}), std::vector<double>(TOTAL_NODE_COUNT, 0)));
+
+    for(auto time = 0; time < iterations; ++time)
+    {
+        result[time] = sequential_shift::stream_and_collide(values, fluid_nodes, bsi, access_function, time); 
+    }
+
+    if(RESULTS_TO_CSV)
+    {
+        sim_data_to_csv(result, "results.csv");
+    }
+}
+
+/**
+ * @brief Performs the parallel shift algorithm for the specified number of iterations.
+ * 
+ * @param fluid_nodes         a vector containing the indices of all fluid nodes within the simulation domain.
+ * @param bsi                 see documentation of border_swap_information
+ * @param distribution_values a vector containing all distribution values, including those of buffer and "overlap" nodes
+ * @param access_function     An access function from the namespace sequential_shift::access_functions.
+ *                            Caution: This algorithm is NOT compatible with the access functions from the namespace lbm_access.
+ * @param iterations          this many iterations will be performed
+ */
+void sequential_shift::run_debug
+(  
+    std::vector<unsigned int> &fluid_nodes,       
+    std::vector<double> &values, 
+    border_swap_information &bsi,
+    access_function access_function,
+    unsigned int iterations
+)
+{
     to_console::print_run_greeting("sequential shift algorithm", iterations);
 
     std::vector<sim_data_tuple>result(
@@ -170,10 +204,19 @@ void sequential_shift::run
     for(auto time = 0; time < iterations; ++time)
     {
         std::cout << "\033[33mIteration " << time << ":\033[0m" << std::endl;
+
         result[time] = sequential_shift::stream_and_collide(values, fluid_nodes, bsi, access_function, time);
+
         std::cout << "\tFinished iteration " << time << std::endl;
     }
+
+    if(RESULTS_TO_CSV)
+    {
+        sim_data_to_csv(result, "results.csv");
+    }
+
     to_console::print_simulation_results(result);
+    std::cout << "All done, exiting simulation. " << std::endl;
 }
 
 /**

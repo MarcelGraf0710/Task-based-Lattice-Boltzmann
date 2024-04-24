@@ -1,6 +1,9 @@
 #include "../include/defines.hpp"
 #include "../include/utils.hpp"
 
+bool DEBUG_MODE = false;
+bool RESULTS_TO_CSV = false;
+
 unsigned int VERTICAL_NODES = 24;
 unsigned int HORIZONTAL_NODES = 7;
 unsigned long TOTAL_NODE_COUNT = VERTICAL_NODES * HORIZONTAL_NODES;
@@ -20,6 +23,8 @@ double OUTLET_DENSITY = 1;
 
 unsigned int SHIFT_OFFSET = HORIZONTAL_NODES + 1;
 unsigned int SHIFT_DISTRIBUTION_VALUE_COUNT = (TOTAL_NODE_COUNT + (BUFFER_COUNT) * (HORIZONTAL_NODES) + (SUBDOMAIN_COUNT) * (SHIFT_OFFSET));
+
+access_function ACCESS_FUNCTION = lbm_access::collision;
 
 /** Mapping of directions as proposed by Mattila to the corresponding velocity vectors */
 const std::map<unsigned int, velocity> VELOCITY_VECTORS =

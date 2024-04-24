@@ -5,6 +5,7 @@
 #include "boundaries.hpp"
 #include "collision.hpp"
 #include "defines.hpp"
+#include "file_interaction.hpp"
 #include "parallel_framework.hpp"
 #include "sequential_swap.hpp"
 #include "utils.hpp"
@@ -27,6 +28,24 @@ namespace parallel_swap_framework
      * @param iterations this many iterations will be performed
      */
     void run
+    (  
+        const std::vector<start_end_it_tuple> &fluid_nodes,       
+        std::vector<double> &distribution_values, 
+        const border_swap_information &bsi,
+        const access_function access_function,
+        const unsigned int iterations
+    );
+
+    /**
+     * @brief Performs the parallel swap algorithm for the specified number of iterations.
+     * 
+     * @param fluid_nodes a vector containing the first and last element of an iterator over all fluid nodes within each subdomain
+     * @param distribution_values the vector containing the distribution values of all nodes
+     * @param bsi see documentation of border_swap_information
+     * @param access_function the access function according to which the values are to be accessed
+     * @param iterations this many iterations will be performed
+     */
+    void run_debug
     (  
         const std::vector<start_end_it_tuple> &fluid_nodes,       
         std::vector<double> &distribution_values, 

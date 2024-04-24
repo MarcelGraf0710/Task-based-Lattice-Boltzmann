@@ -48,6 +48,9 @@ typedef std::function<unsigned int(unsigned int, unsigned int)> access_function;
 
 /// Global variable declarations ///
 
+extern bool DEBUG_MODE;
+extern bool RESULTS_TO_CSV;
+
 extern unsigned int VERTICAL_NODES;
 extern unsigned int HORIZONTAL_NODES;
 extern unsigned long TOTAL_NODE_COUNT;
@@ -67,6 +70,8 @@ extern double OUTLET_DENSITY;
 
 extern unsigned int SHIFT_OFFSET;
 extern unsigned int SHIFT_DISTRIBUTION_VALUE_COUNT;
+
+extern access_function ACCESS_FUNCTION;
 
 /// Global constants ///
 

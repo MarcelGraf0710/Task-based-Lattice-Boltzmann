@@ -24,6 +24,50 @@ void parallel_shift_framework::run
     const unsigned int iterations
 )
 {
+    std::vector<std::tuple<unsigned int, unsigned int>> buffer_ranges;
+    for (auto buffer_index = 0; buffer_index < BUFFER_COUNT; ++buffer_index)
+    {
+        buffer_ranges.push_back(parallel_framework::get_buffer_node_range(buffer_index));
+    }
+
+    std::vector<sim_data_tuple>result(
+        iterations, 
+        std::make_tuple(std::vector<velocity>(TOTAL_NODE_COUNT, {0,0}), std::vector<double>(TOTAL_NODE_COUNT, 0))
+    );
+
+    /* Parallelization framework */
+    for(auto time = 0; time < iterations; ++time)
+    {
+        result[time] = parallel_shift_framework::stream_and_collide
+        (fluid_nodes, boundary_nodes, distribution_values, access_function, buffer_ranges, time);
+    }
+
+    if(RESULTS_TO_CSV)
+    {
+        parallel_domain_sim_data_to_csv(result, "results.csv");
+    }
+}
+
+/**
+ * @brief Performs the parallel shift algorithm for the specified number of iterations.
+ * 
+ * @param fluid_nodes         a vector of tuples of iterators pointing at the first and last fluid node of each domain
+ * @param boundary_nodes      a vector of border_swap_information for each subdomain, 
+ *                            see documentation of border_swap_information
+ * @param distribution_values a vector containing all distribution values, including those of buffer and "overlap" nodes
+ * @param access_function     An access function from the namespace parallel_shift_framework::access_functions.
+ *                            Caution: This algorithm is NOT compatible with the access functions from the namespace lbm_access.
+ * @param iterations          this many iterations will be performed
+ */
+void parallel_shift_framework::run_debug
+(  
+    const std::vector<start_end_it_tuple> &fluid_nodes,       
+    const std::vector<border_swap_information> &boundary_nodes,
+    std::vector<double> &distribution_values,   
+    const access_function access_function,
+    const unsigned int iterations
+)
+{
     to_console::print_run_greeting("parallel shift algorithm", iterations);
 
     std::vector<std::tuple<unsigned int, unsigned int>> buffer_ranges;
@@ -40,13 +84,19 @@ void parallel_shift_framework::run
     /* Parallelization framework */
     for(auto time = 0; time < iterations; ++time)
     {
-        std::cout << "\033[33mIteration " << time << ":\033[0m" << std::endl;
-
-        result[time] = parallel_shift_framework::stream_and_collide
-        (fluid_nodes, boundary_nodes, distribution_values, access_function, buffer_ranges, time);
+        std::cout << "\033[33mIteration " << time << ":\033[0m";
         
+        result[time] = parallel_shift_framework::stream_and_collide_debug
+        (fluid_nodes, boundary_nodes, distribution_values, access_function, buffer_ranges, time);
+
         std::cout << "\tFinished iteration " << time << std::endl;
     }
+
+    if(RESULTS_TO_CSV)
+    {
+        parallel_domain_sim_data_to_csv(result, "results.csv");
+    }
+
     to_console::buffered::print_simulation_results(result);
     std::cout << "All done, exiting simulation. " << std::endl;
 }
@@ -214,10 +264,10 @@ sim_data_tuple parallel_shift_framework::stream_and_collide_debug
         // Emplace bounce-back values
         for(auto subdomain = 0; subdomain < SUBDOMAIN_COUNT; ++subdomain)
         {
+            std::cout << "Proceeding with subdomain " << subdomain << std::endl;
             unsigned int subdomain_offset = subdomain * (SHIFT_OFFSET);
             parallel_shift_framework::emplace_bounce_back_values(bsi[subdomain], distribution_values, access_function, subdomain_offset + read_offset);
         }
-
         std::cout << "Distribution values after bounce-back update:" << std::endl;
         parallel_shift_framework::print_distribution_values(distribution_values, access_function, read_offset, buffer_ranges);
 
