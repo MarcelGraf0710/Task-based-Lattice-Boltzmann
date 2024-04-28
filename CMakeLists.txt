@@ -93,8 +93,8 @@ set(SOURCE_FILES ###General
 add_executable(benchmark main_benchmark.cpp ${SOURCE_FILES})
 target_link_libraries(benchmark HPX::hpx HPX::wrap_main)
 
-add_executable(test main_global.cpp ${SOURCE_FILES})
-target_link_libraries(test HPX::hpx HPX::wrap_main)
+add_executable(lattice_boltzmann main_global.cpp ${SOURCE_FILES})
+target_link_libraries(lattice_boltzmann HPX::hpx HPX::wrap_main)
 
 ######
 # Log entry: Everything is working

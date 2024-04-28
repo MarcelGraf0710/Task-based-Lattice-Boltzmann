@@ -13,6 +13,12 @@ By default, this path looks something like this:
 `~/Documents/spack/opt/spack/YOUR-LINUX-VERSION/YOUR-COMPILER-VERSION/HPX-VERSION-FOLLOWED-BY-GIBBERISH/lib/cmake/HPX`.
 
 ## Running the lattice Boltzmann execution and the benchmark
+All algorithms can be run from a single executable which relies on specifications provided in a file named `config.csv`.
+The order of the specifications is irrelevant.
+Notice that all parallel algorithms require the domain to be evenly composible into horizontal subdomains.
+In other words, the amount of vertical nodes excluding buffers must be dividable by the amount of subdomains such that are equal in size.
+If this is not the case, the algorithms may produce wrong results or crash.
+
 Caution: The debug variants will run sequentially. This is intentional such that any complications that arise
 from the model itself rather than the parallel version can be spotted.
 

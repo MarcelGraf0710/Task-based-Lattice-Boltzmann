@@ -3,31 +3,17 @@
 #include <cstring>
 #include <iostream>
 #include <fstream>
+#include <cmath>
 #include "./include/defines.hpp"
 #include "./include/file_interaction.hpp"
 
-char* algorithm_picker(const std::string &algorithm, bool parallel, unsigned int number_of_cores)
-{
-    std::string command_line_instruction = "";
-    // Select if algorithm is parallel or not
-    if(parallel)
-    {
-        command_line_instruction = "./parallel_";
-    }
-    else
-    {
-        command_line_instruction = "./sequential_";
-    }
+#include <hpx/hpx_init.hpp>
 
-    // Select algorithm that is to be executed
-    if(algorithm != "two_lattice" && algorithm != "two_step" && algorithm != "shift" && algorithm != "swap")
-    {
-        std::cout << "Unknown algorithm: " << algorithm << std::endl;
-    }
-    else
-    {
-        command_line_instruction.append(algorithm);
-    }
+#include<sys/sysinfo.h>
+
+char* algorithm_picker(unsigned int number_of_cores)
+{
+    std::string command_line_instruction = "./lattice_boltzmann";
 
     // Specify HPX settings
     command_line_instruction.append(" -t");
@@ -36,7 +22,7 @@ char* algorithm_picker(const std::string &algorithm, bool parallel, unsigned int
     command_line_instruction.append(std::to_string(number_of_cores - 1));
     command_line_instruction.append("=core:0-");
     command_line_instruction.append(std::to_string(number_of_cores - 1));
-    command_line_instruction.append(".pu:0 --hpx:dump-config");
+    command_line_instruction.append(".pu:0");
 
     // Convert to char array
     const int length = command_line_instruction.length(); 
@@ -60,20 +46,265 @@ Settings csv_test(const std::string& algorithm)
     return result;
 }
 
+void strong_scaling_new
+(
+    const std::vector<std::string> &sequential_algorithms,
+    const std::vector<std::string> &parallel_algorithms,
+    const std::vector<std::string> &access_patterns,
+    const std::vector<unsigned int> &multi_core_counts,
+    double relaxation_time,
+    unsigned int time_steps
+)
+{
+    hpx::chrono::high_resolution_timer timer;
+
+    std::vector<std::string> result_lines;
+    result_lines.push_back("algorithm,access_pattern,cores,average_runtime[s]\n");
+
+    Settings settings;
+    settings.debug_mode = 0;
+    settings.results_to_csv = 0;
+    settings.horizontal_nodes = 256;
+    settings.vertical_nodes_excluding_buffers = 64;
+    settings.time_steps = time_steps;
+
+    double average_time = 0;
+
+    double total = (sequential_algorithms.size() + 1) * multi_core_counts.size() * access_patterns.size() - 1;
+    double progress = 0; 
+
+    std::cout << "Starting strong scaling test." << std::endl;
+
+    /* Sequential tests */ 
+
+    settings.subdomain_count = 0;
+
+    for(std::string algorithm : sequential_algorithms)
+    {
+        settings.algorithm = algorithm;
+        
+        for(const std::string& access_pattern : access_patterns) 
+        {
+            settings.access_pattern = access_pattern;
+        
+            // Write options file
+            write_csv_config_file(settings);
+
+            // Execute algorithm
+            for(auto i = 0; i < 5; ++i)
+            {
+                timer.restart();
+                system("./lattice_boltzmann");     
+                average_time += timer.elapsed();
+            }
+
+            // Evaluate data
+            average_time /= 5.0;
+            result_lines.push_back(algorithm + "," + access_pattern + "," + std::to_string(1) + "," + std::to_string(average_time) + "\n");
+            average_time = 0;
+
+            progress++;
+            std::cout << "Progress: " << floor(100* progress / total) << " %\r" << std::flush;
+        }
+    }
+
+    /* Parallel tests */ 
+    for(std::string algorithm : parallel_algorithms)
+    {
+        settings.algorithm = algorithm;
+
+        for(const std::string& access_pattern : access_patterns) 
+        {
+            settings.access_pattern = access_pattern;
+
+            for(const auto current_cores : multi_core_counts)
+            {
+                settings.subdomain_count = current_cores;
+
+                // Write options file
+                write_csv_config_file(settings);
+
+                // Execute algorithm
+                for(auto i = 0; i < 5; ++i)
+                {
+                    timer.restart();
+                    system(algorithm_picker(current_cores));       
+                    average_time += timer.elapsed();
+                }
+
+                // Evaluate data
+                average_time /= 5.0;
+                result_lines.push_back(algorithm + "," + access_pattern + "," + std::to_string(current_cores) + "," + std::to_string(average_time) + "\n");
+                average_time = 0;
+
+                progress++;
+                std::cout << "Progress: " << floor(100* progress / total) << " %\r" << std::flush;
+            }
+        }
+    } 
+    std::cout << "Storing results to 'strong_scaling_results.csv'..." << std::endl;
+
+    std::ofstream file;
+    file.open("strong_scaling_results.csv");
+
+    for(const auto& line : result_lines)
+    {
+        file << line;
+    }
+    file.close();
+    
+    std::cout << "Done." << std::endl;
+    std::cout << std::endl;
+}
+
+void weak_scaling_new
+(
+    const std::vector<std::string> &sequential_algorithms,
+    const std::vector<std::string> &parallel_algorithms,
+    const std::vector<std::string> &access_patterns,
+    const std::vector<unsigned int> &multi_core_counts,
+    double relaxation_time,
+    unsigned int time_steps  
+)
+{
+    hpx::chrono::high_resolution_timer timer;
+
+    std::vector<std::string> result_lines;
+    result_lines.push_back("algorithm,access_pattern,subdomains,average_runtime[s]\n");
+
+    unsigned int base_subdomain_height = 32;
+    unsigned int horizontal_nodes = 100;
+
+    Settings settings;
+    settings.debug_mode = 0;
+    settings.results_to_csv = 0;
+    settings.horizontal_nodes = horizontal_nodes;
+    settings.time_steps = time_steps;
+
+
+    double average_time = 0;
+
+    double total = (sequential_algorithms.size() + 1) * multi_core_counts.size() * access_patterns.size() - 1;
+    double progress = 0; 
+
+    std::cout << "Starting weak scaling test." << std::endl;
+
+    /* Sequential tests */ 
+
+    settings.subdomain_count = 0;
+    settings.vertical_nodes_excluding_buffers = base_subdomain_height * 1;
+
+    for(std::string algorithm : sequential_algorithms)
+    {
+        settings.algorithm = algorithm;
+
+        for(const std::string& access_pattern : access_patterns) 
+        {
+            settings.access_pattern = access_pattern;
+        
+            // Write options file
+            write_csv_config_file(settings);
+
+            // Execute algorithm
+            for(auto i = 0; i < 5; ++i)
+            {
+                timer.restart();
+                system("./lattice_boltzmann");     
+                average_time += timer.elapsed();
+            }
+
+            // Evaluate data
+            average_time /= 5.0;
+            result_lines.push_back(algorithm + "," + access_pattern + "," + std::to_string(1) + "," + std::to_string(average_time) + "\n");
+            average_time = 0;
+
+            progress++;
+            std::cout << "Progress: " << floor(100* progress / total) << " %\r" << std::flush;
+        }
+    }
+
+    /* Parallel tests */
+    
+    for(std::string algorithm : parallel_algorithms)
+    {
+        settings.algorithm = algorithm;
+
+        for(const std::string& access_pattern : access_patterns) 
+        {
+            settings.access_pattern = access_pattern;
+
+            for(unsigned int core_count : multi_core_counts)
+            {
+                settings.vertical_nodes_excluding_buffers = base_subdomain_height * core_count;
+                settings.subdomain_count = core_count;
+            
+                // Write options file
+                write_csv_config_file(settings);
+
+                // Execute algorithm
+                for(auto i = 0; i < 5; ++i)
+                {
+                    timer.restart();
+                    system(algorithm_picker(core_count));     
+                    average_time += timer.elapsed();
+                }
+
+                // Evaluate data
+                average_time /= 5.0;
+                result_lines.push_back(algorithm + "," + access_pattern + "," + std::to_string(core_count) + "," + std::to_string(average_time) + "\n");
+                average_time = 0;
+
+                progress++;
+                std::cout << "Progress: " << floor(100* progress / total) << " %\r" << std::flush;
+            }
+        }
+    }
+
+    std::cout << "Storing results to 'weak_scaling_results.csv'..." << std::endl;
+
+    std::ofstream file;
+    file.open("weak_scaling_results.csv");
+
+    for(const auto& line : result_lines)
+    {
+        file << line;
+    }
+    file.close();
+    
+    std::cout << "Done." << std::endl;
+    std::cout << std::endl;
+}
+
 int main(int argc, char* argv[])
 {
     /* Selections that actually vary */
-    std::vector<bool> select_parallel_algorithm{false, true};
-    std::vector<std::string> algorithms{"two_lattice", "two_step", "swap", "shift"};
+    std::vector<std::string> sequential_algorithms{"sequential_two_lattice", "sequential_two_step", "sequential_swap", "sequential_shift"};
+    std::vector<std::string> parallel_algorithms{"parallel_two_lattice", "parallel_two_lattice_framework", "parallel_two_step", "parallel_swap", "parallel_shift"};
     std::vector<std::string> access_patterns{"collision", "stream", "bundle"};
-    std::vector<unsigned int> pow_2_vertical_nodes{4,5,6}; // Will be: {4,5,6,7,8,9,10,11,12,13,14}
-    std::vector<unsigned int> horizontal_nodes{10,20,50,100,200,500}; // Will be: {10,20,50,100,200,500,1000,2000,5000,10000,20000,50000}
 
     /* Selections assumed static */
     const double relaxation_time = 1.4;
     const unsigned int time_steps = 20;
     const int write_csv = 0;
     const int debug_mode = 0;
+
+    unsigned int available_cores = std::thread::hardware_concurrency() / 2;
+    std::cout << "Up to " << available_cores << " concurrent threads are supported.\n";
+
+    std::vector<unsigned int> multicore_setups;
+    unsigned int current_max_core_count = 2;
+
+    while(current_max_core_count < available_cores)
+    {
+        multicore_setups.push_back(current_max_core_count);
+        current_max_core_count *= 2;
+    }
+
+    strong_scaling_new(sequential_algorithms, parallel_algorithms, access_patterns, multicore_setups, relaxation_time, time_steps);
+    weak_scaling_new(sequential_algorithms, parallel_algorithms, access_patterns, multicore_setups, relaxation_time, time_steps);
+
+    std::cout << "Benchmark finished." << std::endl;
+}
 
     /* Examples */
 
@@ -103,36 +334,5 @@ int main(int argc, char* argv[])
     //     }
     // }
 
-    Settings example = csv_test("parallel_two_lattice_framework");
-    write_csv_config_file(example);
-
-}
-
-    // Settings example1;
-    // example1.is_parallel = true;
-    // example1.access_pattern = "stream";
-    // example1.relaxation_time = 1.0;
-    // example1.vertical_nodes_excluding_buffers = 32;
-    // example1.subdomain_count = 4;
-    // example1.horizontal_nodes = 10;
-    // example1.inlet_velocity = {0.2,0.0};
-    // example1.outlet_velocity = {0.0, 0.0};
-    // example1.inlet_density = 1.0;
-    // example1.outlet_density = 1.0;
-
-    // // write_csv_config_file(example1);
-
-
-    // // Settings example2;
-    // // example2.is_parallel = false;
-    // // example2.access_pattern = "stream";
-    // // example2.relaxation_time = 1.6;
-    // // example2.vertical_nodes_excluding_buffers = 21;
-    // // example2.horizontal_nodes = 11;
-    // // example2.inlet_velocity = {0.25,0.0};
-    // // example2.outlet_velocity = {0.0, 0.0};
-    // // example2.inlet_density = 1.0;
-    // // example2.outlet_density = 1.0;
-
-    // Settings example3 = retrieve_settings_from_csv("retrieve_me.csv");
-    // write_csv_config_file(example3);
+    // Settings example = csv_test("parallel_two_lattice_framework");
+    // write_csv_config_file(example);
