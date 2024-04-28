@@ -14,7 +14,7 @@ max_time_step = 0
 
 read_content=[]
 
-with open("./build/results.csv", "r") as f:
+with open("../build/results.csv", "r") as f:
     reader = csv.reader(f, delimiter=",")
     for i, line in enumerate(reader):
         # print("line[{}] = {}".format(i, line))
