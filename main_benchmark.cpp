@@ -70,7 +70,7 @@ void strong_scaling_new
 
     double average_time = 0;
 
-    double total = (sequential_algorithms.size() + 1) * multi_core_counts.size() * access_patterns.size() - 1;
+    double total = ((parallel_algorithms.size()) * multi_core_counts.size() + sequential_algorithms.size()) * access_patterns.size();
     double progress = 0; 
 
     std::cout << "Starting strong scaling test." << std::endl;
@@ -184,7 +184,7 @@ void weak_scaling_new
 
     double average_time = 0;
 
-    double total = (sequential_algorithms.size() + 1) * multi_core_counts.size() * access_patterns.size() - 1;
+    double total = ((parallel_algorithms.size()) * multi_core_counts.size() + sequential_algorithms.size()) * access_patterns.size();
     double progress = 0; 
 
     std::cout << "Starting weak scaling test." << std::endl;
