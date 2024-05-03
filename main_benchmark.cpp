@@ -57,23 +57,33 @@ void strong_scaling_new
 )
 {
     hpx::chrono::high_resolution_timer timer;
+    unsigned int test_runs = 20;
 
     std::vector<std::string> result_lines;
-    result_lines.push_back("algorithm,access_pattern,cores,average_runtime[s]\n");
+    std::string current_line{"algorithm,access_pattern,cores"};
+    for(auto i = 0; i < test_runs; ++i)
+    {
+        current_line += ", runtime test " + std::to_string(i) + " [s]";
+    }
+    current_line += "\n";
+
+    result_lines.push_back(current_line);
+    current_line = {};
 
     Settings settings;
     settings.debug_mode = 0;
     settings.results_to_csv = 0;
-    settings.horizontal_nodes = 256;
-    settings.vertical_nodes_excluding_buffers = 64;
+    settings.horizontal_nodes = 512;
+    settings.vertical_nodes_excluding_buffers = 128;
     settings.time_steps = time_steps;
 
-    double average_time = 0;
+    std::vector<double> runtimes{};
 
     double total = ((parallel_algorithms.size()) * multi_core_counts.size() + sequential_algorithms.size()) * access_patterns.size();
     double progress = 0; 
 
     std::cout << "Starting strong scaling test." << std::endl;
+    std::cout << "Progress: " << floor(100* progress / total) << " %\r" << std::flush;
 
     /* Sequential tests */ 
 
@@ -91,17 +101,27 @@ void strong_scaling_new
             write_csv_config_file(settings);
 
             // Execute algorithm
-            for(auto i = 0; i < 5; ++i)
+            for(auto i = 0; i < test_runs; ++i)
             {
                 timer.restart();
                 system("./lattice_boltzmann");     
-                average_time += timer.elapsed();
+                runtimes.push_back(timer.elapsed());
             }
 
             // Evaluate data
-            average_time /= 5.0;
-            result_lines.push_back(algorithm + "," + access_pattern + "," + std::to_string(1) + "," + std::to_string(average_time) + "\n");
-            average_time = 0;
+            current_line = algorithm + "," + access_pattern + "," + std::to_string(1);
+            
+            
+            for(double runtime : runtimes)
+            {
+                current_line += "," + std::to_string(runtime);
+            }
+
+            current_line += "\n";
+
+            result_lines.push_back(current_line);
+            current_line = {};
+            runtimes = {};
 
             progress++;
             std::cout << "Progress: " << floor(100* progress / total) << " %\r" << std::flush;
@@ -125,17 +145,26 @@ void strong_scaling_new
                 write_csv_config_file(settings);
 
                 // Execute algorithm
-                for(auto i = 0; i < 5; ++i)
+                for(auto i = 0; i < test_runs; ++i)
                 {
                     timer.restart();
                     system(algorithm_picker(current_cores));       
-                    average_time += timer.elapsed();
+                    runtimes.push_back(timer.elapsed());
                 }
 
                 // Evaluate data
-                average_time /= 5.0;
-                result_lines.push_back(algorithm + "," + access_pattern + "," + std::to_string(current_cores) + "," + std::to_string(average_time) + "\n");
-                average_time = 0;
+                current_line = algorithm + "," + access_pattern + "," + std::to_string(current_cores);
+
+                for(double runtime : runtimes)
+                {
+                    current_line += "," + std::to_string(runtime);
+                }
+
+                current_line += "\n";
+
+                result_lines.push_back(current_line);
+                current_line = {};
+                runtimes = {};
 
                 progress++;
                 std::cout << "Progress: " << floor(100* progress / total) << " %\r" << std::flush;
@@ -168,12 +197,21 @@ void weak_scaling_new
 )
 {
     hpx::chrono::high_resolution_timer timer;
+    unsigned int test_runs = 20;
 
     std::vector<std::string> result_lines;
-    result_lines.push_back("algorithm,access_pattern,subdomains,average_runtime[s]\n");
+    std::string current_line{"algorithm,access_pattern,cores"};
+    for(auto i = 0; i < test_runs; ++i)
+    {
+        current_line += ", runtime test " + std::to_string(i) + " [s]";
+    }
+    current_line += "\n";
 
-    unsigned int base_subdomain_height = 32;
-    unsigned int horizontal_nodes = 100;
+    result_lines.push_back(current_line);
+    current_line = {};
+
+    unsigned int base_subdomain_height = 128;
+    unsigned int horizontal_nodes = 512;
 
     Settings settings;
     settings.debug_mode = 0;
@@ -181,13 +219,13 @@ void weak_scaling_new
     settings.horizontal_nodes = horizontal_nodes;
     settings.time_steps = time_steps;
 
-
-    double average_time = 0;
+    std::vector<double> runtimes{};
 
     double total = ((parallel_algorithms.size()) * multi_core_counts.size() + sequential_algorithms.size()) * access_patterns.size();
     double progress = 0; 
 
     std::cout << "Starting weak scaling test." << std::endl;
+    std::cout << "Progress: " << floor(100* progress / total) << " %\r" << std::flush;
 
     /* Sequential tests */ 
 
@@ -206,17 +244,26 @@ void weak_scaling_new
             write_csv_config_file(settings);
 
             // Execute algorithm
-            for(auto i = 0; i < 5; ++i)
+            for(auto i = 0; i < test_runs; ++i)
             {
                 timer.restart();
                 system("./lattice_boltzmann");     
-                average_time += timer.elapsed();
+                runtimes.push_back(timer.elapsed());
             }
 
             // Evaluate data
-            average_time /= 5.0;
-            result_lines.push_back(algorithm + "," + access_pattern + "," + std::to_string(1) + "," + std::to_string(average_time) + "\n");
-            average_time = 0;
+            current_line = algorithm + "," + access_pattern + "," + std::to_string(1);
+            
+            for(double runtime : runtimes)
+            {
+                current_line += "," + std::to_string(runtime);
+            }
+
+            current_line += "\n";
+
+            result_lines.push_back(current_line);
+            current_line = {};
+            runtimes = {};
 
             progress++;
             std::cout << "Progress: " << floor(100* progress / total) << " %\r" << std::flush;
@@ -242,17 +289,26 @@ void weak_scaling_new
                 write_csv_config_file(settings);
 
                 // Execute algorithm
-                for(auto i = 0; i < 5; ++i)
+                for(auto i = 0; i < test_runs; ++i)
                 {
                     timer.restart();
                     system(algorithm_picker(core_count));     
-                    average_time += timer.elapsed();
+                    runtimes.push_back(timer.elapsed());
                 }
 
                 // Evaluate data
-                average_time /= 5.0;
-                result_lines.push_back(algorithm + "," + access_pattern + "," + std::to_string(core_count) + "," + std::to_string(average_time) + "\n");
-                average_time = 0;
+                current_line = algorithm + "," + access_pattern + "," + std::to_string(core_count);
+
+                for(double runtime : runtimes)
+                {
+                    current_line += "," + std::to_string(runtime);
+                }
+
+                current_line += "\n";
+
+                result_lines.push_back(current_line);
+                current_line = {};
+                runtimes = {};
 
                 progress++;
                 std::cout << "Progress: " << floor(100* progress / total) << " %\r" << std::flush;
