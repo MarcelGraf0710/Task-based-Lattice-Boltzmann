@@ -210,8 +210,8 @@ void weak_scaling_new
     result_lines.push_back(current_line);
     current_line = {};
 
-    unsigned int base_subdomain_height = 64;
-    unsigned int horizontal_nodes = 256;
+    unsigned int base_subdomain_height = 8; // 64
+    unsigned int horizontal_nodes = 48; // 256
 
     Settings settings;
     settings.debug_mode = 0;
@@ -356,7 +356,7 @@ int main(int argc, char* argv[])
         current_max_core_count *= 2;
     }
 
-    strong_scaling_new(sequential_algorithms, parallel_algorithms, access_patterns, multicore_setups, relaxation_time, time_steps);
+    //strong_scaling_new(sequential_algorithms, parallel_algorithms, access_patterns, multicore_setups, relaxation_time, time_steps);
     weak_scaling_new(sequential_algorithms, parallel_algorithms, access_patterns, multicore_setups, relaxation_time, time_steps);
 
     std::cout << "Benchmark finished." << std::endl;
