@@ -74,7 +74,7 @@ void strong_scaling_new
     settings.debug_mode = 0;
     settings.results_to_csv = 0;
     settings.horizontal_nodes = 512;
-    settings.vertical_nodes_excluding_buffers = 128;
+    settings.vertical_nodes_excluding_buffers = 512;
     settings.time_steps = time_steps;
 
     std::vector<double> runtimes{};
@@ -210,8 +210,8 @@ void weak_scaling_new
     result_lines.push_back(current_line);
     current_line = {};
 
-    unsigned int base_subdomain_height = 128;
-    unsigned int horizontal_nodes = 512;
+    unsigned int base_subdomain_height = 64;
+    unsigned int horizontal_nodes = 256;
 
     Settings settings;
     settings.debug_mode = 0;
@@ -361,34 +361,3 @@ int main(int argc, char* argv[])
 
     std::cout << "Benchmark finished." << std::endl;
 }
-
-    /* Examples */
-
-    // system("./parallel_two_lattice_framework -t6 --hpx:bind=thread:0-5=core:0-5.pu:0 --hpx:dump-config");
-    // system("./parallel_two_lattice_framework -t4 --hpx:bind=thread:0-3=core:0-3.pu:0 --hpx:dump-config");
-    // system("./parallel_two_lattice_framework -t2 --hpx:bind=thread:0-1=core:0-1.pu:0 --hpx:dump-config");
-
-    /* Example execution */
-    // std::cout << algorithm_picker("two_lattice", true, 4) << std::endl;
-    // system(algorithm_picker("two_lattice", true, 4));
-
-    // for(bool parallel : select_parallel_algorithm)
-    // {
-    //     for(std::string access_pattern : access_patterns)
-    //     {
-    //         for(std::string algorithm : algorithms)
-    //         {
-    //             for(unsigned int current_pow_2_vertical_nodes : pow_2_vertical_nodes)
-    //             {  
-    //                for(unsigned int current_horizontal_nodes : horizontal_nodes) 
-    //                {
-    //                     // Write options file
-    //                     // execute algorithm
-    //                }
-    //             }
-    //         }
-    //     }
-    // }
-
-    // Settings example = csv_test("parallel_two_lattice_framework");
-    // write_csv_config_file(example);
