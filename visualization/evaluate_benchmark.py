@@ -241,13 +241,13 @@ if __name__ == "__main__":
     read_content_strong = []
 
     # Store content of file with weak scaling results
-    with open("../build/weak_scaling_results.csv", "r") as f:
+    with open("../runtimes/weak_scaling_results.csv", "r") as f:
         reader = csv.reader(f, delimiter=",")
         for i, line in enumerate(reader):
             read_content_weak.append(line)
 
     # Store content of file with strong scaling results   
-    with open("../build/strong_scaling_results.csv", "r") as f:
+    with open("../runtimes/strong_scaling_results.csv", "r") as f:
         reader = csv.reader(f, delimiter=",")
         for i, line in enumerate(reader):
             read_content_strong.append(line)
@@ -325,6 +325,7 @@ if __name__ == "__main__":
         plot.ylabel('time[s]')
         ax.set_xscale('log', base=2)
         ax.get_xaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
+        ax.set_ylim([1.5, 5.5])
         plot.xticks(core_ticks)
         plot.savefig("../images/runtimes_weak_scaling_" + access_pattern + ".pdf", format="pdf", bbox_inches="tight")
         plot.close()
@@ -558,7 +559,7 @@ if __name__ == "__main__":
         plot.xticks(core_ticks)
         ax.set_ylim([1, numpy.ceil(global_optimum[2]+1)])
 
-        plot.savefig("../images/strong_s    ^caling_" + algo + ".pdf", format="pdf", bbox_inches="tight")
+        plot.savefig("../images/strong_scaling_" + algo + ".pdf", format="pdf", bbox_inches="tight")
         plot.close()
 
     print("All done.")

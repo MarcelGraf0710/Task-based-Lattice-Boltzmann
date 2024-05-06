@@ -57,7 +57,7 @@ void strong_scaling_new
 )
 {
     hpx::chrono::high_resolution_timer timer;
-    unsigned int test_runs = 1;
+    unsigned int test_runs = 20;
 
     std::vector<std::string> result_lines;
     std::string current_line{"algorithm,access_pattern,cores"};
@@ -73,8 +73,8 @@ void strong_scaling_new
     Settings settings;
     settings.debug_mode = 0;
     settings.results_to_csv = 0;
-    settings.horizontal_nodes = 512;
-    settings.vertical_nodes_excluding_buffers = 512;
+    settings.horizontal_nodes = 1024;
+    settings.vertical_nodes_excluding_buffers = 1024;
     settings.time_steps = time_steps;
 
     std::vector<double> runtimes{};
@@ -83,7 +83,7 @@ void strong_scaling_new
     double progress = 0; 
 
     std::cout << "Starting strong scaling test." << std::endl;
-    std::cout << "Progress: " << floor(100* progress / total) << " %\r" << std::flush;
+    std::cout << "Progress: " << floor(100* progress / total) << " %" << std::endl;
 
     /* Sequential tests */ 
 
@@ -124,7 +124,7 @@ void strong_scaling_new
             runtimes = {};
 
             progress++;
-            std::cout << "Progress: " << floor(100* progress / total) << " %\r" << std::flush;
+            std::cout << "Progress: " << floor(100* progress / total) << " %" << std::endl;
         }
     }
 
@@ -167,7 +167,7 @@ void strong_scaling_new
                 runtimes = {};
 
                 progress++;
-                std::cout << "Progress: " << floor(100* progress / total) << " %\r" << std::flush;
+                std::cout << "Progress: " << floor(100* progress / total) << " %" << std::endl;
             }
         }
     } 
@@ -197,7 +197,7 @@ void weak_scaling_new
 )
 {
     hpx::chrono::high_resolution_timer timer;
-    unsigned int test_runs = 1;
+    unsigned int test_runs = 20;
 
     std::vector<std::string> result_lines;
     std::string current_line{"algorithm,access_pattern,cores"};
@@ -210,8 +210,8 @@ void weak_scaling_new
     result_lines.push_back(current_line);
     current_line = {};
 
-    unsigned int base_subdomain_height = 64; // 64
-    unsigned int horizontal_nodes = 256; // 256
+    unsigned int base_subdomain_height = 512; // 64
+    unsigned int horizontal_nodes = 512; // 256
 
     Settings settings;
     settings.debug_mode = 0;
@@ -225,7 +225,7 @@ void weak_scaling_new
     double progress = 0; 
 
     std::cout << "Starting weak scaling test." << std::endl;
-    std::cout << "Progress: " << floor(100* progress / total) << " %\r" << std::flush;
+    std::cout << "Progress: " << floor(100* progress / total) << " %" << std::endl;
 
     /* Sequential tests */ 
 
@@ -266,7 +266,7 @@ void weak_scaling_new
             runtimes = {};
 
             progress++;
-            std::cout << "Progress: " << floor(100* progress / total) << " %\r" << std::flush;
+            std::cout << "Progress: " << floor(100* progress / total) << " %" << std::endl;
         }
     }
 
@@ -311,7 +311,7 @@ void weak_scaling_new
                 runtimes = {};
 
                 progress++;
-                std::cout << "Progress: " << floor(100* progress / total) << " %\r" << std::flush;
+                std::cout << "Progress: " << floor(100* progress / total) << " %" << std::endl;
             }
         }
     }
@@ -350,14 +350,14 @@ int main(int argc, char* argv[])
     std::vector<unsigned int> multicore_setups;
     unsigned int current_max_core_count = 2;
 
-    while(current_max_core_count < available_cores)
+    while(current_max_core_count <= available_cores)
     {
         multicore_setups.push_back(current_max_core_count);
         current_max_core_count *= 2;
     }
 
-    strong_scaling_new(sequential_algorithms, parallel_algorithms, access_patterns, multicore_setups, relaxation_time, time_steps);
     weak_scaling_new(sequential_algorithms, parallel_algorithms, access_patterns, multicore_setups, relaxation_time, time_steps);
+    strong_scaling_new(sequential_algorithms, parallel_algorithms, access_patterns, multicore_setups, relaxation_time, time_steps);
 
     std::cout << "Benchmark finished." << std::endl;
 }
