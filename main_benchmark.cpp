@@ -57,7 +57,7 @@ void strong_scaling_new
 )
 {
     hpx::chrono::high_resolution_timer timer;
-    unsigned int test_runs = 20;
+    unsigned int test_runs = 1;
 
     std::vector<std::string> result_lines;
     std::string current_line{"algorithm,access_pattern,cores"};
@@ -197,7 +197,7 @@ void weak_scaling_new
 )
 {
     hpx::chrono::high_resolution_timer timer;
-    unsigned int test_runs = 20;
+    unsigned int test_runs = 1;
 
     std::vector<std::string> result_lines;
     std::string current_line{"algorithm,access_pattern,cores"};
@@ -210,8 +210,8 @@ void weak_scaling_new
     result_lines.push_back(current_line);
     current_line = {};
 
-    unsigned int base_subdomain_height = 8; // 64
-    unsigned int horizontal_nodes = 48; // 256
+    unsigned int base_subdomain_height = 64; // 64
+    unsigned int horizontal_nodes = 256; // 256
 
     Settings settings;
     settings.debug_mode = 0;
