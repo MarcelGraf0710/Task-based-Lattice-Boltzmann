@@ -356,7 +356,7 @@ int main(int argc, char* argv[])
         current_max_core_count *= 2;
     }
 
-    //strong_scaling_new(sequential_algorithms, parallel_algorithms, access_patterns, multicore_setups, relaxation_time, time_steps);
+    strong_scaling_new(sequential_algorithms, parallel_algorithms, access_patterns, multicore_setups, relaxation_time, time_steps);
     weak_scaling_new(sequential_algorithms, parallel_algorithms, access_patterns, multicore_setups, relaxation_time, time_steps);
 
     std::cout << "Benchmark finished." << std::endl;
