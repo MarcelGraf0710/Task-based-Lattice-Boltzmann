@@ -340,3 +340,17 @@ Settings retrieve_settings_from_csv(const std::string &filename)
 
     return settings;
 }
+
+Settings csv_test(const std::string& algorithm)
+{
+    Settings result;
+    result.debug_mode = 0;
+    result.results_to_csv = 1;
+    result.horizontal_nodes = 200;
+    result.algorithm = algorithm;
+    result.vertical_nodes_excluding_buffers = 50;
+    result.subdomain_count = 5;
+    result.access_pattern = "bundle";
+    result.time_steps = 800;
+    return result;
+}

@@ -16,7 +16,6 @@ int hpx_main(hpx::program_options::variables_map& vm)
     return hpx::local::finalize();
 }
 
-
 int main(int argc, char* argv[])
 {
     hpx::program_options::options_description desc_commandline("Usage: " HPX_APPLICATION_STRING " [options]");
@@ -25,8 +24,4 @@ int main(int argc, char* argv[])
     init_args.desc_cmdline = desc_commandline;
 
     return hpx::local::init(hpx_main, argc, argv, init_args);
-
-    // system("./parallel_two_lattice_framework -t6 --hpx:bind=thread:0-5=core:0-5.pu:0 --hpx:dump-config");
-    // system("./parallel_two_lattice_framework -t4 --hpx:bind=thread:0-3=core:0-3.pu:0 --hpx:dump-config");
-    // system("./parallel_two_lattice_framework -t2 --hpx:bind=thread:0-1=core:0-1.pu:0 --hpx:dump-config");
 }
