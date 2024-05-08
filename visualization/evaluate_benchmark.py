@@ -17,10 +17,10 @@ matplotlib.rcParams['figure.dpi'] = 300
 
 # Global definitions
 ACCESS_PATTERNS = ["collision", "stream", "bundle"]
-ALGORITHMS = ["two_step", "swap", "two_lattice", "two_lattice_framework", "shift"]
+ALGORITHMS = ["two_step", "swap", "two_lattice_framework", "two_lattice", "shift"]
 CONTENTS = ["averages", "lower_bounds", "upper_bounds"]
-COLORS = ['k', 'y', 'r', 'g', 'b']
-MARKERS = ['o', '*', 's', 'D', 'p']
+COLORS = ['r', 'g', 'k', 'y', 'b']
+MARKERS = ['o', 's', 'D', '*', 'p']
 
 
 def confidence_error(standard_deviation: float, n: int, confidence:float=0.95) -> list[float]:
@@ -339,42 +339,57 @@ if __name__ == "__main__":
                 global_min_y = current_min_y
 
         plot.grid(color='#808080', linestyle='--', linewidth=0.5)
-        plot.legend(["two_step", "swap", "two_lattice", "two_lattice_framework", "shift"], loc='best')
-        plot.title(r"Weak scaling: $\displaystyle 32 \times 128$ nodes per core, runtimes with $\displaystyle\gamma=95\%$, " + access_pattern + " layout")
+        plot.legend(["Two-step", "Swap", "Framework two-lattice", "Non-framework two-lattice ", "Shift",], loc='best')
+        plot.title(r"Weak scaling: $\displaystyle 512 \times 512$ nodes per core, runtimes with $\displaystyle\gamma=95\%$, " + access_pattern + " layout")
         plot.xlabel('cores')
-        plot.ylabel('time[s]')
+        plot.ylabel('runtime [s]')
         ax.set_xscale('log', base=2)
+        ax.set_yscale('log', base=10)
         ax.get_xaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
-        ax.set_ylim([global_min_y, global_max_y])
+        ax.get_yaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
+        ax.set_ylim([math.floor(global_min_y / 10.0) * 10, math.ceil(global_max_y / 10.0)* 10+10])
         plot.xticks(core_ticks)
+        plot.yticks(range(math.floor(global_min_y / 10.0) * 10, math.ceil(global_max_y / 10.0)* 10+10, 10))
         plot.savefig("../images/runtimes/runtimes_weak_scaling_" + access_pattern + ".pdf", format="pdf", bbox_inches="tight")
         plot.close()
 
         # Plot speedup results
         fig, ax = plot.subplots()
 
+        global_max_y = -math.inf
+
         for i in range(0,5):
             y_values = [get_scaling_result(scaling_results, ALGORITHMS[i], access_pattern, j) for j in range(0, len(core_ticks))]
             plot.plot(core_ticks, y_values, color=COLORS[i], linestyle='-', marker=MARKERS[i])
 
+            current_max_y = numpy.max([y_values[j] for j in range(0, len(core_ticks))])
+            current_min_y = numpy.min([y_values[j] for j in range(0, len(core_ticks))])
+
+            if current_max_y > global_max_y:
+                global_max_y = current_max_y
+
         plot.plot(core_ticks, core_ticks, color='k', linestyle='--')
 
         plot.grid(color='#808080', linestyle='--', linewidth=0.5)
-        plot.legend(["two_step", "swap", "two_lattice", "two_lattice_framework", "shift", 'Ideal'], loc='best')
-        plot.title(r"Weak scaling: $\displaystyle 32 \times 128$ nodes per core, " + access_pattern + " layout")
+        plot.legend(["Two-step", "Swap", "Framework two-lattice", "Non-framework two-lattice ", "Shift", 'Ideal'], loc='best')
+        plot.title(r"Weak scaling: $\displaystyle 512 \times 512$ nodes per core, " + access_pattern + " layout")
         plot.xlabel('cores')
         plot.ylabel('speedup')
         ax.set_xscale('log', base=2)
-        ax.set_yscale('log', base=2)
+        ax.set_yscale('log', base=10)
         ax.get_xaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
         ax.get_yaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
         plot.xticks(core_ticks)
-        plot.yticks(core_ticks)
+        plot.yticks([1,2,4,8,10,15,20,30,40,50])
+        ax.set_ylim([1, global_max_y+10])
         plot.savefig("../images/speedup/weak_scaling_" + access_pattern + "_speedup.pdf", format="pdf", bbox_inches="tight")
         plot.close()
 
         # Plot efficiency results
         fig, ax = plot.subplots()
+
+        global_min_y = math.inf
+        global_max_y = -math.inf
 
         for i in range(0,5):
             y_values = [get_scaling_result(efficiency_results, ALGORITHMS[i], access_pattern, j) for j in range(0, len(core_ticks))]
@@ -384,8 +399,8 @@ if __name__ == "__main__":
         plot.plot(core_ticks, [1 for i in range(0, len(core_ticks))], color='k', linestyle='--')
 
         plot.grid(color='#808080', linestyle='--', linewidth=0.5)
-        plot.legend(["two_step", "swap", "two_lattice", "two_lattice_framework", "shift", 'Ideal'], loc='best')
-        plot.title(r"Weak scaling: $\displaystyle 32 \times 128$ nodes per core, " + access_pattern + " layout")
+        plot.legend(["Two-step", "Swap", "Framework two-lattice", "Non-framework two-lattice ", "Shift", 'Ideal'], loc='best')
+        plot.title(r"Weak scaling: $\displaystyle 512 \times 512$ nodes per core, " + access_pattern + " layout")
         plot.xlabel('cores')
         plot.ylabel('efficiency')
         ax.set_xscale('log', base=2)
@@ -393,6 +408,7 @@ if __name__ == "__main__":
         ax.get_yaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
         plot.xticks(core_ticks)
         ax.set_ylim([0, 1.1])
+        plot.yticks(numpy.linspace(0,1,11, endpoint=True))
         plot.savefig("../images/efficiency/weak_scaling_" + access_pattern + "_efficiency.pdf", format="pdf", bbox_inches="tight")
         plot.close()
 
@@ -434,26 +450,37 @@ if __name__ == "__main__":
         for access_pattern in ACCESS_PATTERNS:
             y_values = [get_scaling_result(scaling_results, algo, access_pattern, j) for j in range(0, len(core_ticks))]
             plot.plot(core_ticks, y_values, color=new_colors[ACCESS_PATTERNS.index(access_pattern)], linestyle='-', marker='x', markersize=5)
+
+            current_max_y = numpy.max([y_values[j] for j in range(0, len(core_ticks))])
+            current_min_y = numpy.min([y_values[j] for j in range(0, len(core_ticks))])
+
+            if current_max_y > global_max_y:
+                global_max_y = current_max_y
+            
+            if current_min_y < global_min_y:
+                global_min_y = current_min_y
+                
         plot.plot(core_ticks, core_ticks, color='k', linestyle='--')
         plot.grid(color='#808080', linestyle='--', linewidth=0.5)
-        plot.legend(['Collision', 'Stream', 'Bundle'], loc='best')
+        plot.legend(['Collision', 'Stream', 'Bundle', 'Ideal'], loc='best')
 
         if algo == "two_lattice":
-            algorithm_name = "two-lattice"
+            algorithm_name = "non-framework two-lattice"
         elif algo == "two_lattice_framework":
-            algorithm_name = "two-lattice-framework"
+            algorithm_name = "framework two-lattice"
         else:
             algorithm_name = algo
 
-        plot.title(r"Weak scaling: $\displaystyle 32 \times 128$ nodes per core, " + algorithm_name + " algorithm")
+        plot.title(r"Weak scaling: $\displaystyle 512 \times 512$ nodes per core, " + algorithm_name + " algorithm")
         plot.xlabel('cores')
         plot.ylabel('speedup')
         ax.set_xscale('log', base=2)
-        ax.set_yscale('log', base=2)
+        ax.set_yscale('log', base=10)
         ax.get_xaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
         ax.get_yaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
         plot.xticks(core_ticks)
-        plot.yticks(core_ticks)
+        plot.yticks([1,2,4,8,10,15,20,30,40,50])
+        ax.set_ylim([1, global_max_y+10])
 
         plot.savefig("../images/best_algorithms/weak_scaling_" + algo + ".pdf", format="pdf", bbox_inches="tight")
         plot.close()
@@ -528,10 +555,10 @@ if __name__ == "__main__":
                 global_min_y = current_min_y
 
         plot.grid(color='#808080', linestyle='--', linewidth=0.5)
-        plot.legend(["two_step", "swap", "two_lattice", "two_lattice_framework", "shift"], loc='best')
-        plot.title(r"Strong scaling: $\displaystyle 64 \times 256$ nodes, runtimes with $\displaystyle\gamma=95\%$, " + access_pattern + " layout")
+        plot.legend(["Two-step", "Swap", "Framework two-lattice", "Non-framework two-lattice ", "Shift",], loc='best')
+        plot.title(r"Strong scaling: $\displaystyle 512 \times 512$ nodes, runtimes with $\displaystyle\gamma=95\%$, " + access_pattern + " layout")
         plot.xlabel('cores')
-        plot.ylabel('time[s]')
+        plot.ylabel('runtime [s]')
         ax.set_xscale('log', base=2)
         ax.set_yscale('log', base=10)
         ax.get_xaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
@@ -550,8 +577,8 @@ if __name__ == "__main__":
         plot.plot(core_ticks, core_ticks, color='k', linestyle='--')
 
         plot.grid(color='#808080', linestyle='--', linewidth=0.5)
-        plot.legend(["two_step", "swap", "two_lattice", "two_lattice_framework", "shift", 'Ideal'], loc='best')
-        plot.title(r"Strong scaling: $\displaystyle 64 \times 256$ nodes, " + access_pattern + " layout")
+        plot.legend(["Two-step", "Swap", "Framework two-lattice", "Non-framework two-lattice ", "Shift", 'Ideal'], loc='best')
+        plot.title(r"Strong scaling: $\displaystyle 512 \times 512$ nodes, " + access_pattern + " layout")
         plot.xlabel('cores')
         plot.ylabel('speedup')
         ax.set_xscale('log', base=2)
@@ -573,14 +600,15 @@ if __name__ == "__main__":
         plot.plot(core_ticks, [1 for i in range(0, len(core_ticks))], color='k', linestyle='--')
 
         plot.grid(color='#808080', linestyle='--', linewidth=0.5)
-        plot.legend(["two_step", "swap", "two_lattice", "two_lattice_framework", "shift", 'Ideal'], loc='best')
-        plot.title(r"Strong scaling: $\displaystyle 64 \times 256$ nodes, " + access_pattern + " layout")
+        plot.legend(["Two-step", "Swap", "Framework two-lattice", "Non-framework two-lattice ", "Shift", 'Ideal'], loc='best')
+        plot.title(r"Strong scaling: $\displaystyle 512 \times 512$ nodes, " + access_pattern + " layout")
         plot.xlabel('cores')
         plot.ylabel('efficiency')
         ax.set_xscale('log', base=2)
         ax.get_xaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
         ax.get_yaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
         plot.xticks(core_ticks)
+        plot.yticks(numpy.linspace(0,1,11, endpoint=True))
         ax.set_ylim([0, 1.1])
         plot.savefig("../images/efficiency/strong_scaling_" + access_pattern + "_efficiency.pdf", format="pdf", bbox_inches="tight")
         plot.close()
@@ -634,7 +662,7 @@ if __name__ == "__main__":
         else:
             algorithm_name = algo
 
-        plot.title(r"Strong scaling: $\displaystyle 64 \times 256$ nodes, " + algorithm_name + " algorithm")
+        plot.title(r"Strong scaling: $\displaystyle 512 \times 512$ nodes, " + algorithm_name + " algorithm")
         plot.xlabel('cores')
         plot.ylabel('speedup')
         ax.set_xscale('log', base=2)

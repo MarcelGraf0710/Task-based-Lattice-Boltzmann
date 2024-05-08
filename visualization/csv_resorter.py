@@ -1,6 +1,7 @@
 # Imports
 import csv
 import math
+import os
 import matplotlib
 import numpy
 import matplotlib.pyplot as plot
@@ -20,6 +21,9 @@ for test in TESTS:
 
     read_content = []
     future_content = [["algorithm", "access_pattern", "cores", "runtime[s]"]]
+
+    if os.path.isfile("../runtimes/" + test + "_readable.csv"):
+        continue
 
     print("Currently working on", test, "test")
 

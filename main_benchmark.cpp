@@ -218,7 +218,7 @@ void strong_scaling_tests
     unsigned int time_steps
 )
 {
-    unsigned int test_runs = 20;
+    unsigned int test_runs = 1;
 
     std::cout << "Starting strong scaling test." << std::endl;
     std::cout << "------------------------------------------------------" << std::endl;
@@ -236,8 +236,8 @@ void strong_scaling_tests
     Settings settings;
     settings.debug_mode = 0;
     settings.results_to_csv = 0;
-    settings.horizontal_nodes = 64; // 512
-    settings.vertical_nodes_excluding_buffers = 64; // 512
+    settings.horizontal_nodes = 512; // 512
+    settings.vertical_nodes_excluding_buffers = 512; // 512
     settings.time_steps = time_steps;
 
     double runtime = 0;
@@ -275,8 +275,8 @@ void weak_scaling_tests
 
     current_line = {};
 
-    unsigned int base_subdomain_height = 32; // 128
-    unsigned int horizontal_nodes = 32; // 128
+    unsigned int base_subdomain_height = 128; // 128
+    unsigned int horizontal_nodes = 128; // 128
 
     Settings settings;
     settings.debug_mode = 0;
@@ -305,7 +305,7 @@ int main(int argc, char* argv[])
 
     /* Selections assumed static */
     const double relaxation_time = 1.4;
-    const unsigned int time_steps = 10;
+    const unsigned int time_steps = 20;
     const int write_csv = 0;
     const int debug_mode = 0;
 
@@ -321,7 +321,7 @@ int main(int argc, char* argv[])
         current_max_core_count *= 2;
     }
 
-    weak_scaling_tests(sequential_algorithms, parallel_algorithms, access_patterns, multicore_setups, relaxation_time, time_steps);
+    //weak_scaling_tests(sequential_algorithms, parallel_algorithms, access_patterns, multicore_setups, relaxation_time, time_steps);
     strong_scaling_tests(sequential_algorithms, parallel_algorithms, access_patterns, multicore_setups, relaxation_time, time_steps);
 
     std::cout << "Benchmark finished." << std::endl;
