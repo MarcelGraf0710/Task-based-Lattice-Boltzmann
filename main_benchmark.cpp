@@ -218,7 +218,7 @@ void strong_scaling_tests
     unsigned int time_steps
 )
 {
-    unsigned int test_runs = 1;
+    unsigned int test_runs = 20;
 
     std::cout << "Starting strong scaling test." << std::endl;
     std::cout << "------------------------------------------------------" << std::endl;
@@ -236,8 +236,8 @@ void strong_scaling_tests
     Settings settings;
     settings.debug_mode = 0;
     settings.results_to_csv = 0;
-    settings.horizontal_nodes = 512; // 512
-    settings.vertical_nodes_excluding_buffers = 512; // 512
+    settings.horizontal_nodes = 1024; // 512
+    settings.vertical_nodes_excluding_buffers = 1024; // 512
     settings.time_steps = time_steps;
 
     double runtime = 0;
