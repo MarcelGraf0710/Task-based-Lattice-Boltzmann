@@ -236,8 +236,8 @@ void strong_scaling_tests
     Settings settings;
     settings.debug_mode = 0;
     settings.results_to_csv = 0;
-    settings.horizontal_nodes = 1024; // 512
-    settings.vertical_nodes_excluding_buffers = 1024; // 512
+    settings.horizontal_nodes = 768; // 512
+    settings.vertical_nodes_excluding_buffers = 768; // 512
     settings.time_steps = time_steps;
 
     double runtime = 0;
