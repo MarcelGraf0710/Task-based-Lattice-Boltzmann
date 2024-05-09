@@ -556,29 +556,37 @@ if __name__ == "__main__":
 
         plot.grid(color='#808080', linestyle='--', linewidth=0.5)
         plot.legend(["Two-step", "Swap", "Framework two-lattice", "Non-framework two-lattice ", "Shift",], loc='best')
-        plot.title(r"Strong scaling: $\displaystyle 512 \times 512$ nodes, runtimes with $\displaystyle\gamma=95\%$, " + access_pattern + " layout")
+        plot.title(r"Strong scaling: $\displaystyle 1024 \times 1024$ nodes, runtimes with $\displaystyle\gamma=95\%$, " + access_pattern + " layout")
         plot.xlabel('cores')
         plot.ylabel('runtime [s]')
         ax.set_xscale('log', base=2)
         ax.set_yscale('log', base=10)
         ax.get_xaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
+        ax.get_yaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
+        ax.set_ylim([math.floor(global_min_y), math.ceil(global_max_y / 10.0)* 10+10])
         plot.xticks(core_ticks)
-        ax.set_ylim([global_min_y, global_max_y])
+        plot.yticks([3,4,5,10,20,30,40,50,60,80,100,140])
         plot.savefig("../images/runtimes/runtimes_strong_scaling_" + access_pattern + ".pdf", format="pdf", bbox_inches="tight")
         plot.close()
 
         # Plot speedup results
         fig, ax = plot.subplots()
+        global_max_y = -math.inf
 
         for i in range(0,5):
             y_values = [get_scaling_result(scaling_results, ALGORITHMS[i], access_pattern, j) for j in range(0, len(core_ticks))]
             plot.plot(core_ticks, y_values, color=COLORS[i], linestyle='-', marker=MARKERS[i])
 
+            current_max_y = numpy.max([y_values[j] for j in range(0, len(core_ticks))])
+
+            if current_max_y > global_max_y:
+                global_max_y = current_max_y
+
         plot.plot(core_ticks, core_ticks, color='k', linestyle='--')
 
         plot.grid(color='#808080', linestyle='--', linewidth=0.5)
         plot.legend(["Two-step", "Swap", "Framework two-lattice", "Non-framework two-lattice ", "Shift", 'Ideal'], loc='best')
-        plot.title(r"Strong scaling: $\displaystyle 512 \times 512$ nodes, " + access_pattern + " layout")
+        plot.title(r"Strong scaling: $\displaystyle 1024 \times 1024$ nodes, " + access_pattern + " layout")
         plot.xlabel('cores')
         plot.ylabel('speedup')
         ax.set_xscale('log', base=2)
@@ -586,7 +594,8 @@ if __name__ == "__main__":
         ax.get_xaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
         ax.get_yaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
         plot.xticks(core_ticks)
-        plot.yticks(core_ticks)
+        plot.yticks([1,2,4,8,10,15,20,30,40,50])
+        ax.set_ylim([1, global_max_y+10])
         plot.savefig("../images/speedup/strong_scaling_" + access_pattern + "_speedup.pdf", format="pdf", bbox_inches="tight")
         plot.close()
 
@@ -601,7 +610,7 @@ if __name__ == "__main__":
 
         plot.grid(color='#808080', linestyle='--', linewidth=0.5)
         plot.legend(["Two-step", "Swap", "Framework two-lattice", "Non-framework two-lattice ", "Shift", 'Ideal'], loc='best')
-        plot.title(r"Strong scaling: $\displaystyle 512 \times 512$ nodes, " + access_pattern + " layout")
+        plot.title(r"Strong scaling: $\displaystyle 1024 \times 1024$ nodes, " + access_pattern + " layout")
         plot.xlabel('cores')
         plot.ylabel('efficiency')
         ax.set_xscale('log', base=2)
@@ -613,7 +622,7 @@ if __name__ == "__main__":
         plot.savefig("../images/efficiency/strong_scaling_" + access_pattern + "_efficiency.pdf", format="pdf", bbox_inches="tight")
         plot.close()
 
-    ## Determine best algorithms for weak scaling and compare access patterns
+    ## Determine best algorithms for strong scaling and compare access patterns
     algorithm_ranking_two_lattice = []
     algorithm_ranking_two_lattice_framework = []
     algorithm_ranking_two_step = []
@@ -645,12 +654,16 @@ if __name__ == "__main__":
     for algo in [global_optimum[0], second_optimum[0]]:
 
         fig, ax = plot.subplots()
+
         new_colors = ['r', 'g', 'b']
         algorithm_name = ""
 
         for access_pattern in ACCESS_PATTERNS:
             y_values = [get_scaling_result(scaling_results, algo, access_pattern, j) for j in range(0, len(core_ticks))]
             plot.plot(core_ticks, y_values, color=new_colors[ACCESS_PATTERNS.index(access_pattern)], linestyle='-', marker='x', markersize=5)
+
+            current_max_y = numpy.max([error_bounds[1][j] + y_values[j] for j in range(0, len(core_ticks))])
+            
         plot.plot(core_ticks, core_ticks, color='k', linestyle='--')
         plot.grid(color='#808080', linestyle='--', linewidth=0.5)
         plot.legend(['Collision', 'Stream', 'Bundle', 'Ideal'], loc='best')
@@ -662,7 +675,7 @@ if __name__ == "__main__":
         else:
             algorithm_name = algo
 
-        plot.title(r"Strong scaling: $\displaystyle 512 \times 512$ nodes, " + algorithm_name + " algorithm")
+        plot.title(r"Strong scaling: $\displaystyle 1024 \times 1024$ nodes, " + algorithm_name + " algorithm")
         plot.xlabel('cores')
         plot.ylabel('speedup')
         ax.set_xscale('log', base=2)
@@ -670,8 +683,8 @@ if __name__ == "__main__":
         ax.get_xaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
         ax.get_yaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
         plot.xticks(core_ticks)
-        plot.yticks(core_ticks)
-        ax.set_ylim([1, numpy.ceil(global_optimum[2]+1)])
+        plot.yticks([1,2,4,8,12,16,20,24,28,36])
+        ax.set_ylim([1, numpy.ceil(global_optimum[2]+2)])
 
         plot.savefig("../images/best_algorithms/strong_scaling_" + algo + ".pdf", format="pdf", bbox_inches="tight")
         plot.close()
