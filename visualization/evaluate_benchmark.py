@@ -552,7 +552,7 @@ if __name__ == "__main__":
             fig, ax = plot.subplots()
 
             for access_pattern in ACCESS_PATTERNS:
-                error_bounds = [[get_result(results, ALGORITHMS[i], access_pattern, content, j) 
+                error_bounds = [[get_result(results, algo, access_pattern, content, j) 
                                 for j in range(0, len(core_ticks))] 
                                 for content in ["lower_bounds", "upper_bounds"]]
                 y_values = [error_bounds[1][i] - error_bounds[0][i] for i in range(0,len(core_ticks))]
@@ -574,7 +574,7 @@ if __name__ == "__main__":
             ax.get_xaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
             ax.get_yaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
             plot.xticks(core_ticks)
-            plot.savefig("../images/runtime_variance/weak_scaling_" + algo + "_scatter.pdf", format="pdf", bbox_inches="tight")
+            plot.savefig("../images/runtime_confidence_interval/weak_scaling_" + algo + "_scatter.pdf", format="pdf", bbox_inches="tight")
             plot.close()
 
     ### Strong scaling
@@ -870,7 +870,7 @@ if __name__ == "__main__":
             ax.get_xaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
             ax.get_yaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
             plot.xticks(core_ticks)
-            plot.savefig("../images/runtime_variance/strong_scaling_" + algo + "_scatter.pdf", format="pdf", bbox_inches="tight")
+            plot.savefig("../images/runtime_confidence_interval/strong_scaling_" + algo + "_scatter.pdf", format="pdf", bbox_inches="tight")
             plot.close()
 
     print("All done.")
