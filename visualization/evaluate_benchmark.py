@@ -408,7 +408,7 @@ if __name__ == "__main__":
         ax.get_yaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
         plot.xticks(core_ticks)
         ax.set_ylim([0.2, 1.1])
-        plot.yticks(numpy.linspace(0.2,1,9, endpoint=True))
+        plot.yticks(numpy.linspace(0.2,1,11, endpoint=True))
         plot.savefig("../images/efficiency/weak_scaling_" + access_pattern + "_efficiency.pdf", format="pdf", bbox_inches="tight")
         plot.close()
 
@@ -555,7 +555,7 @@ if __name__ == "__main__":
                 error_bounds = [[get_result(results, algo, access_pattern, content, j) 
                                 for j in range(0, len(core_ticks))] 
                                 for content in ["lower_bounds", "upper_bounds"]]
-                y_values = [error_bounds[1][i] - error_bounds[0][i] for i in range(0,len(core_ticks))]
+                y_values = [error_bounds[1][i] + error_bounds[0][i] for i in range(0,len(core_ticks))]
                 plot.plot(core_ticks, y_values, color=new_colors[ACCESS_PATTERNS.index(access_pattern)], linestyle='-', marker='x', markersize=5)
 
             if algo == "two_lattice":
@@ -851,7 +851,7 @@ if __name__ == "__main__":
                 error_bounds = [[get_result(results, algo, access_pattern, content, j) 
                                 for j in range(0, len(core_ticks))] 
                                 for content in ["lower_bounds", "upper_bounds"]]
-                y_values = [error_bounds[1][i] - error_bounds[0][i] for i in range(0,len(core_ticks))]
+                y_values = [error_bounds[1][i] + error_bounds[0][i] for i in range(0,len(core_ticks))]
                 plot.plot(core_ticks, y_values, color=new_colors[ACCESS_PATTERNS.index(access_pattern)], linestyle='-', marker='x', markersize=5)
 
             if algo == "two_lattice":
