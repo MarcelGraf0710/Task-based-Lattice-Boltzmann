@@ -340,7 +340,7 @@ if __name__ == "__main__":
 
         plot.grid(color='#808080', linestyle='--', linewidth=0.5)
         plot.legend(["Two-step", "Swap", "Framework two-lattice", "Non-framework two-lattice ", "Shift",], loc='best')
-        plot.title(r"Weak scaling: $\displaystyle 512 \times 512$ nodes per core, runtimes with $\displaystyle\gamma=95\%$, " + access_pattern + " layout")
+        #plot.title(r"Weak scaling: $\displaystyle 512 \times 512$ nodes per core, runtimes with $\displaystyle\gamma=95\%$, " + access_pattern + " layout")
         plot.xlabel('cores')
         plot.ylabel('runtime [s]')
         ax.set_xscale('log', base=2)
@@ -372,7 +372,7 @@ if __name__ == "__main__":
 
         plot.grid(color='#808080', linestyle='--', linewidth=0.5)
         plot.legend(["Two-step", "Swap", "Framework two-lattice", "Non-framework two-lattice ", "Shift", 'Ideal'], loc='best')
-        plot.title(r"Weak scaling: $\displaystyle 512 \times 512$ nodes per core, " + access_pattern + " layout")
+        #plot.title(r"Weak scaling: $\displaystyle 512 \times 512$ nodes per core, " + access_pattern + " layout")
         plot.xlabel('cores')
         plot.ylabel('speedup')
         ax.set_xscale('log', base=2)
@@ -400,7 +400,7 @@ if __name__ == "__main__":
 
         plot.grid(color='#808080', linestyle='--', linewidth=0.5)
         plot.legend(["Two-step", "Swap", "Framework two-lattice", "Non-framework two-lattice ", "Shift", 'Ideal'], loc='best')
-        plot.title(r"Weak scaling: $\displaystyle 512 \times 512$ nodes per core, " + access_pattern + " layout")
+        #plot.title(r"Weak scaling: $\displaystyle 512 \times 512$ nodes per core, " + access_pattern + " layout")
         plot.xlabel('cores')
         plot.ylabel('efficiency')
         ax.set_xscale('log', base=2)
@@ -471,7 +471,7 @@ if __name__ == "__main__":
         else:
             algorithm_name = algo
 
-        plot.title(r"Weak scaling: $\displaystyle 512 \times 512$ nodes per core, " + algorithm_name + " algorithm")
+        #plot.title(r"Weak scaling: $\displaystyle 512 \times 512$ nodes per core, " + algorithm_name + " algorithm")
         plot.xlabel('cores')
         plot.ylabel('speedup')
         ax.set_xscale('log', base=2)
@@ -535,7 +535,7 @@ if __name__ == "__main__":
         else:
             algorithm_name = algo
 
-        plot.title(r"Weak scaling: $\displaystyle 512 \times 512$ nodes per core, " + algorithm_name + " algorithm")
+        #plot.title(r"Weak scaling: $\displaystyle 512 \times 512$ nodes per core, " + algorithm_name + " algorithm")
         plot.xlabel('cores')
         plot.ylabel('efficiency')
         ax.set_xscale('log', base=2)
@@ -567,7 +567,7 @@ if __name__ == "__main__":
             
             plot.grid(color='#808080', linestyle='--', linewidth=0.5)
             plot.legend(['Collision', 'Stream', 'Bundle'], loc='best')
-            plot.title(r"Weak scaling: $\displaystyle 512 \times 512$ nodes per core, " + algorithm_name + " algorithm")
+            ##plot.title(r"Weak scaling: $\displaystyle 512 \times 512$ nodes per core, " + algorithm_name + " algorithm")
             plot.xlabel('cores')
             plot.ylabel(r'width of 95\% confidence interval [s]')
             ax.set_xscale('log', base=2)
@@ -648,7 +648,7 @@ if __name__ == "__main__":
 
         plot.grid(color='#808080', linestyle='--', linewidth=0.5)
         plot.legend(["Two-step", "Swap", "Framework two-lattice", "Non-framework two-lattice ", "Shift",], loc='best')
-        plot.title(r"Strong scaling: $\displaystyle 1024 \times 1024$ nodes, runtimes with $\displaystyle\gamma=95\%$, " + access_pattern + " layout")
+        #plot.title(r"Strong scaling: $\displaystyle 1024 \times 1024$ nodes, runtimes with $\displaystyle\gamma=95\%$, " + access_pattern + " layout")
         plot.xlabel('cores')
         plot.ylabel('runtime [s]')
         ax.set_xscale('log', base=2)
@@ -678,7 +678,7 @@ if __name__ == "__main__":
 
         plot.grid(color='#808080', linestyle='--', linewidth=0.5)
         plot.legend(["Two-step", "Swap", "Framework two-lattice", "Non-framework two-lattice ", "Shift", 'Ideal'], loc='best')
-        plot.title(r"Strong scaling: $\displaystyle 1024 \times 1024$ nodes, " + access_pattern + " layout")
+        #plot.title(r"Strong scaling: $\displaystyle 1024 \times 1024$ nodes, " + access_pattern + " layout")
         plot.xlabel('cores')
         plot.ylabel('speedup')
         ax.set_xscale('log', base=2)
@@ -702,7 +702,7 @@ if __name__ == "__main__":
 
         plot.grid(color='#808080', linestyle='--', linewidth=0.5)
         plot.legend(["Two-step", "Swap", "Framework two-lattice", "Non-framework two-lattice ", "Shift", 'Ideal'], loc='best')
-        plot.title(r"Strong scaling: $\displaystyle 1024 \times 1024$ nodes, " + access_pattern + " layout")
+        #plot.title(r"Strong scaling: $\displaystyle 1024 \times 1024$ nodes, " + access_pattern + " layout")
         plot.xlabel('cores')
         plot.ylabel('efficiency')
         ax.set_xscale('log', base=2)
@@ -710,7 +710,7 @@ if __name__ == "__main__":
         ax.get_yaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
         plot.xticks(core_ticks)
         plot.yticks(numpy.linspace(0,1,11, endpoint=True))
-        ax.set_ylim([0, 1.1])
+        ax.set_ylim([0.15, 1.1])
         plot.savefig("../images/efficiency/strong_scaling_" + access_pattern + "_efficiency.pdf", format="pdf", bbox_inches="tight")
         plot.close()
 
@@ -767,7 +767,7 @@ if __name__ == "__main__":
         else:
             algorithm_name = algo
 
-        plot.title(r"Strong scaling: $\displaystyle 1024 \times 1024$ nodes, " + algorithm_name + " algorithm")
+        #plot.title(r"Strong scaling: $\displaystyle 1024 \times 1024$ nodes, " + algorithm_name + " algorithm")
         plot.xlabel('cores')
         plot.ylabel('speedup')
         ax.set_xscale('log', base=2)
@@ -831,7 +831,7 @@ if __name__ == "__main__":
         else:
             algorithm_name = algo
 
-        plot.title(r"Strong scaling: $\displaystyle 1024 \times 1024$ nodes, " + algorithm_name + " algorithm")
+        #plot.title(r"Strong scaling: $\displaystyle 1024 \times 1024$ nodes, " + algorithm_name + " algorithm")
         plot.xlabel('cores')
         plot.ylabel('efficiency')
         ax.set_xscale('log', base=2)
@@ -848,7 +848,7 @@ if __name__ == "__main__":
             fig, ax = plot.subplots()
 
             for access_pattern in ACCESS_PATTERNS:
-                error_bounds = [[get_result(results, ALGORITHMS[i], access_pattern, content, j) 
+                error_bounds = [[get_result(results, algo, access_pattern, content, j) 
                                 for j in range(0, len(core_ticks))] 
                                 for content in ["lower_bounds", "upper_bounds"]]
                 y_values = [error_bounds[1][i] - error_bounds[0][i] for i in range(0,len(core_ticks))]
@@ -863,7 +863,7 @@ if __name__ == "__main__":
             
             plot.grid(color='#808080', linestyle='--', linewidth=0.5)
             plot.legend(['Collision', 'Stream', 'Bundle'], loc='best')
-            plot.title(r"Strong scaling: $\displaystyle 1024 \times 1024$ nodes, " + algorithm_name + " algorithm")
+            #plot.title(r"Strong scaling: $\displaystyle 1024 \times 1024$ nodes, " + algorithm_name + " algorithm")
             plot.xlabel('cores')
             plot.ylabel(r'width of 95\% confidence interval [s]')
             ax.set_xscale('log', base=2)
