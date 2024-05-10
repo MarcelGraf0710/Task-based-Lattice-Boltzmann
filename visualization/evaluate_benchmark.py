@@ -407,8 +407,8 @@ if __name__ == "__main__":
         ax.get_xaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
         ax.get_yaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
         plot.xticks(core_ticks)
-        ax.set_ylim([0, 1.1])
-        plot.yticks(numpy.linspace(0,1,11, endpoint=True))
+        ax.set_ylim([0.2, 1.1])
+        plot.yticks(numpy.linspace(0.2,1,9, endpoint=True))
         plot.savefig("../images/efficiency/weak_scaling_" + access_pattern + "_efficiency.pdf", format="pdf", bbox_inches="tight")
         plot.close()
 
