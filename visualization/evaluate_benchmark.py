@@ -353,38 +353,6 @@ if __name__ == "__main__":
         plot.savefig("../images/runtimes/runtimes_weak_scaling_" + access_pattern + ".pdf", format="pdf", bbox_inches="tight")
         plot.close()
 
-        # Plot speedup results
-        fig, ax = plot.subplots()
-
-        global_max_y = -math.inf
-
-        for i in range(0,5):
-            y_values = [get_scaling_result(scaling_results, ALGORITHMS[i], access_pattern, j) for j in range(0, len(core_ticks))]
-            plot.plot(core_ticks, y_values, color=COLORS[i], linestyle='-', marker=MARKERS[i])
-
-            current_max_y = numpy.max([y_values[j] for j in range(0, len(core_ticks))])
-            current_min_y = numpy.min([y_values[j] for j in range(0, len(core_ticks))])
-
-            if current_max_y > global_max_y:
-                global_max_y = current_max_y
-
-        plot.plot(core_ticks, core_ticks, color='k', linestyle='--')
-
-        plot.grid(color='#808080', linestyle='--', linewidth=0.5)
-        plot.legend(["Two-step", "Swap", "Framework two-lattice", "Non-framework two-lattice ", "Shift", 'Ideal'], loc='best')
-        #plot.title(r"Weak scaling: $\displaystyle 512 \times 512$ nodes per core, " + access_pattern + " layout")
-        plot.xlabel('cores')
-        plot.ylabel('speedup')
-        ax.set_xscale('log', base=2)
-        ax.set_yscale('log', base=10)
-        ax.get_xaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
-        ax.get_yaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
-        plot.xticks(core_ticks)
-        plot.yticks([1,2,4,8,10,15,20,30,40,50])
-        ax.set_ylim([1, global_max_y+10])
-        plot.savefig("../images/speedup/weak_scaling_" + access_pattern + "_speedup.pdf", format="pdf", bbox_inches="tight")
-        plot.close()
-
         # Plot efficiency results
         fig, ax = plot.subplots()
 
@@ -408,82 +376,82 @@ if __name__ == "__main__":
         ax.get_yaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
         plot.xticks(core_ticks)
         ax.set_ylim([0.2, 1.1])
-        plot.yticks(numpy.linspace(0.2,1,11, endpoint=True))
+        plot.yticks(numpy.linspace(0.2,1,9, endpoint=True))
         plot.savefig("../images/efficiency/weak_scaling_" + access_pattern + "_efficiency.pdf", format="pdf", bbox_inches="tight")
         plot.close()
 
     ## Determine best algorithms for weak scaling and compare access patterns
-    algorithm_ranking_two_lattice = []
-    algorithm_ranking_two_lattice_framework = []
-    algorithm_ranking_two_step = []
-    algorithm_ranking_swap = []
-    algorithm_ranking_shift = []
+    # algorithm_ranking_two_lattice = []
+    # algorithm_ranking_two_lattice_framework = []
+    # algorithm_ranking_two_step = []
+    # algorithm_ranking_swap = []
+    # algorithm_ranking_shift = []
 
-    for access_pattern in ACCESS_PATTERNS:
-        algorithm_ranking_two_lattice.append(("two_lattice", access_pattern, get_scaling_result(scaling_results, "two_lattice", access_pattern, len(core_ticks) - 1)))
-        algorithm_ranking_two_lattice_framework.append(("two_lattice_framework", access_pattern, get_scaling_result(scaling_results, "two_lattice_framework", access_pattern, len(core_ticks) - 1)))
-        algorithm_ranking_two_step.append(("two_step", access_pattern, get_scaling_result(scaling_results, "two_step", access_pattern, len(core_ticks) - 1)))
-        algorithm_ranking_swap.append(("swap", access_pattern, get_scaling_result(scaling_results, "swap", access_pattern, len(core_ticks) - 1)))
-        algorithm_ranking_shift.append(("shift", access_pattern, get_scaling_result(scaling_results, "shift", access_pattern, len(core_ticks) - 1)))
+    # for access_pattern in ACCESS_PATTERNS:
+    #     algorithm_ranking_two_lattice.append(("two_lattice", access_pattern, get_scaling_result(scaling_results, "two_lattice", access_pattern, len(core_ticks) - 1)))
+    #     algorithm_ranking_two_lattice_framework.append(("two_lattice_framework", access_pattern, get_scaling_result(scaling_results, "two_lattice_framework", access_pattern, len(core_ticks) - 1)))
+    #     algorithm_ranking_two_step.append(("two_step", access_pattern, get_scaling_result(scaling_results, "two_step", access_pattern, len(core_ticks) - 1)))
+    #     algorithm_ranking_swap.append(("swap", access_pattern, get_scaling_result(scaling_results, "swap", access_pattern, len(core_ticks) - 1)))
+    #     algorithm_ranking_shift.append(("shift", access_pattern, get_scaling_result(scaling_results, "shift", access_pattern, len(core_ticks) - 1)))
 
-    algorithm_ranking_two_lattice.sort(key = lambda tuple : tuple[2], reverse=True)
-    algorithm_ranking_two_lattice_framework.sort(key = lambda tuple : tuple[2], reverse=True)
-    algorithm_ranking_two_step.sort(key = lambda tuple : tuple[2], reverse=True)
-    algorithm_ranking_swap.sort(key = lambda tuple : tuple[2], reverse=True)
-    algorithm_ranking_shift.sort(key = lambda tuple : tuple[2], reverse=True)
+    # algorithm_ranking_two_lattice.sort(key = lambda tuple : tuple[2], reverse=True)
+    # algorithm_ranking_two_lattice_framework.sort(key = lambda tuple : tuple[2], reverse=True)
+    # algorithm_ranking_two_step.sort(key = lambda tuple : tuple[2], reverse=True)
+    # algorithm_ranking_swap.sort(key = lambda tuple : tuple[2], reverse=True)
+    # algorithm_ranking_shift.sort(key = lambda tuple : tuple[2], reverse=True)
 
-    all_minima = [algorithm_ranking_two_lattice[0], algorithm_ranking_two_lattice_framework[0], algorithm_ranking_two_step[0], algorithm_ranking_swap[0], algorithm_ranking_shift[0]]
-    all_minima.sort(key = lambda tuple : tuple[2], reverse=True)
-    global_optimum = all_minima[0]
-    second_optimum = all_minima[1]
-    print("The best weak scaling result is achieved by the", global_optimum[0], "algorithm using the", global_optimum[1], "access pattern with scaling factor", global_optimum[2])
-    print("The second best weak scaling result is achieved by the", second_optimum[0], "algorithm using the", second_optimum[1], "access pattern with scaling factor", second_optimum[2])
+    # all_minima = [algorithm_ranking_two_lattice[0], algorithm_ranking_two_lattice_framework[0], algorithm_ranking_two_step[0], algorithm_ranking_swap[0], algorithm_ranking_shift[0]]
+    # all_minima.sort(key = lambda tuple : tuple[2], reverse=True)
+    # global_optimum = all_minima[0]
+    # second_optimum = all_minima[1]
+    # print("The best weak scaling result is achieved by the", global_optimum[0], "algorithm using the", global_optimum[1], "access pattern with scaling factor", global_optimum[2])
+    # print("The second best weak scaling result is achieved by the", second_optimum[0], "algorithm using the", second_optimum[1], "access pattern with scaling factor", second_optimum[2])
 
-    line_styles_access_patterns = ['dotted', '-', '-.']
+    # line_styles_access_patterns = ['dotted', '-', '-.']
 
-    for algo in [global_optimum[0], second_optimum[0]]:
+    # for algo in [global_optimum[0], second_optimum[0]]:
         
-        fig, ax = plot.subplots()
-        new_colors = ['r', 'g', 'b']
-        algorithm_name = ""
+    #     fig, ax = plot.subplots()
+    #     new_colors = ['r', 'g', 'b']
+    #     algorithm_name = ""
 
-        for access_pattern in ACCESS_PATTERNS:
-            y_values = [get_scaling_result(scaling_results, algo, access_pattern, j) for j in range(0, len(core_ticks))]
-            plot.plot(core_ticks, y_values, color=new_colors[ACCESS_PATTERNS.index(access_pattern)], linestyle='-', marker='x', markersize=5)
+    #     for access_pattern in ACCESS_PATTERNS:
+    #         y_values = [get_scaling_result(scaling_results, algo, access_pattern, j) for j in range(0, len(core_ticks))]
+    #         plot.plot(core_ticks, y_values, color=new_colors[ACCESS_PATTERNS.index(access_pattern)], linestyle='-', marker='x', markersize=5)
 
-            current_max_y = numpy.max([y_values[j] for j in range(0, len(core_ticks))])
-            current_min_y = numpy.min([y_values[j] for j in range(0, len(core_ticks))])
+    #         current_max_y = numpy.max([y_values[j] for j in range(0, len(core_ticks))])
+    #         current_min_y = numpy.min([y_values[j] for j in range(0, len(core_ticks))])
 
-            if current_max_y > global_max_y:
-                global_max_y = current_max_y
+    #         if current_max_y > global_max_y:
+    #             global_max_y = current_max_y
             
-            if current_min_y < global_min_y:
-                global_min_y = current_min_y
+    #         if current_min_y < global_min_y:
+    #             global_min_y = current_min_y
                 
-        plot.plot(core_ticks, core_ticks, color='k', linestyle='--')
-        plot.grid(color='#808080', linestyle='--', linewidth=0.5)
-        plot.legend(['Collision', 'Stream', 'Bundle', 'Ideal'], loc='best')
+    #     plot.plot(core_ticks, core_ticks, color='k', linestyle='--')
+    #     plot.grid(color='#808080', linestyle='--', linewidth=0.5)
+    #     plot.legend(['Collision', 'Stream', 'Bundle', 'Ideal'], loc='best')
 
-        if algo == "two_lattice":
-            algorithm_name = "non-framework two-lattice"
-        elif algo == "two_lattice_framework":
-            algorithm_name = "framework two-lattice"
-        else:
-            algorithm_name = algo
+    #     if algo == "two_lattice":
+    #         algorithm_name = "non-framework two-lattice"
+    #     elif algo == "two_lattice_framework":
+    #         algorithm_name = "framework two-lattice"
+    #     else:
+    #         algorithm_name = algo
 
-        #plot.title(r"Weak scaling: $\displaystyle 512 \times 512$ nodes per core, " + algorithm_name + " algorithm")
-        plot.xlabel('cores')
-        plot.ylabel('speedup')
-        ax.set_xscale('log', base=2)
-        ax.set_yscale('log', base=10)
-        ax.get_xaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
-        ax.get_yaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
-        plot.xticks(core_ticks)
-        plot.yticks([1,2,4,8,10,15,20,30,40,50])
-        ax.set_ylim([1, global_max_y+10])
+    #     #plot.title(r"Weak scaling: $\displaystyle 512 \times 512$ nodes per core, " + algorithm_name + " algorithm")
+    #     plot.xlabel('cores')
+    #     plot.ylabel('speedup')
+    #     ax.set_xscale('log', base=2)
+    #     ax.set_yscale('log', base=10)
+    #     ax.get_xaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
+    #     ax.get_yaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
+    #     plot.xticks(core_ticks)
+    #     plot.yticks([1,2,4,8,10,15,20,30,40,50])
+    #     ax.set_ylim([1, global_max_y+10])
 
-        plot.savefig("../images/best_algorithms/weak_scaling_" + algo + "_speedup.pdf", format="pdf", bbox_inches="tight")
-        plot.close()
+    #     plot.savefig("../images/best_algorithms/weak_scaling_" + algo + "_speedup.pdf", format="pdf", bbox_inches="tight")
+    #     plot.close()
 
     ## Determine best algorithms for strong scaling and compare access patterns
     algorithm_ranking_two_lattice = []
@@ -547,6 +515,41 @@ if __name__ == "__main__":
         plot.savefig("../images/best_algorithms/weak_scaling_" + algo + "_efficiency.pdf", format="pdf", bbox_inches="tight")
         plot.close()
 
+        ## Difference in efficiency to collision layout
+        fig, ax = plot.subplots()
+
+        new_colors = ['r', 'g', 'b']
+        algorithm_name = ""
+
+        y_values_collision = [get_scaling_result(efficiency_results, algo, "collision", j) for j in range(0, len(core_ticks))]
+        for access_pattern in ACCESS_PATTERNS:
+            y_values = [get_scaling_result(efficiency_results, algo, access_pattern, j) for j in range(0, len(core_ticks))]
+            diff_y_values = [y_values[k] - y_values_collision[k] for k in range(0, len(y_values))]
+            plot.plot(core_ticks, diff_y_values, color=new_colors[ACCESS_PATTERNS.index(access_pattern)], linestyle='-', marker='x', markersize=5)
+            
+        plot.grid(color='#808080', linestyle='--', linewidth=0.5)
+        plot.legend(['Collision', 'Stream', 'Bundle', 'Ideal'], loc='best')
+
+        if algo == "two_lattice":
+            algorithm_name = "non-framework two-lattice"
+        elif algo == "two_lattice_framework":
+            algorithm_name = "two-lattice-framework"
+        else:
+            algorithm_name = algo
+
+        #plot.title(r"Weak scaling: $\displaystyle 512 \times 512$ nodes per core, " + algorithm_name + " algorithm")
+        plot.xlabel('cores')
+        plot.ylabel('difference in efficiency to collision layout')
+        ax.set_xscale('log', base=2)
+        ax.get_xaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
+        ax.get_yaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
+        plot.xticks(core_ticks)
+        #plot.yticks(numpy.linspace(0,1,11, endpoint=True))
+        #ax.set_ylim([0.3, 1.1])
+        plot.savefig("../images/best_algorithms/weak_scaling_" + algo + "_efficiency_diff_to_col.pdf", format="pdf", bbox_inches="tight")
+        plot.close()
+
+
         # Plot runtime scatter
         for algo in [global_optimum[0], second_optimum[0]]:
             fig, ax = plot.subplots()
@@ -571,10 +574,15 @@ if __name__ == "__main__":
             plot.xlabel('cores')
             plot.ylabel(r'width of 95\% confidence interval [s]')
             ax.set_xscale('log', base=2)
+            ax.set_yscale('log', base=10)
             ax.get_xaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
             ax.get_yaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
             plot.xticks(core_ticks)
-            plot.savefig("../images/runtime_confidence_interval/weak_scaling_" + algo + "_scatter.pdf", format="pdf", bbox_inches="tight")
+            if algo == "two_lattice":
+                plot.yticks([0.2, 0.5, 1,1.5,2,2.5,3])
+            elif algo == "shift":
+                plot.yticks([0.1, 0.2, 0.5, 1,2,5])
+            plot.savefig("../images/runtime_confidence_interval/weak_scaling_" + algo + "_confidence_int.pdf", format="pdf", bbox_inches="tight")
             plot.close()
 
     ### Strong scaling
@@ -843,6 +851,39 @@ if __name__ == "__main__":
         plot.savefig("../images/best_algorithms/strong_scaling_" + algo + "_efficiency.pdf", format="pdf", bbox_inches="tight")
         plot.close()
 
+        ## Difference in efficiency to collision layout
+        fig, ax = plot.subplots()
+
+        new_colors = ['r', 'g', 'b']
+        algorithm_name = ""
+
+        y_values_collision = [get_scaling_result(efficiency_results, algo, "collision", j) for j in range(0, len(core_ticks))]
+        for access_pattern in ACCESS_PATTERNS:
+            y_values = [get_scaling_result(efficiency_results, algo, access_pattern, j) for j in range(0, len(core_ticks))]
+            diff_y_values = [y_values[k] - y_values_collision[k] for k in range(0, len(y_values))]
+            plot.plot(core_ticks, diff_y_values, color=new_colors[ACCESS_PATTERNS.index(access_pattern)], linestyle='-', marker='x', markersize=5)
+            
+        plot.grid(color='#808080', linestyle='--', linewidth=0.5)
+        plot.legend(['Collision', 'Stream', 'Bundle', 'Ideal'], loc='best')
+
+        if algo == "two_lattice":
+            algorithm_name = "non-framework two-lattice"
+        elif algo == "two_lattice_framework":
+            algorithm_name = "two-lattice-framework"
+        else:
+            algorithm_name = algo
+
+        plot.xlabel('cores')
+        plot.ylabel('difference in efficiency to collision layout')
+        ax.set_xscale('log', base=2)
+        ax.get_xaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
+        ax.get_yaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
+        plot.xticks(core_ticks)
+        #plot.yticks(numpy.linspace(0,1,11, endpoint=True))
+        #ax.set_ylim([0.3, 1.1])
+        plot.savefig("../images/best_algorithms/strong_scaling_" + algo + "_efficiency_diff_to_col.pdf", format="pdf", bbox_inches="tight")
+        plot.close()
+
         # Plot runtime scatter
         for algo in [global_optimum[0], second_optimum[0]]:
             fig, ax = plot.subplots()
@@ -867,10 +908,15 @@ if __name__ == "__main__":
             plot.xlabel('cores')
             plot.ylabel(r'width of 95\% confidence interval [s]')
             ax.set_xscale('log', base=2)
+            ax.set_yscale('log', base=10)
             ax.get_xaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
             ax.get_yaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
             plot.xticks(core_ticks)
-            plot.savefig("../images/runtime_confidence_interval/strong_scaling_" + algo + "_scatter.pdf", format="pdf", bbox_inches="tight")
+            if algo == "two_lattice":
+                plot.yticks([0.05, 0.1, 0.2, 0.5, 1,2])
+            elif algo == "shift":
+                plot.yticks([0.1, 0.2, 0.5, 1,2])
+            plot.savefig("../images/runtime_confidence_interval/strong_scaling_" + algo + "_confidence_int.pdf", format="pdf", bbox_inches="tight")
             plot.close()
 
     print("All done.")

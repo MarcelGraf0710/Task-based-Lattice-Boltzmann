@@ -236,8 +236,8 @@ void strong_scaling_tests
     Settings settings;
     settings.debug_mode = 0;
     settings.results_to_csv = 0;
-    settings.horizontal_nodes = 768; // 512
-    settings.vertical_nodes_excluding_buffers = 768; // 512
+    settings.horizontal_nodes = 1024; // 512
+    settings.vertical_nodes_excluding_buffers = 1024; // 512
     settings.time_steps = time_steps;
 
     double runtime = 0;
@@ -321,7 +321,7 @@ int main(int argc, char* argv[])
         current_max_core_count *= 2;
     }
 
-    //weak_scaling_tests(sequential_algorithms, parallel_algorithms, access_patterns, multicore_setups, relaxation_time, time_steps);
+    weak_scaling_tests(sequential_algorithms, parallel_algorithms, access_patterns, multicore_setups, relaxation_time, time_steps);
     strong_scaling_tests(sequential_algorithms, parallel_algorithms, access_patterns, multicore_setups, relaxation_time, time_steps);
 
     std::cout << "Benchmark finished." << std::endl;
