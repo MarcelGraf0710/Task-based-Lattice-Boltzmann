@@ -477,8 +477,15 @@ if __name__ == "__main__":
     all_minima.sort(key = lambda tuple : tuple[2], reverse=True)
     global_optimum = all_minima[0]
     second_optimum = all_minima[1]
+    print("-------------------------------------------------------------------------------------------")
+    print("-------------------------------------------------------------------------------------------")
     print("The best weak scaling result is achieved by the", global_optimum[0], "algorithm using the", global_optimum[1], "access pattern with scaling efficiency", global_optimum[2])
     print("The second best weak scaling result is achieved by the", second_optimum[0], "algorithm using the", second_optimum[1], "access pattern with scaling efficiency", second_optimum[2])
+    print("-------------------------------------------------------------------------------------------")
+    print("For the", global_optimum[0], "algorithm using the collision access pattern, the scaling efficiency is ", get_scaling_result(efficiency_results, global_optimum[0], "collision", len(core_ticks) - 1))
+    print("For the", second_optimum[0], "algorithm using the collision access pattern, the scaling efficiency is ", get_scaling_result(efficiency_results, second_optimum[0], "collision", len(core_ticks) - 1))
+    print("-------------------------------------------------------------------------------------------")
+    print("-------------------------------------------------------------------------------------------")
 
     line_styles_access_patterns = ['dotted', '-', '-.']
 
@@ -544,6 +551,9 @@ if __name__ == "__main__":
         ax.get_xaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
         ax.get_yaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
         plot.xticks(core_ticks)
+
+        if algo == "shift":
+            plot.yticks([-0.012, -0.008, -0.004, 0, 0.004, 0.008])
         #plot.yticks(numpy.linspace(0,1,11, endpoint=True))
         #ax.set_ylim([0.3, 1.1])
         plot.savefig("../images/best_algorithms/weak_scaling_" + algo + "_efficiency_diff_to_col.pdf", format="pdf", bbox_inches="tight")
@@ -586,6 +596,7 @@ if __name__ == "__main__":
             plot.close()
 
     ### Strong scaling
+    print("")
     print("Creating strong scaling plots...")
 
     runtimes = []
@@ -746,8 +757,15 @@ if __name__ == "__main__":
     all_minima.sort(key = lambda tuple : tuple[2], reverse=True)
     global_optimum = all_minima[0]
     second_optimum = all_minima[1]
+    print("-------------------------------------------------------------------------------------------")
+    print("-------------------------------------------------------------------------------------------")
     print("The best strong scaling result is achieved by the", global_optimum[0], "algorithm using the", global_optimum[1], "access pattern with scaling factor", global_optimum[2])
     print("The second best strong scaling result is achieved by the", second_optimum[0], "algorithm using the", second_optimum[1], "access pattern with scaling factor", second_optimum[2])
+    print("-------------------------------------------------------------------------------------------")
+    print("For the", global_optimum[0], "algorithm using the collision access pattern, the scaling factor is ", get_scaling_result(scaling_results, global_optimum[0], "collision", len(core_ticks) - 1))
+    print("For the", second_optimum[0], "algorithm using the collision access pattern, the scaling factor is ", get_scaling_result(scaling_results, second_optimum[0], "collision", len(core_ticks) - 1))
+    print("-------------------------------------------------------------------------------------------")
+    print("-------------------------------------------------------------------------------------------")
 
     line_styles_access_patterns = ['dotted', '-', '-.']
 
@@ -815,6 +833,11 @@ if __name__ == "__main__":
     second_optimum = all_minima[1]
     print("The best strong scaling result is achieved by the", global_optimum[0], "algorithm using the", global_optimum[1], "access pattern with scaling efficiency", global_optimum[2])
     print("The second best strong scaling result is achieved by the", second_optimum[0], "algorithm using the", second_optimum[1], "access pattern with scaling efficiency", second_optimum[2])
+    print("-------------------------------------------------------------------------------------------")
+    print("For the", global_optimum[0], "algorithm using the collision access pattern, the scaling efficiency is ", get_scaling_result(efficiency_results, global_optimum[0], "collision", len(core_ticks) - 1))
+    print("For the", second_optimum[0], "algorithm using the collision access pattern, the scaling efficiency is ", get_scaling_result(efficiency_results, second_optimum[0], "collision", len(core_ticks) - 1))
+    print("-------------------------------------------------------------------------------------------")
+    print("-------------------------------------------------------------------------------------------")
 
     line_styles_access_patterns = ['dotted', '-', '-.']
 
