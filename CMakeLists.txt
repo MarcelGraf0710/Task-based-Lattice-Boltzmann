@@ -1,12 +1,6 @@
-cmake_minimum_required(VERSION 3.16.3)
+cmake_minimum_required(VERSION 3.18.2)
 project(parallel_lbm CXX)
 find_package(HPX REQUIRED)
-
-# IMPORTANT:
-# 
-# Do not compile sequential and parallel algorithms together!
-# Notice that they typically require different specifications anyways.
-# If the sequential algorithm is dealt with first and HPX is not linked against, necessary packages will NOT be found!
 
 set(HEADER_FILES ### General
                  include/access.hpp
@@ -55,47 +49,8 @@ set(SOURCE_FILES ###General
                  src/parallel_shift_framework.cpp
                  )
 
-### Two-lattice algorithms
-
-# add_executable(sequential_two_lattice sequential_two_lattice_main.cpp ${SOURCE_FILES})
-
-# add_executable(parallel_two_lattice parallel_two_lattice_main.cpp ${SOURCE_FILES})
-# target_link_libraries(parallel_two_lattice HPX::hpx HPX::wrap_main)
-
-# add_executable(parallel_two_lattice_framework parallel_two_lattice_framework_main.cpp ${SOURCE_FILES})
-# target_link_libraries(parallel_two_lattice_framework HPX::hpx HPX::wrap_main)
-
-### Two-step algorithms
-
-# add_executable(sequential_two_step sequential_two_step_main.cpp ${SOURCE_FILES})
-
-# add_executable(parallel_two_step parallel_two_step_main.cpp ${SOURCE_FILES})
-# target_link_libraries(parallel_two_step HPX::hpx HPX::wrap_main)
-
-### Swap algorithms
-
-# add_executable(sequential_swap sequential_swap_main.cpp ${SOURCE_FILES})
-
-# add_executable(parallel_swap parallel_swap_main.cpp ${SOURCE_FILES})
-# target_link_libraries(parallel_swap HPX::hpx HPX::wrap_main)
-
-### Shift algorithms
-
-# add_executable(sequential_shift sequential_shift_main.cpp ${SOURCE_FILES})
-
-# add_executable(parallel_shift parallel_shift_main.cpp ${SOURCE_FILES})
-# target_link_libraries(parallel_shift HPX::hpx HPX::wrap_main)
-
-### Benchmarks etc
-# add_executable(test main_global.cpp)
-#target_link_libraries(test HPX::hpx HPX::wrap_main)
-
 add_executable(benchmark main_benchmark.cpp ${SOURCE_FILES})
 target_link_libraries(benchmark HPX::hpx HPX::wrap_main)
 
 add_executable(lattice_boltzmann main_global.cpp ${SOURCE_FILES})
 target_link_libraries(lattice_boltzmann HPX::hpx HPX::wrap_main)
-
-######
-# Log entry: Everything is working
-# Next step: Create master main that can execute everything
