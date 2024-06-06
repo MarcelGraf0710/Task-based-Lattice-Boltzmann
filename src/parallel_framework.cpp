@@ -83,37 +83,6 @@ void parallel_framework::setup_parallel_domain
         phase_information[lbm_access::get_node_index(x,VERTICAL_NODES - 1)] = true;
     }
 
-    // // Center
-    // phase_information[lbm_access::get_node_index(floor(HORIZONTAL_NODES/2)-2, floor(VERTICAL_NODES/2))] = true;
-    // phase_information[lbm_access::get_node_index(floor(HORIZONTAL_NODES/2)-1, floor(VERTICAL_NODES/2))] = true;
-    // phase_information[lbm_access::get_node_index(floor(HORIZONTAL_NODES/2), floor(VERTICAL_NODES/2))] = true;
-    // phase_information[lbm_access::get_node_index(floor(HORIZONTAL_NODES/2)+1, floor(VERTICAL_NODES/2))] = true;
-    // phase_information[lbm_access::get_node_index(floor(HORIZONTAL_NODES/2)+2, floor(VERTICAL_NODES/2))] = true;
-
-    // // Upper
-    // phase_information[lbm_access::get_node_index(floor(HORIZONTAL_NODES/2)-2, floor(VERTICAL_NODES/2)+1)] = true;
-    // phase_information[lbm_access::get_node_index(floor(HORIZONTAL_NODES/2)-1, floor(VERTICAL_NODES/2)+1)] = true;
-    // phase_information[lbm_access::get_node_index(floor(HORIZONTAL_NODES/2), floor(VERTICAL_NODES/2)+1)] = true;
-    // phase_information[lbm_access::get_node_index(floor(HORIZONTAL_NODES/2)+1, floor(VERTICAL_NODES/2)+1)] = true;
-    // phase_information[lbm_access::get_node_index(floor(HORIZONTAL_NODES/2)+2, floor(VERTICAL_NODES/2)+1)] = true;
-
-    // // Upmost
-    // phase_information[lbm_access::get_node_index(floor(HORIZONTAL_NODES/2)-1, floor(VERTICAL_NODES/2)+2)] = true;
-    // phase_information[lbm_access::get_node_index(floor(HORIZONTAL_NODES/2), floor(VERTICAL_NODES/2)+2)] = true;
-    // phase_information[lbm_access::get_node_index(floor(HORIZONTAL_NODES/2)+1, floor(VERTICAL_NODES/2)+2)] = true;
-
-    // // Lower
-    // phase_information[lbm_access::get_node_index(floor(HORIZONTAL_NODES/2)-2, floor(VERTICAL_NODES/2)-1)] = true;
-    // phase_information[lbm_access::get_node_index(floor(HORIZONTAL_NODES/2)-1, floor(VERTICAL_NODES/2)-1)] = true;
-    // phase_information[lbm_access::get_node_index(floor(HORIZONTAL_NODES/2), floor(VERTICAL_NODES/2)-1)] = true;
-    // phase_information[lbm_access::get_node_index(floor(HORIZONTAL_NODES/2)+1, floor(VERTICAL_NODES/2)-1)] = true;
-    // phase_information[lbm_access::get_node_index(floor(HORIZONTAL_NODES/2)+2, floor(VERTICAL_NODES/2)-1)] = true;
-
-    // // Lowest
-    // phase_information[lbm_access::get_node_index(floor(HORIZONTAL_NODES/2)-1, floor(VERTICAL_NODES/2)-2)] = true;
-    // phase_information[lbm_access::get_node_index(floor(HORIZONTAL_NODES/2), floor(VERTICAL_NODES/2)-2)] = true;
-    // phase_information[lbm_access::get_node_index(floor(HORIZONTAL_NODES/2)+1, floor(VERTICAL_NODES/2)-2)] = true;
-
     /* Fluid nodes vector */
     for(auto y = 1; y < VERTICAL_NODES - 1; ++y)
     {
